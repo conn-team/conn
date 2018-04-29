@@ -67,12 +67,12 @@ public abstract class MultiEventListener<T> implements EventListener<T> {
             if (list != null) {
                 for (Method handler : list) {
                     try {
-						handler.invoke(this, event);
-					} catch (IllegalAccessException e) {
+                        handler.invoke(this, event);
+                    } catch (IllegalAccessException e) {
                         throw new EventHandlerException("Inaccesible handler");
-					} catch (InvocationTargetException e) {
+                    } catch (InvocationTargetException e) {
                         throw new EventHandlerException(e.getTargetException());
-					}
+                    }
                 }
             }
 

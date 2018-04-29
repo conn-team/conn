@@ -10,7 +10,7 @@ import com.google.protobuf.Message;
 
 import org.junit.Test;
 
-public class MessagesTest {
+public class MessageRegistryTest {
     @Test
     public void test() throws IOException {
         AuthRequest req = AuthRequest.newBuilder().setPayload(ByteString.copyFromUtf8("something")).build();

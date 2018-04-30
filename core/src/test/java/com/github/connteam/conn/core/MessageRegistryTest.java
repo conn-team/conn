@@ -15,7 +15,7 @@ public class MessageRegistryTest {
     public void test() throws IOException {
         AuthRequest req = AuthRequest.newBuilder().setPayload(ByteString.copyFromUtf8("something")).build();
         byte[] data = req.toByteArray();
-        Message resp = Messages.CLIENTBOUND.parseFrom(Messages.CLIENTBOUND.getID(req), data);
+        Message resp = Messages.CLIENTBOUND.getParser(Messages.CLIENTBOUND.getID(req)).parseFrom(data);
         assertEquals(req, resp);
     }
 }

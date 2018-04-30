@@ -31,6 +31,6 @@ public class MessageInputStream extends DataInputStream {
 
         byte[] data = new byte[len];
         readFully(data);
-        return registry.parseFrom(id, data);
+        return registry.getParser(id).parseFrom(data);
     }
 }

@@ -1,55 +1,73 @@
 package com.github.connteam.conn.core;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.google.protobuf.Message;
+import com.google.protobuf.Parser;
 
 public class MessageRegistry {
     public static final int MIN_MESSAGE_ID = 0x00;
     public static final int MAX_MESSAGE_ID = 0xFF;
 
-    private final Map<Integer, Class<? extends Message>> idToMessage = new HashMap<>();
-    private final Map<Integer, BinaryDecoder<? extends Message>> idToDecoder = new HashMap<>();
+    private final Map<Integer, Message> idToMessage = new HashMap<>();
     private final Map<Class<? extends Message>, Integer> messageToId = new HashMap<>();
 
-    public <T extends Message> void registerMessage(int id, Class<T> clazz, BinaryDecoder<T> decoder) {
+    public void registerMessage(int id, Message msg) {
         if (id < MIN_MESSAGE_ID || id > MAX_MESSAGE_ID) {
             throw new IllegalArgumentException("Message ID out of range");
         }
 
+        msg = msg.getDefaultInstanceForType();
+        Class<? extends Message> type = msg.getClass();
+
         if (idToMessage.containsKey(id)) {
             throw new IllegalArgumentException(
-                    "Message ID " + id + " already bound to " + idToMessage.get(id).getName());
+                    "Message ID " + id + " already bound to " + idToMessage.get(id).getClass().getName());
         }
 
-        if (messageToId.containsKey(clazz)) {
-            throw new IllegalArgumentException("Message " + messageToId.get(clazz) + " already bound to " + id);
+        if (messageToId.containsKey(type)) {
+            throw new IllegalArgumentException(
+                    "Message " + msg.getClass().getName() + " already bound to " + messageToId.get(type));
         }
 
-        idToMessage.put(id, clazz);
-        idToDecoder.put(id, decoder);
-        messageToId.put(clazz, id);
+        idToMessage.put(id, msg);
+        messageToId.put(type, id);
     }
 
-    public int getID(Message msg) {
-        Integer id = messageToId.get(msg.getClass());
+    public boolean containsMessage(Class<? extends Message> msg) {
+        return messageToId.containsKey(msg);
+    }
+
+    public boolean containsMessage(Message msg) {
+        return messageToId.containsKey(msg.getClass());
+    }
+
+    public boolean containsID(int id) {
+        return idToMessage.containsKey(id);
+    }
+
+    public int getID(Class<? extends Message> msg) {
+        Integer id = messageToId.get(msg);
         if (id == null) {
             throw new IllegalArgumentException("Message " + msg.getClass().getName() + " is not registered");
         }
         return id;
     }
 
-    public boolean containsID(int id) {
-        return idToDecoder.containsKey(id);
+    public int getID(Message msg) {
+        return getID(msg.getClass());
     }
 
-    public Message parseFrom(int id, byte[] data) throws IOException {
-        BinaryDecoder<? extends Message> decoder = idToDecoder.get(id);
-        if (decoder == null) {
+    public Message getPrototype(int id) {
+        Message msg = idToMessage.get(id);
+        if (msg == null) {
             throw new IllegalArgumentException("Message " + id + " is not registered");
         }
-        return decoder.parseFrom(data);
+        return msg;
+    }
+
+    public Parser<? extends Message> getParser(int id) {
+        return getPrototype(id).getParserForType();
     }
 }

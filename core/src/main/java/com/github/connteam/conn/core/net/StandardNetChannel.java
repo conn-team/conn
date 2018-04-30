@@ -24,7 +24,7 @@ public class StandardNetChannel implements NetChannel {
     private volatile boolean opened = false, closed = false;
     private volatile IOException lastError = null;
 
-    public static class Builder {
+    public static class Builder implements NetChannelBuilder {
         private Socket socket;
         private MessageRegistry inRegistry, outRegistry;
         private EventListener<Message> incomingHandler;
@@ -37,17 +37,13 @@ public class StandardNetChannel implements NetChannel {
             return this;
         }
 
-        public Builder setInMessages(MessageRegistry inRegistry) {
+        public Builder setMessageRegistry(MessageRegistry inRegistry, MessageRegistry outRegistry) {
             this.inRegistry = inRegistry;
-            return this;
-        }
-
-        public Builder setOutMessages(MessageRegistry outRegistry) {
             this.outRegistry = outRegistry;
             return this;
         }
 
-        public Builder setInMessageHandler(EventListener<Message> incomingHandler) {
+        public Builder setMessageHandler(EventListener<Message> incomingHandler) {
             this.incomingHandler = incomingHandler;
             return this;
         }
@@ -93,7 +89,7 @@ public class StandardNetChannel implements NetChannel {
 
     @Override
     public void open() {
-        synchronized (socket) {
+        synchronized (this) {
             if (opened) {
                 throw new IllegalStateException("Cannot reopen network channel");
             }
@@ -103,7 +99,7 @@ public class StandardNetChannel implements NetChannel {
     }
 
     private void close(IOException err) {
-        synchronized (socket) {
+        synchronized (this) {
             if (!opened) {
                 throw new IllegalStateException("Cannot close not opened channel");
             }
@@ -113,20 +109,19 @@ public class StandardNetChannel implements NetChannel {
 
             closed = true;
             lastError = err;
-
-            try {
-                in.close();
-            } catch (IOException e) {}
-            try {
-                out.close();
-            } catch (IOException e) {}
-            try {
-                socket.close();
-            } catch (IOException e) {}
-
-            outgoingQueue.shutdown();
         }
 
+        try {
+            in.close();
+        } catch (IOException e) {}
+        try {
+            out.close();
+        } catch (IOException e) {}
+        try {
+            socket.close();
+        } catch (IOException e) {}
+
+        outgoingQueue.shutdown();
         closeHandler.handle(lastError);
     }
 

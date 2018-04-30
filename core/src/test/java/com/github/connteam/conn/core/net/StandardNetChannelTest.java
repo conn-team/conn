@@ -36,8 +36,8 @@ public class StandardNetChannelTest {
         public SyncNetChan(String tag, Socket sock, MessageRegistry in, MessageRegistry out) throws IOException {
             this.tag = tag;
 
-            channel = StandardNetChannel.builder().setSocket(sock).setInMessages(in)
-                    .setOutMessages(out).setInMessageHandler(msg -> {
+            channel = StandardNetChannel.builder().setSocket(sock).setMessageRegistry(in, out)
+                    .setMessageHandler(msg -> {
                         try {
                             System.out.println(tag + " in: " + msg.getClass());
                             incoming.put(new Elem(msg));

@@ -17,7 +17,7 @@ public class StandardNetChannel implements NetChannel {
     private final Thread readerThread;
     private final ExecutorService outgoingQueue;
 
-    private volatile boolean closed = false;
+    private volatile boolean opened = false, closed = false;
     private volatile IOException lastError = null;
 
     public static class Builder {
@@ -88,16 +88,21 @@ public class StandardNetChannel implements NetChannel {
     }
 
     @Override
-    public void startListener() {
+    public void open() {
         synchronized (socket) {
-            if (!closed && !readerThread.isAlive()) {
-                readerThread.start();
+            if (opened) {
+                throw new IllegalStateException("Cannot reopen network channel");
             }
+            opened = true;
         }
+        readerThread.start();
     }
 
     private void close(IOException err) {
         synchronized (socket) {
+            if (!opened) {
+                throw new IllegalStateException("Cannot close not opened channel");
+            }
             if (closed) {
                 return;
             }
@@ -127,8 +132,8 @@ public class StandardNetChannel implements NetChannel {
     }
 
     @Override
-    public boolean isClosed() {
-        return closed;
+    public boolean isOpen() {
+        return opened && !closed;
     }
 
     @Override
@@ -138,6 +143,10 @@ public class StandardNetChannel implements NetChannel {
 
     @Override
     public void sendMessage(Message msg) {
+        if (!opened) {
+            throw new IllegalStateException("Cannot send on not opened channel");
+        }
+
         outgoingQueue.submit(() -> {
             try {
                 out.writeMessage(msg);
@@ -149,6 +158,10 @@ public class StandardNetChannel implements NetChannel {
 
     @Override
     public void awaitTermination() throws InterruptedException {
+        if (!opened) {
+            throw new IllegalStateException("Cannot await termination of not opened channel");
+        }
+
         readerThread.join();
         outgoingQueue.awaitTermination(1, TimeUnit.DAYS);
     }

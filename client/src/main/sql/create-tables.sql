@@ -16,14 +16,13 @@ CREATE TABLE IF NOT EXISTS users (
     id_user INTEGER PRIMARY KEY AUTOINCREMENT,
     username VARCHAR(32) NOT NULL,
     public_key BLOB(32) NOT NULL,
-    is_verified INTEGER NOT NULL,
+    is_verified TINYINT(1) NOT NULL,
     out_sequence INTEGER NOT NULL,
     in_sequence INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS friends (
-    id_friend INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_user INTEGER NOT NULL REFERENCES users(id_user)
+    id_user INTEGER PRIMARY KEY REFERENCES users(id_user)
 );
 
 CREATE TABLE IF NOT EXISTS messages (

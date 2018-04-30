@@ -26,8 +26,7 @@ public class StandardNetChannel implements NetChannel {
         private EventListener<Message> incomingHandler;
         private EventListener<IOException> closeHandler;
 
-        private Builder() {
-        }
+        private Builder() {}
 
         public Builder setSocket(Socket socket) {
             this.socket = socket;
@@ -86,7 +85,15 @@ public class StandardNetChannel implements NetChannel {
         });
 
         outgoingQueue = Executors.newSingleThreadExecutor();
-        readerThread.start();
+    }
+
+    @Override
+    public void startListener() {
+        synchronized (socket) {
+            if (!closed && !readerThread.isAlive()) {
+                readerThread.start();
+            }
+        }
     }
 
     private void close(IOException err) {

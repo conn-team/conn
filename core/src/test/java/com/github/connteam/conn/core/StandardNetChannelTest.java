@@ -65,6 +65,11 @@ public class StandardNetChannelTest {
         }
 
         @Override
+        public void startListener() {
+            channel.startListener();
+        }
+
+        @Override
         public boolean isClosed() {
             return channel.isClosed();
         }
@@ -100,6 +105,7 @@ public class StandardNetChannelTest {
             try {
                 try (SyncNetChan conn = new SyncNetChan("[C]", new Socket(InetAddress.getLocalHost(), 9090),
                         Messages.CLIENTBOUND, Messages.SERVERBOUND)) {
+                    conn.startListener();
                     assertEquals(req, conn.recvMessage());
                     conn.sendMessage(resp);
                     assertEquals(null, conn.recvMessage());
@@ -119,6 +125,7 @@ public class StandardNetChannelTest {
 
             try (SyncNetChan conn = new SyncNetChan("[S]", server.accept(), Messages.SERVERBOUND,
                     Messages.CLIENTBOUND)) {
+                conn.startListener();
                 conn.sendMessage(req);
                 assertEquals(resp, conn.recvMessage());
             }

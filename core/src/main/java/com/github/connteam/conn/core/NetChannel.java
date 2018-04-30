@@ -6,6 +6,7 @@ import java.io.IOException;
 import com.google.protobuf.Message;
 
 public interface NetChannel extends Closeable {
+    public void startListener();
     public void close();
     public void awaitTermination() throws InterruptedException;
     public boolean isClosed();

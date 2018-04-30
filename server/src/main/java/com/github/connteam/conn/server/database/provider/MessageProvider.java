@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 
 import javax.validation.constraints.NotNull;
 
-import com.github.connteam.conn.core.exception.DatabaseException;
+import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.server.database.model.Message;
 
 public interface MessageProvider {

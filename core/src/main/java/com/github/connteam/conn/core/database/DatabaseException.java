@@ -1,13 +1,13 @@
-package com.github.connteam.conn.core.exception;
+package com.github.connteam.conn.core.database;
 
 public class DatabaseException extends Exception {
     private static final long serialVersionUID = -3645623781051859120L;
 
-    DatabaseException() {
+    public DatabaseException() {
         super();
     }
 
-    DatabaseException(String message) {
+    public DatabaseException(String message) {
         super(message);
     }
 }

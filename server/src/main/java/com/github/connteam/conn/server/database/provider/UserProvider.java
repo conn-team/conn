@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import javax.validation.constraints.NotNull;
 
-import com.github.connteam.conn.core.exception.DatabaseException;
+import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.server.database.model.User;
 
 public interface UserProvider {

@@ -1,4 +1,4 @@
-package com.github.connteam.conn.core;
+package com.github.connteam.conn.core.events;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

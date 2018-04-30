@@ -1,4 +1,4 @@
-package com.github.connteam.conn.core;
+package com.github.connteam.conn.core.events;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

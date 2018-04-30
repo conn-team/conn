@@ -1,8 +1,9 @@
-package com.github.connteam.conn.core;
+package com.github.connteam.conn.core.net;
 
-import com.github.connteam.conn.core.MessageProtos.*;
+import com.github.connteam.conn.core.net.NetProtos.*;
+import com.github.connteam.conn.core.io.MessageRegistry;
 
-public final class Messages {
+public final class NetMessages {
     public static final MessageRegistry CLIENTBOUND = new MessageRegistry();
     public static final MessageRegistry SERVERBOUND = new MessageRegistry();
 

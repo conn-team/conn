@@ -1,8 +1,8 @@
-package com.github.connteam.conn.core;
+package com.github.connteam.conn.core.events;
 
 import static org.junit.Assert.*;
 
-import com.github.connteam.conn.core.MultiEventListener.EventHandlerException;
+import com.github.connteam.conn.core.events.MultiEventListener.EventHandlerException;
 
 import org.junit.Test;
 

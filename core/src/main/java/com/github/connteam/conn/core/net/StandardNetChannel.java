@@ -1,4 +1,4 @@
-package com.github.connteam.conn.core;
+package com.github.connteam.conn.core.net;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -6,6 +6,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import com.github.connteam.conn.core.events.EventListener;
+import com.github.connteam.conn.core.io.MessageInputStream;
+import com.github.connteam.conn.core.io.MessageOutputStream;
+import com.github.connteam.conn.core.io.MessageRegistry;
 import com.google.protobuf.Message;
 
 public class StandardNetChannel implements NetChannel {

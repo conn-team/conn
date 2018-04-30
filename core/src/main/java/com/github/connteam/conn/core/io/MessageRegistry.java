@@ -1,4 +1,4 @@
-package com.github.connteam.conn.core;
+package com.github.connteam.conn.core.io;
 
 import java.util.HashMap;
 import java.util.Map;

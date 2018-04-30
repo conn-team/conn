@@ -1,4 +1,4 @@
-package com.github.connteam.conn.core;
+package com.github.connteam.conn.core.net;
 
 import java.io.Closeable;
 import java.io.IOException;

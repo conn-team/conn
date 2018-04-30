@@ -3,8 +3,8 @@
 syntax = "proto3";
 package server;
 
-option java_package = "com.github.connteam.conn.core";
-option java_outer_classname = "MessageProtos";
+option java_package = "com.github.connteam.conn.core.net";
+option java_outer_classname = "NetProtos";
 
 message AuthRequest {
     bytes payload = 1;

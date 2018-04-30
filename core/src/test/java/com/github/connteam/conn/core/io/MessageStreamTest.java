@@ -1,4 +1,4 @@
-package com.github.connteam.conn.core;
+package com.github.connteam.conn.core.io;
 
 import static org.junit.Assert.*;
 
@@ -8,7 +8,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import com.github.connteam.conn.core.MessageProtos.*;
+import com.github.connteam.conn.core.net.NetProtos.*;
+import com.github.connteam.conn.core.net.NetMessages;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 
@@ -25,7 +26,7 @@ public class MessageStreamTest {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        try (MessageOutputStream msgOut = new MessageOutputStream(out, Messages.SERVERBOUND)) {
+        try (MessageOutputStream msgOut = new MessageOutputStream(out, NetMessages.SERVERBOUND)) {
             for (Message msg : messages) {
                 msgOut.writeMessage(msg);
             }
@@ -33,7 +34,7 @@ public class MessageStreamTest {
 
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         
-        try (MessageInputStream msgIn = new MessageInputStream(in, Messages.SERVERBOUND)) {
+        try (MessageInputStream msgIn = new MessageInputStream(in, NetMessages.SERVERBOUND)) {
             for (Message msg : messages) {
                 assertEquals(msg, msgIn.readMessage());
             }

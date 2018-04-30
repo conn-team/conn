@@ -1,4 +1,4 @@
-package com.github.connteam.conn.core;
+package com.github.connteam.conn.core.events;
 
 @FunctionalInterface
 public interface EventListener<T> {

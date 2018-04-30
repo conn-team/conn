@@ -1,4 +1,4 @@
-package com.github.connteam.conn.core;
+package com.github.connteam.conn.core.net;
 
 import static org.junit.Assert.*;
 
@@ -10,8 +10,9 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.github.connteam.conn.core.MessageProtos.AuthRequest;
-import com.github.connteam.conn.core.MessageProtos.AuthResponse;
+import com.github.connteam.conn.core.net.NetProtos.AuthRequest;
+import com.github.connteam.conn.core.net.NetProtos.AuthResponse;
+import com.github.connteam.conn.core.io.MessageRegistry;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 
@@ -104,7 +105,7 @@ public class StandardNetChannelTest {
         Thread clientThread = new Thread(() -> {
             try {
                 try (SyncNetChan conn = new SyncNetChan("[C]", new Socket(InetAddress.getLocalHost(), 9090),
-                        Messages.CLIENTBOUND, Messages.SERVERBOUND)) {
+                        NetMessages.CLIENTBOUND, NetMessages.SERVERBOUND)) {
                     conn.open();
                     assertEquals(req, conn.recvMessage());
                     conn.sendMessage(resp);
@@ -123,8 +124,8 @@ public class StandardNetChannelTest {
         try (ServerSocket server = new ServerSocket(9090, 1, InetAddress.getLocalHost())) {
             clientThread.start();
 
-            try (SyncNetChan conn = new SyncNetChan("[S]", server.accept(), Messages.SERVERBOUND,
-                    Messages.CLIENTBOUND)) {
+            try (SyncNetChan conn = new SyncNetChan("[S]", server.accept(), NetMessages.SERVERBOUND,
+                    NetMessages.CLIENTBOUND)) {
                 conn.open();
                 conn.sendMessage(req);
                 assertEquals(resp, conn.recvMessage());

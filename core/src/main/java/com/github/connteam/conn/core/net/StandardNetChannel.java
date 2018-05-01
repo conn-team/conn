@@ -100,6 +100,10 @@ public class StandardNetChannel extends NetChannel {
             throw new IllegalStateException("Cannot send on not opened channel");
         }
 
+        if (!out.getRegistry().containsMessage(msg)) {
+            throw new IllegalArgumentException("Not registered message");
+        }
+
         outgoingQueue.submit(() -> {
             try {
                 out.writeMessage(msg);

@@ -14,6 +14,10 @@ public class MessageOutputStream extends DataOutputStream {
         this.registry = registry;
     }
 
+    public MessageRegistry getRegistry() {
+        return registry;
+    }
+
     public void writeMessage(Message msg) throws IOException {
         byte[] data = msg.toByteArray();
         writeByte(registry.getID(msg));

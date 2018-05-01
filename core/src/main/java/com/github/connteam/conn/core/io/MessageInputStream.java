@@ -17,6 +17,10 @@ public class MessageInputStream extends DataInputStream {
         this.registry = registry;
     }
 
+    public MessageRegistry getRegistry() {
+        return registry;
+    }
+
     public Message readMessage() throws IOException {
         int id = readUnsignedByte();
 

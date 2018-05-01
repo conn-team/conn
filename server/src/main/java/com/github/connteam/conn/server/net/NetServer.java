@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import javax.net.ssl.SSLServerSocketFactory;
+
 import com.github.connteam.conn.core.net.StandardNetChannel;
 
 public class NetServer implements Closeable {
@@ -15,8 +17,7 @@ public class NetServer implements Closeable {
     }
 
     public static NetServer listen(int port) throws IOException {
-        // ServerSocket socket = SSLServerSocketFactory.getDefault().createServerSocket(port);
-        ServerSocket socket = new ServerSocket(port);
+        ServerSocket socket = SSLServerSocketFactory.getDefault().createServerSocket(port);
 
         try {
             return new NetServer(socket);

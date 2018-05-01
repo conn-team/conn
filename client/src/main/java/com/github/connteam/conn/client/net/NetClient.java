@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.ProtocolException;
 import java.net.Socket;
 
+import javax.net.ssl.SSLSocketFactory;
+
 import com.github.connteam.conn.core.events.HandleEvent;
 import com.github.connteam.conn.core.events.MultiEventListener;
 import com.github.connteam.conn.core.net.NetChannel;
@@ -32,8 +34,7 @@ public class NetClient implements Closeable {
     }
 
     public static NetClient connect(String host, int port) throws IOException {
-        // Socket socket = SSLSocketFactory.getDefault().createSocket(host, port);
-        Socket socket = new Socket(host, port);
+        Socket socket = SSLSocketFactory.getDefault().createSocket(host, port);
 
         try {
             return new NetClient(StandardNetChannel.newProvider(socket));

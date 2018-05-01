@@ -98,7 +98,8 @@ public class StandardNetChannel implements NetChannel {
         readerThread.start();
     }
 
-    private void close(IOException err) {
+    @Override
+    public void close(IOException err) {
         synchronized (this) {
             if (!opened) {
                 throw new IllegalStateException("Cannot close not opened channel");

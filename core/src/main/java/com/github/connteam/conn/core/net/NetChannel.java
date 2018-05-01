@@ -8,6 +8,7 @@ import com.google.protobuf.Message;
 public interface NetChannel extends Closeable {
     public void open();
     public void close();
+    public void close(IOException err);
     public void awaitTermination() throws InterruptedException;
     public boolean isOpen();
     public IOException getError();

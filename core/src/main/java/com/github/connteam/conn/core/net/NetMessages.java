@@ -9,7 +9,8 @@ public final class NetMessages {
 
     static {
         CLIENTBOUND.registerMessage(1, AuthRequest.getDefaultInstance());
+        CLIENTBOUND.registerMessage(2, AuthSuccess.getDefaultInstance());
 
-        SERVERBOUND.registerMessage(2, AuthResponse.getDefaultInstance());
+        SERVERBOUND.registerMessage(101, AuthResponse.getDefaultInstance());
     }
 }

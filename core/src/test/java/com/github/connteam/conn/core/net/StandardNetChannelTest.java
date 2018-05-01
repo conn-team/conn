@@ -66,6 +66,17 @@ public class StandardNetChannelTest {
         }
 
         @Override
+        public void close(IOException err) {
+            try {
+                channel.close(err);
+                assertEquals(false, isOpen());
+                awaitTermination();
+            } catch (InterruptedException e) {
+                fail();
+            }
+        }
+
+        @Override
         public void open() {
             channel.open();
         }

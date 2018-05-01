@@ -2,6 +2,7 @@ package com.github.connteam.conn.core.net;
 
 import static org.junit.Assert.*;
 
+import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -20,7 +21,7 @@ import org.junit.Test;
 
 public class StandardNetChannelTest {
 
-    static class SyncNetChan implements NetChannel {
+    static class SyncNetChan implements Closeable {
         static class Elem {
             Message msg;
 
@@ -35,23 +36,25 @@ public class StandardNetChannelTest {
 
         public SyncNetChan(String tag, Socket sock, MessageRegistry in, MessageRegistry out) throws IOException {
             this.tag = tag;
+            channel = new StandardNetChannel(sock, in, out);
 
-            channel = StandardNetChannel.builder().setSocket(sock).setMessageRegistry(in, out)
-                    .setMessageHandler(msg -> {
-                        try {
-                            System.out.println(tag + " in: " + msg.getClass());
-                            incoming.put(new Elem(msg));
-                        } catch (InterruptedException e) {
-                            fail();
-                        }
-                    }).setCloseHandler(err -> {
-                        try {
-                            System.out.println(tag + " close: " + err);
-                            incoming.put(new Elem(null));
-                        } catch (InterruptedException e) {
-                            fail();
-                        }
-                    }).build();
+            channel.setMessageHandler(msg -> {
+                try {
+                    System.out.println(tag + " in: " + msg.getClass());
+                    incoming.put(new Elem(msg));
+                } catch (InterruptedException e) {
+                    fail();
+                }
+            });
+
+            channel.setCloseHandler(err -> {
+                try {
+                    System.out.println(tag + " close: " + err);
+                    incoming.put(new Elem(null));
+                } catch (InterruptedException e) {
+                    fail();
+                }
+            });
         }
 
         @Override
@@ -65,33 +68,18 @@ public class StandardNetChannelTest {
             }
         }
 
-        @Override
-        public void close(IOException err) {
-            try {
-                channel.close(err);
-                assertEquals(false, isOpen());
-                awaitTermination();
-            } catch (InterruptedException e) {
-                fail();
-            }
-        }
-
-        @Override
         public void open() {
             channel.open();
         }
 
-        @Override
         public boolean isOpen() {
             return channel.isOpen();
         }
 
-        @Override
         public IOException getError() {
             return channel.getError();
         }
 
-        @Override
         public void sendMessage(Message msg) {
             System.out.println(tag + " out: " + msg.getClass());
             channel.sendMessage(msg);
@@ -101,7 +89,6 @@ public class StandardNetChannelTest {
             return incoming.take().msg;
         }
 
-        @Override
         public void awaitTermination() throws InterruptedException {
             channel.awaitTermination();
         }

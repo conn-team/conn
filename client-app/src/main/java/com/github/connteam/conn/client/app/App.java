@@ -8,7 +8,7 @@ import com.github.connteam.conn.client.net.NetClientHandler;
 public class App {
     public static void main(String[] args) throws IOException {
         System.out.println("Connecting");
-        NetClient client = NetClient.connect("127.0.0.1", 9090);
+        NetClient client = NetClient.connect("localhost", 9090);
 
         client.setHandler(new NetClientHandler() {
             @Override

@@ -50,7 +50,7 @@ public class MessageRegistry {
     public int getID(Class<? extends Message> msg) {
         Integer id = messageToId.get(msg);
         if (id == null) {
-            throw new IllegalArgumentException("Message " + msg.getClass().getName() + " is not registered");
+            throw new IllegalArgumentException("Message " + msg.getName() + " is not registered");
         }
         return id;
     }

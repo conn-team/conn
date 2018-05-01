@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import com.github.connteam.conn.core.io.MessageInputStream;
@@ -104,13 +105,15 @@ public class StandardNetChannel extends NetChannel {
             throw new IllegalArgumentException("Not registered message");
         }
 
-        outgoingQueue.submit(() -> {
-            try {
-                out.writeMessage(msg);
-            } catch (IOException e) {
-                close(e);
-            }
-        });
+        try {
+            outgoingQueue.submit(() -> {
+                try {
+                    out.writeMessage(msg);
+                } catch (IOException e) {
+                    close(e);
+                }
+            });
+        } catch (RejectedExecutionException e) {}
     }
 
     @Override

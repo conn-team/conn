@@ -4,9 +4,15 @@ import java.io.Closeable;
 import java.io.IOException;
 
 import com.github.connteam.conn.core.events.EventListener;
+import com.github.connteam.conn.core.io.MessageRegistry;
 import com.google.protobuf.Message;
 
 public abstract class NetChannel implements Closeable {
+    @FunctionalInterface
+    public static interface Provider {
+        NetChannel create(MessageRegistry in, MessageRegistry out) throws IOException;
+    }
+
     private volatile EventListener<Message> messageHandler;
     private volatile EventListener<IOException> closeHandler;
 

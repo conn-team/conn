@@ -41,6 +41,10 @@ public class StandardNetChannel extends NetChannel {
         outgoingQueue = Executors.newSingleThreadExecutor();
     }
 
+    public static Provider newProvider(Socket socket) {
+        return (in, out) -> new StandardNetChannel(socket, in, out);
+    }
+
     @Override
     public void open() {
         synchronized (this) {

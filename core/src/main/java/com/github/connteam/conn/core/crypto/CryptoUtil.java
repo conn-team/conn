@@ -21,9 +21,9 @@ public final class CryptoUtil {
             keyFactory = KeyFactory.getInstance("EC");
             keyGen = KeyPairGenerator.getInstance("EC");
             keyGen.initialize(256);
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
-		}
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static KeyPair generateKeyPair() {

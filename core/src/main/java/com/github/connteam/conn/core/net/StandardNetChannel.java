@@ -16,11 +16,11 @@ public class StandardNetChannel extends NetChannel {
     private final Socket socket;
     private final MessageInputStream in;
     private final MessageOutputStream out;
-    
+
     private final Thread readerThread;
     private final ExecutorService writerExecutor;
 
-    private volatile boolean opened = false;
+    private volatile boolean opened = false, closed = false;
     private volatile IOException lastError = null;
 
     public StandardNetChannel(Socket socket, MessageRegistry inRegistry, MessageRegistry outRegistry)
@@ -32,8 +32,11 @@ public class StandardNetChannel extends NetChannel {
 
         readerThread = new Thread(() -> {
             try {
-                while (true) {
-                    getMessageHandler().handle(in.readMessage());
+                while (!closed) {
+                    Message msg = in.readMessage();
+                    if (!closed) {
+                        getMessageHandler().handle(msg);
+                    }
                 }
             } catch (IOException e) {
                 close(e);
@@ -62,13 +65,12 @@ public class StandardNetChannel extends NetChannel {
         if (!opened) {
             throw new IllegalStateException("Cannot close not opened channel");
         }
-        if (writerExecutor.isShutdown()) {
+        if (closed) {
             return;
         }
 
-        try {
-			socket.shutdownInput();
-		} catch (IOException e) {}
+        closed = true;
+        lastError = err;
 
         writerExecutor.submit(() -> {
             IOUtils.closeQuietly(in);
@@ -76,14 +78,13 @@ public class StandardNetChannel extends NetChannel {
             IOUtils.closeQuietly(socket);
         });
 
-        lastError = err;
         writerExecutor.shutdown();
         getCloseHandler().handle(lastError);
     }
 
     @Override
     public boolean isOpen() {
-        return opened && !writerExecutor.isShutdown();
+        return opened && !closed;
     }
 
     @Override
@@ -100,7 +101,7 @@ public class StandardNetChannel extends NetChannel {
             throw new IllegalArgumentException("Not registered message");
         }
 
-        if (!writerExecutor.isShutdown()) {
+        if (!closed) {
             writerExecutor.submit(() -> {
                 try {
                     out.writeMessage(msg);

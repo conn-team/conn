@@ -2,6 +2,8 @@ package com.github.connteam.conn.core.events;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
+
 import com.github.connteam.conn.core.events.MultiEventListener.EventHandlerException;
 
 import org.junit.Test;
@@ -44,6 +46,13 @@ public class MultiEventListenerTest {
         }
     }
 
+    static class BrokenListener3 extends MultiEventListener<BaseEvent> {
+        @HandleEvent
+        public void invalidThrows(int a) throws IOException {
+            fail();
+        }
+    }
+
     static class TestListener extends MultiEventListener<BaseEvent> {
         @HandleEvent
         public void onAnything(Object event) {
@@ -51,7 +60,7 @@ public class MultiEventListenerTest {
         }
 
         @HandleEvent
-        public void onWtf(int event) {
+        public void onWtf(int event) throws NullPointerException {
             fail();
         }
 
@@ -81,6 +90,12 @@ public class MultiEventListenerTest {
 
         try {
             new BrokenListener2();
+            fail();
+        } catch (EventHandlerException ex) {
+        }
+
+        try {
+            new BrokenListener3();
             fail();
         } catch (EventHandlerException ex) {
         }

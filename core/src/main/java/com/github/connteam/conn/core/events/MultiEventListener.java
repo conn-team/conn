@@ -40,8 +40,15 @@ public abstract class MultiEventListener<T> implements EventListener<T> {
         if (!method.getReturnType().equals(Void.TYPE)) {
             throw new EventHandlerException("Event handler must return void");
         }
+
         if (method.getParameterCount() != 1) {
             throw new EventHandlerException("Event handler must have only 1 argument");
+        }
+
+        for (Class<?> type : method.getExceptionTypes()) {
+            if (!RuntimeException.class.isAssignableFrom(type) && !Error.class.isAssignableFrom(type)) {
+                throw new EventHandlerException("Event handler cannot throw exceptions");
+            }
         }
 
         Class<?> type = method.getParameters()[0].getType();
@@ -71,7 +78,14 @@ public abstract class MultiEventListener<T> implements EventListener<T> {
                     } catch (IllegalAccessException e) {
                         throw new EventHandlerException("Inaccesible handler");
                     } catch (InvocationTargetException e) {
-                        throw new EventHandlerException(e.getTargetException());
+                        Throwable cause = e.getCause();
+                        if (e.getCause() instanceof RuntimeException) {
+                            throw (RuntimeException)cause;
+                        } else if (e.getCause() instanceof Error) {
+                            throw (Error)cause;
+                        } else {
+                            throw new EventHandlerException(cause);
+                        }
                     }
                 }
             }

@@ -10,6 +10,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import com.github.connteam.conn.core.net.NetProtos.AuthRequest;
 import com.github.connteam.conn.core.net.NetProtos.AuthResponse;
@@ -90,7 +91,7 @@ public class StandardNetChannelTest {
         }
 
         public void awaitTermination() throws InterruptedException {
-            channel.awaitTermination();
+            channel.awaitTermination(1, TimeUnit.DAYS);
         }
     }
 

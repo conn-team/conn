@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import com.github.connteam.conn.core.io.IOUtils;
 import com.github.connteam.conn.core.io.MessageInputStream;
 import com.github.connteam.conn.core.io.MessageOutputStream;
 import com.github.connteam.conn.core.io.MessageRegistry;
@@ -16,10 +16,11 @@ public class StandardNetChannel extends NetChannel {
     private final Socket socket;
     private final MessageInputStream in;
     private final MessageOutputStream out;
+    
     private final Thread readerThread;
-    private final ExecutorService outgoingQueue;
+    private final ExecutorService writerExecutor;
 
-    private volatile boolean opened = false, closed = false;
+    private volatile boolean opened = false;
     private volatile IOException lastError = null;
 
     public StandardNetChannel(Socket socket, MessageRegistry inRegistry, MessageRegistry outRegistry)
@@ -39,7 +40,7 @@ public class StandardNetChannel extends NetChannel {
             }
         });
 
-        outgoingQueue = Executors.newSingleThreadExecutor();
+        writerExecutor = Executors.newSingleThreadExecutor();
     }
 
     public static Provider newProvider(Socket socket) {
@@ -47,47 +48,42 @@ public class StandardNetChannel extends NetChannel {
     }
 
     @Override
-    public void open() {
-        synchronized (this) {
-            if (opened) {
-                throw new IllegalStateException("Cannot reopen network channel");
-            }
-            opened = true;
+    public synchronized void open() {
+        if (opened) {
+            throw new IllegalStateException("Cannot reopen network channel");
         }
+
+        opened = true;
         readerThread.start();
     }
 
     @Override
-    public void close(IOException err) {
-        synchronized (this) {
-            if (!opened) {
-                throw new IllegalStateException("Cannot close not opened channel");
-            }
-            if (closed) {
-                return;
-            }
-
-            closed = true;
-            lastError = err;
+    public synchronized void close(IOException err) {
+        if (!opened) {
+            throw new IllegalStateException("Cannot close not opened channel");
+        }
+        if (writerExecutor.isShutdown()) {
+            return;
         }
 
         try {
-            in.close();
-        } catch (IOException e) {}
-        try {
-            out.close();
-        } catch (IOException e) {}
-        try {
-            socket.close();
-        } catch (IOException e) {}
+			socket.shutdownInput();
+		} catch (IOException e) {}
 
-        outgoingQueue.shutdown();
+        writerExecutor.submit(() -> {
+            IOUtils.closeQuietly(in);
+            IOUtils.closeQuietly(out);
+            IOUtils.closeQuietly(socket);
+        });
+
+        lastError = err;
+        writerExecutor.shutdown();
         getCloseHandler().handle(lastError);
     }
 
     @Override
     public boolean isOpen() {
-        return opened && !closed;
+        return opened && !writerExecutor.isShutdown();
     }
 
     @Override
@@ -96,33 +92,32 @@ public class StandardNetChannel extends NetChannel {
     }
 
     @Override
-    public void sendMessage(Message msg) {
+    public synchronized void sendMessage(Message msg) {
         if (!opened) {
             throw new IllegalStateException("Cannot send on not opened channel");
         }
-
         if (!out.getRegistry().containsMessage(msg)) {
             throw new IllegalArgumentException("Not registered message");
         }
 
-        try {
-            outgoingQueue.submit(() -> {
+        if (!writerExecutor.isShutdown()) {
+            writerExecutor.submit(() -> {
                 try {
                     out.writeMessage(msg);
                 } catch (IOException e) {
                     close(e);
                 }
             });
-        } catch (RejectedExecutionException e) {}
+        }
     }
 
     @Override
-    public void awaitTermination() throws InterruptedException {
+    public void awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
         if (!opened) {
             throw new IllegalStateException("Cannot await termination of not opened channel");
         }
 
         readerThread.join();
-        outgoingQueue.awaitTermination(1, TimeUnit.DAYS);
+        writerExecutor.awaitTermination(timeout, unit);
     }
 }

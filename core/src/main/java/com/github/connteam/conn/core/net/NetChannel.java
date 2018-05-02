@@ -2,6 +2,7 @@ package com.github.connteam.conn.core.net;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import com.github.connteam.conn.core.events.EventListener;
 import com.github.connteam.conn.core.io.MessageRegistry;
@@ -18,7 +19,7 @@ public abstract class NetChannel implements Closeable {
 
     public abstract void open();
     public abstract void close(IOException err);
-    public abstract void awaitTermination() throws InterruptedException;
+    public abstract void awaitTermination(long timeout, TimeUnit unit) throws InterruptedException;
     public abstract boolean isOpen();
     public abstract IOException getError();
     public abstract void sendMessage(Message msg);

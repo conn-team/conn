@@ -1,18 +1,18 @@
 package com.github.connteam.conn.client.database.provider;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import javax.validation.constraints.NotNull;
 
 import com.github.connteam.conn.client.database.model.Friend;
 
 public interface FriendProvider {
-    Stream<Friend> select();
+    List<Friend> getFriends();
 
-    Optional<Friend> selectById(int id);
+    Optional<Friend> getFriendById(int id);
 
-    Optional<Integer> insert(@NotNull Friend friend);
+    Optional<Integer> insertFriend(@NotNull Friend friend);
 
-    boolean deleteById(int id);
+    boolean deleteFriend(int id);
 }

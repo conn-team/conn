@@ -1,22 +1,24 @@
 package com.github.connteam.conn.client.database.provider;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import javax.validation.constraints.NotNull;
 
 import com.github.connteam.conn.client.database.model.Message;
 
 public interface MessageProvider {
-    Stream<Message> selectByIdFrom(int idFrom);
+    List<Message> getMessageFrom(int idFrom);
 
-    Optional<Message> selectByIdMessage(int idMessage);
+    List<Message> getMessageTo(int idFrom);
 
-    Optional<Integer> insert(@NotNull Message message);
+    Optional<Message> getMessage(int idMessage);
 
-    boolean update(@NotNull Message message);
+    int insertMessage(@NotNull Message message);
 
-    boolean deleteByIdFrom(int idFrom);
+    boolean updateMessage(@NotNull Message message);
 
-    boolean deleteByIdMessage(int idMessage);
+    int deleteMessageFrom(int idFrom);
+
+    int deleteMessagesTo(int idTo);
 }

@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 import com.github.connteam.conn.client.database.model.Settings;
 
 public interface SettingsProvider {
-    Optional<Settings> get();
+    Optional<Settings> getSettings();
 
-    boolean set(@NotNull Settings settings);
+    boolean setSettings(@NotNull Settings settings);
 }

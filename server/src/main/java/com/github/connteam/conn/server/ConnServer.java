@@ -8,6 +8,7 @@ import javax.net.ssl.SSLServerSocketFactory;
 
 import com.github.connteam.conn.core.net.StandardNetChannel;
 import com.github.connteam.conn.core.net.Transport;
+import com.github.connteam.conn.server.database.provider.DataProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +17,13 @@ public class ConnServer implements Closeable {
     private final static Logger LOG = LoggerFactory.getLogger(ConnServer.class);
 
     private final ServerSocket server;
+    @SuppressWarnings("unused")
+    private final DataProvider database;
 
     public static class Builder {
         private Integer port;
         private Transport transport;
+        private DataProvider database;
 
         private Builder() {}
 
@@ -33,9 +37,14 @@ public class ConnServer implements Closeable {
             return this;
         }
 
+        public Builder setDataProvider(DataProvider database) {
+            this.database = database;
+            return this;
+        }
+
         public ConnServer build() throws IOException {
-            if (port == null || transport == null) {
-                throw new IllegalStateException();
+            if (port == null || transport == null || database == null) {
+                throw new IllegalStateException("Missing builder parameters");
             }
             return new ConnServer(this);
         }
@@ -56,6 +65,8 @@ public class ConnServer implements Closeable {
         default:
             throw new IllegalArgumentException("Unsupported transport layer");
         }
+
+        database = builder.database;
     }
 
     @Override

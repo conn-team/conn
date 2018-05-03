@@ -1,20 +1,20 @@
 package com.github.connteam.conn.client.database.provider;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import javax.validation.constraints.NotNull;
 
 import com.github.connteam.conn.client.database.model.EphemeralKey;
 
 public interface EphemeralKeyProvider {
-    Stream<EphemeralKey> select();
+    List<EphemeralKey> getEphemeralKeys();
 
-    Optional<EphemeralKey> selectById(int id);
+    Optional<EphemeralKey> getEphemeralKey(int id);
 
-    Optional<Integer> insert(@NotNull EphemeralKey key);
+    int insertEphemeralKey(@NotNull EphemeralKey key);
 
-    boolean deleteById(int id);
+    boolean deleteEphemeralKey(int id);
 
-    Optional<EphemeralKey> popKey();
+    Optional<EphemeralKey> popEphemeralKey();
 }

@@ -8,17 +8,17 @@ import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.server.database.model.User;
 
 public interface UserProvider {
-    Optional<User> selectById(int id) throws DatabaseException;
+    Optional<User> getUser(int id) throws DatabaseException;
 
-    Optional<User> selectByUsername(@NotNull String username) throws DatabaseException;
+    Optional<User> getUserByUsername(@NotNull String username) throws DatabaseException;
 
-    Optional<Integer> insert(@NotNull User user) throws DatabaseException;
+    int insertUser(@NotNull User user) throws DatabaseException;
 
-    boolean updateById(@NotNull User user) throws DatabaseException;
+    boolean updateUser(@NotNull User user) throws DatabaseException;
 
-    boolean updateByUsername(@NotNull String username) throws DatabaseException;
+    boolean updateUserByUsername(@NotNull User username) throws DatabaseException;
 
-    boolean deleteById(int id) throws DatabaseException;
+    boolean deleteUser(int id) throws DatabaseException;
 
-    boolean deleteByUsername(@NotNull String username) throws DatabaseException;
+    boolean deleteUserByUsername(@NotNull String username) throws DatabaseException;
 }

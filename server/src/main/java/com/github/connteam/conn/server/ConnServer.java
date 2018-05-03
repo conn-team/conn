@@ -9,7 +9,12 @@ import javax.net.ssl.SSLServerSocketFactory;
 import com.github.connteam.conn.core.net.StandardNetChannel;
 import com.github.connteam.conn.core.net.Transport;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ConnServer implements Closeable {
+    private final static Logger LOG = LoggerFactory.getLogger(ConnServer.class);
+
     private final ServerSocket server;
 
     public static class Builder {
@@ -69,10 +74,10 @@ public class ConnServer implements Closeable {
     }
 
     public void addClient(ConnServerClient client) {
-        System.out.println("add " + client);
+        LOG.info("add {}", client);
     }
 
     public void removeClient(ConnServerClient client) {
-        System.out.println("remove " + client);
+        LOG.info("remove {}", client);
     }
 }

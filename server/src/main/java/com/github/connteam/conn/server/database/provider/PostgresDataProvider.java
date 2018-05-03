@@ -1,7 +1,6 @@
 package com.github.connteam.conn.server.database.provider;
 
 import java.beans.PropertyVetoException;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -113,72 +112,146 @@ public class PostgresDataProvider implements DataProvider {
 
     @Override
     public Optional<EphemeralKey> getEphemeralKey(int keyId) throws DatabaseException {
-        return null;
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "SELECT * FROM ephemeral_keys WHERE id_key = ?;")) {
+            return q.push(keyId).executeQueryFirst(PostgresModelFactory::ephemeralKeyFromResultSet);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
     public List<EphemeralKey> getEphemeralKeyByUserId(int userId) throws DatabaseException {
-        return null;
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "SELECT * FROM ephemeral_keys WHERE id_user = ?;")) {
+            return q.push(userId).executeQuery(PostgresModelFactory::ephemeralKeyFromResultSet);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
-    public Optional<Integer> insertEphemeralKey(EphemeralKey key) throws DatabaseException {
-        return null;
+    public int insertEphemeralKey(@NotNull EphemeralKey key) throws DatabaseException {
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(),
+                "INSERT INTO ephemeral_keys (id_user, key, signature) VALUES () RETURNING id_key;")) {
+            return q.push(key.getIdUser(), key.getKey(), key.getSignature()).executeInsert();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
-    public boolean updateEphemeralKey(EphemeralKey key) throws DatabaseException {
-        return false;
+    public boolean updateEphemeralKey(@NotNull EphemeralKey key) throws DatabaseException {
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(),
+                "INSERT INTO ephemeral_keys (id_user, key, signature) VALUES (?, ?, ?);")) {
+            return q.push(key.getIdUser(), key.getKey(), key.getSignature()).executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
     public boolean deleteEphemeralKey(int keyId) throws DatabaseException {
-        return false;
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "DELETE FROM ephemeral_keys WHERE id_key = ?;")) {
+            return q.push(keyId).executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
     public int deleteEphemeralKeyByUserId(int userId) throws DatabaseException {
-        return 0;
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "DELETE FROM ephemeral_keys WHERE id_user = ?;")) {
+            return q.push(userId).executeUpdate();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
     public Optional<Message> getMessage(int idMessage) throws DatabaseException {
-        return null;
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "SELECT * FROM messages WHERE id_message = ?;")) {
+            return q.push(idMessage).executeQueryFirst(PostgresModelFactory::messageFromResultSet);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
     public List<Message> getMessagesFrom(int idFrom) throws DatabaseException {
-        return null;
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "SELECT * FROM messages WHERE id_from = ?;")) {
+            return q.push(idFrom).executeQuery(PostgresModelFactory::messageFromResultSet);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
     public List<Message> getMessagesTo(int idTo) throws DatabaseException {
-        return null;
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "SELECT * FROM messages WHERE id_to = ?;")) {
+            return q.push(idTo).executeQuery(PostgresModelFactory::messageFromResultSet);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
-    public Optional<Integer> insertMessage(Message message) throws DatabaseException {
-        return null;
+    public int insertMessage(@NotNull Message message) throws DatabaseException {
+        if (message == null) {
+            throw new NullPointerException();
+        }
+
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(),
+                "INSERT INTO messages (id_from, id_to, message, key, signature) VALUES (?, ?, ?, ?, ?) RETURNING id_message;")) {
+            return q.push(message.getIdFrom(), message.getIdTo(), message.getIdMessage(), message.getKey(),
+                    message.getSignature()).executeInsert();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
     public boolean updateMessage(Message message) throws DatabaseException {
-        return false;
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(),
+                "UPDATE messages SET id_from = ?, id_to = ?, message = ?, key = ?, signature = ? WHERE id_message = ?;")) {
+            return q.push(message.getIdFrom(), message.getIdTo(), message.getMessage(), message.getKey(),
+                    message.getSignature(), message.getIdMessage()).executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
     public boolean deleteMessage(int idMessage) throws DatabaseException {
-        return false;
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "DELETE FROM messages WHERE id_message = ?;")) {
+            return q.push(idMessage).executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
     public int deleteMessagesFrom(int idFrom) throws DatabaseException {
-        return 0;
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "DELETE FROM messages WHERE id_from = ?;")) {
+            return q.push(idFrom).executeUpdate();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
     public int deleteMessagesTo(int idTo) throws DatabaseException {
-        return 0;
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "DELETE FROM messages WHERE id_to = ?;")) {
+            return q.push(idTo).executeUpdate();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
@@ -203,7 +276,7 @@ public class PostgresDataProvider implements DataProvider {
     public boolean insertObserved(Observed observed) throws DatabaseException {
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
                 "INSERT INTO observed (id_observer, id_observed) VALUES (?, ?);")) {
-            return q.push(observed.getIdObserver(), observed.getIdObserved()).execute();
+            return q.push(observed.getIdObserver(), observed.getIdObserved()).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -213,7 +286,7 @@ public class PostgresDataProvider implements DataProvider {
     public boolean deleteObserved(Observed observed) throws DatabaseException {
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
                 "DELETE FROM observed WHERE (id_observer = ?) AND (id_observed = ?);")) {
-            return q.push(observed.getIdObserver(), observed.getIdObserved()).execute();
+            return q.push(observed.getIdObserver(), observed.getIdObserved()).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -221,37 +294,83 @@ public class PostgresDataProvider implements DataProvider {
 
     @Override
     public Optional<User> getUser(int id) throws DatabaseException {
-        return null;
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "SELECT * FROM users WHERE id_user = ?;")) {
+            return q.push(id).executeQueryFirst(PostgresModelFactory::userFromResultSet);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
     public Optional<User> getUserByUsername(String username) throws DatabaseException {
-        return null;
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "SELECT * FROM users WHERE username = ?;")) {
+            return q.push(username).executeQueryFirst(PostgresModelFactory::userFromResultSet);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
-    public Optional<Integer> insertUser(User user) throws DatabaseException {
-        return null;
+    public int insertUser(@NotNull User user) throws DatabaseException {
+        if (user == null) {
+            throw new NullPointerException();
+        }
+
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(),
+                "INSERT INTO users (username, public_key) VALUES (?, ?) RETURNING id_user;")) {
+            return q.push(user.getUsername(), user.getPublicKey()).executeInsert();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
-    public boolean updateUser(User user) throws DatabaseException {
-        return false;
+    public boolean updateUser(@NotNull User user) throws DatabaseException {
+        if (user == null) {
+            throw new NullPointerException();
+        }
+
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(),
+                "UPDATE SET username = ?, public_key = ? WHERE id_user = ?;")) {
+            return q.push(user.getUsername(), user.getPublicKey(), user.getId()).executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
-    public boolean updateUserByUsername(String username) throws DatabaseException {
-        return false;
+    public boolean updateUserByUsername(@NotNull User user) throws DatabaseException {
+        if (user == null) {
+            throw new NullPointerException();
+        }
+
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "UPDATE SET public_key = ? WHERE username = ?;")) {
+            return q.push(user.getPublicKey(), user.getUsername()).executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
-    public int deleteUser(int id) throws DatabaseException {
-        return 0;
+    public boolean deleteUser(int id) throws DatabaseException {
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "DELETE FROM users WHERE id_user = ?;")) {
+            return q.push(id).executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
-    public int deleteUserByUsername(String username) throws DatabaseException {
-        return 0;
+    public boolean deleteUserByUsername(@NotNull String username) throws DatabaseException {
+        if (username == null) {
+            throw new NullPointerException();
+        }
+
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "DELETE FROM users WHERE username = ?;")) {
+            return q.push(username).executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override

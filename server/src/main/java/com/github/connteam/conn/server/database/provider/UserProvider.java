@@ -12,13 +12,13 @@ public interface UserProvider {
 
     Optional<User> getUserByUsername(@NotNull String username) throws DatabaseException;
 
-    Optional<Integer> insertUser(@NotNull User user) throws DatabaseException;
+    int insertUser(@NotNull User user) throws DatabaseException;
 
     boolean updateUser(@NotNull User user) throws DatabaseException;
 
-    boolean updateUserByUsername(@NotNull String username) throws DatabaseException;
+    boolean updateUserByUsername(@NotNull User username) throws DatabaseException;
 
-    int deleteUser(int id) throws DatabaseException;
+    boolean deleteUser(int id) throws DatabaseException;
 
-    int deleteUserByUsername(@NotNull String username) throws DatabaseException;
+    boolean deleteUserByUsername(@NotNull String username) throws DatabaseException;
 }

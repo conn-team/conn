@@ -1,6 +1,7 @@
 package com.github.connteam.conn.core.net;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -49,7 +50,8 @@ public class StandardNetChannel extends NetChannel {
                 while (!closed) {
                     Message msg = in.readMessage();
                     if (!closed) {
-                        LOG.trace("Received {}\n{}", msg.getClass().getName(), JsonFormat.printer().print(msg));
+                        LOG.trace("Received {} from {}:{}\n{}", msg.getClass().getSimpleName(),
+                                getAddress().getHostName(), getPort(), JsonFormat.printer().print(msg));
                         getMessageHandler().handle(msg);
                     }
                 }
@@ -127,7 +129,8 @@ public class StandardNetChannel extends NetChannel {
         if (!closed) {
             writerExecutor.submit(() -> {
                 try {
-                    LOG.trace("Sending {}\n{}", msg.getClass().getName(), JsonFormat.printer().print(msg));
+                    LOG.trace("Sending {} to {}:{}\n{}", msg.getClass().getSimpleName(), getAddress().getHostName(),
+                            getPort(), JsonFormat.printer().print(msg));
                     out.writeMessage(msg);
                 } catch (IOException e) {
                     close(e);
@@ -144,5 +147,15 @@ public class StandardNetChannel extends NetChannel {
 
         readerThread.join();
         writerExecutor.awaitTermination(timeout, unit);
+    }
+
+	@Override
+	public InetAddress getAddress() {
+		return socket.getInetAddress();
+	}
+
+    @Override
+    public int getPort() {
+        return socket.getPort();
     }
 }

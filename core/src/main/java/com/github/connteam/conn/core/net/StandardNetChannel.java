@@ -13,6 +13,7 @@ import com.github.connteam.conn.core.io.MessageInputStream;
 import com.github.connteam.conn.core.io.MessageOutputStream;
 import com.github.connteam.conn.core.io.MessageRegistry;
 import com.google.protobuf.Message;
+import com.google.protobuf.util.JsonFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,7 @@ public class StandardNetChannel extends NetChannel {
                 while (!closed) {
                     Message msg = in.readMessage();
                     if (!closed) {
-                        LOG.trace("Received {}\n{}", msg.getClass().getSimpleName(), msg.toString());
+                        LOG.trace("Received {}\n{}", msg.getClass().getName(), JsonFormat.printer().print(msg));
                         getMessageHandler().handle(msg);
                     }
                 }
@@ -125,8 +126,8 @@ public class StandardNetChannel extends NetChannel {
 
         if (!closed) {
             writerExecutor.submit(() -> {
-                LOG.trace("Sending {}\n{}", msg.getClass().getSimpleName(), msg.toString());
                 try {
+                    LOG.trace("Sending {}\n{}", msg.getClass().getName(), JsonFormat.printer().print(msg));
                     out.writeMessage(msg);
                 } catch (IOException e) {
                     close(e);

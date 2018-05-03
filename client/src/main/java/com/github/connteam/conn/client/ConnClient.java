@@ -1,4 +1,4 @@
-package com.github.connteam.conn.client.net;
+package com.github.connteam.conn.client;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -9,36 +9,78 @@ import com.github.connteam.conn.core.events.MultiEventListener;
 import com.github.connteam.conn.core.net.NetChannel;
 import com.github.connteam.conn.core.net.NetMessages;
 import com.github.connteam.conn.core.net.StandardNetChannel;
+import com.github.connteam.conn.core.net.Transport;
 import com.github.connteam.conn.core.net.NetProtos.AuthRequest;
 import com.github.connteam.conn.core.net.NetProtos.AuthResponse;
 import com.github.connteam.conn.core.net.NetProtos.AuthSuccess;
 import com.google.protobuf.Message;
 
-public class NetClient implements Closeable {
+public class ConnClient implements Closeable {
+    private final NetChannel channel;
+    private volatile ConnClientListener listener;
+    private volatile State state = State.CREATED;
+
     private static enum State {
         CREATED, AUTH_REQUEST, AUTH_RESPONSE, ESTABLISHED, CLOSED
     }
 
-    private final NetChannel channel;
-    private volatile NetClientHandler listener;
-    private volatile State state = State.CREATED;
+    public static class Builder {
+        private String host;
+        private Integer port;
+        private Transport transport;
 
-    private String username;
+        private Builder() {}
 
-    public NetClient(NetChannel.Provider channelProvider) throws IOException {
-        channel = channelProvider.create(NetMessages.CLIENTBOUND, NetMessages.SERVERBOUND);
+        public Builder setHost(String host) {
+            this.host = host;
+            return this;
+        }
+
+        public Builder setPort(int port) {
+            this.port = port;
+            return this;
+        }
+
+        public Builder setTransport(Transport transport) {
+            this.transport = transport;
+            return this;
+        }
+
+        public ConnClient build() throws IOException {
+            if (host == null || port == null || transport == null) {
+                throw new IllegalStateException();
+            }
+            return new ConnClient(this);
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    private ConnClient(Builder builder) throws IOException {
+        NetChannel.Provider provider;
+
+        switch (builder.transport) {
+        case TCP:
+            provider = StandardNetChannel.connectTCP(builder.host, builder.port);
+            break;
+        case SSL:
+            provider = StandardNetChannel.connectSSL(builder.host, builder.port);
+            break;
+        default:
+            throw new IllegalArgumentException("Unsupported transport layer");
+        }
+
+        channel = provider.create(NetMessages.CLIENTBOUND, NetMessages.SERVERBOUND);
         channel.setCloseHandler(this::onClose);
     }
 
-    public static NetClient connect(String host, int port) throws IOException {
-        return new NetClient(StandardNetChannel.connectSSL(host, port));
-    }
-
-    public NetClientHandler getHandler() {
+    public ConnClientListener getHandler() {
         return listener;
     }
 
-    public void setHandler(NetClientHandler listener) {
+    public void setHandler(ConnClientListener listener) {
         this.listener = listener;
     }
 
@@ -51,14 +93,12 @@ public class NetClient implements Closeable {
         channel.close(err);
     }
 
-    public synchronized void login(String username) {
+    public synchronized void start() {
         if (state != State.CREATED) {
             throw new IllegalStateException("Cannot reuse NetClient");
         }
 
-        this.username = username;
         state = State.AUTH_REQUEST;
-
         channel.setMessageHandler(this::onAuthRequest);
         channel.open();
     }
@@ -72,7 +112,7 @@ public class NetClient implements Closeable {
         if (msg instanceof AuthRequest) {
             state = State.AUTH_RESPONSE;
             channel.setMessageHandler(this::onAuthSuccess);
-            channel.sendMessage(AuthResponse.newBuilder().setUsername(username).build());
+            channel.sendMessage(AuthResponse.newBuilder().setUsername("admin123").build());
         } else {
             close(new ProtocolException("Unexpected message on authentication stage"));
         }

@@ -1,6 +1,6 @@
 package com.github.connteam.conn.core.net;
 
-import com.github.connteam.conn.core.net.NetProtos.*;
+import com.github.connteam.conn.core.net.proto.NetProtos.*;
 import com.github.connteam.conn.core.io.MessageRegistry;
 
 public final class NetMessages {

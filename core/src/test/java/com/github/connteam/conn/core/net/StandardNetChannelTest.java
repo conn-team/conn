@@ -12,8 +12,8 @@ import java.net.UnknownHostException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import com.github.connteam.conn.core.net.NetProtos.AuthRequest;
-import com.github.connteam.conn.core.net.NetProtos.AuthResponse;
+import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
+import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
 import com.github.connteam.conn.core.io.MessageRegistry;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;

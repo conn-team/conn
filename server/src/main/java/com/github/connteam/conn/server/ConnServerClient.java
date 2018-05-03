@@ -8,9 +8,9 @@ import com.github.connteam.conn.core.events.HandleEvent;
 import com.github.connteam.conn.core.events.MultiEventListener;
 import com.github.connteam.conn.core.net.NetChannel;
 import com.github.connteam.conn.core.net.NetMessages;
-import com.github.connteam.conn.core.net.NetProtos.AuthRequest;
-import com.github.connteam.conn.core.net.NetProtos.AuthResponse;
-import com.github.connteam.conn.core.net.NetProtos.AuthSuccess;
+import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
+import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
+import com.github.connteam.conn.core.net.proto.NetProtos.AuthSuccess;
 import com.google.protobuf.Message;
 
 import org.slf4j.Logger;

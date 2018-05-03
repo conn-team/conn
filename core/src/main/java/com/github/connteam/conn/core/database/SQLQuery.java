@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.constraints.NotNull;
 
@@ -58,13 +59,27 @@ public class SQLQuery implements AutoCloseable {
         return pstmt.executeQuery();
     }
 
-    public <T> List<T> executeQuery(ResultSetConverter<T> rsc) throws SQLException {
-        ResultSet rs = executeQuery();
-        ArrayList<T> rl = new ArrayList<>();
-        while (rs.next()) {
-            rl.add(rsc.fromResultSet(rs));
+    public <T> List<T> executeQuery(ResultSetConverter<T> converter) throws SQLException {
+        ResultSet resultSet = executeQuery();
+        ArrayList<T> resultList = new ArrayList<>();
+        while (resultSet.next()) {
+            resultList.add(converter.fromResultSet(resultSet));
         }
-        return rl;
+        return resultList;
+    }
+
+    public <T> Optional<T> executeQueryFirst(ResultSetConverter<T> converter) throws SQLException {
+        List<T> resultList = executeQuery(converter);
+        return Optional.ofNullable(resultList.isEmpty() ? null : resultList.get(0));
+    }
+
+    public int executeInsert() throws DatabaseInsertException, SQLException {
+        ResultSet rs = executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1);
+        }
+
+        throw new DatabaseInsertException();
     }
 
     public int executeUpdate() throws SQLException {

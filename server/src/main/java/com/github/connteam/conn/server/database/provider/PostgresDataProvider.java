@@ -45,7 +45,7 @@ public class PostgresDataProvider implements DataProvider {
             return this;
         }
 
-        public Builder setPass(@NotNull String pass) {
+        public Builder setPassword(@NotNull String pass) {
             if (pass == null) {
                 throw new NullPointerException();
             }

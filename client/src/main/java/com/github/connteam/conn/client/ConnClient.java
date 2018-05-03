@@ -131,8 +131,6 @@ public class ConnClient implements Closeable {
     private class MessageHandler extends MultiEventListener<Message> {
         @HandleEvent
         public void logMessages(Message msg) {
-            System.out.println(msg.getClass().getSimpleName());
-            System.out.println(msg.toString());
         }
     }
 }

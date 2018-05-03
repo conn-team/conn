@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 public class SQLQuery implements AutoCloseable {
     private Connection connection = null;
     private PreparedStatement pstmt = null;
-    private int index = 0;
+    private int index = 1;
 
     public SQLQuery(@NotNull Connection connection, @NotNull String SQLString) throws SQLException {
         try {

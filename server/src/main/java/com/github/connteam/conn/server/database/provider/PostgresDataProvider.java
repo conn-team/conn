@@ -255,7 +255,7 @@ public class PostgresDataProvider implements DataProvider {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         cpds.close();
     }
 }

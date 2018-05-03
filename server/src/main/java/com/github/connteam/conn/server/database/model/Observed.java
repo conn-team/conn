@@ -4,7 +4,7 @@ public class Observed {
     private int idObserver;
     private int idObserved;
 
-    public int getIdObsrver() {
+    public int getIdObserver() {
         return idObserver;
     }
 
@@ -12,7 +12,7 @@ public class Observed {
         return idObserved;
     }
 
-    public void setIdObsrver(int idObserver) {
+    public void setIdObserver(int idObserver) {
         this.idObserver = idObserver;
     }
 

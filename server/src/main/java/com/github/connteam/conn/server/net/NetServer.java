@@ -3,7 +3,6 @@ package com.github.connteam.conn.server.net;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
 
 import javax.net.ssl.SSLServerSocketFactory;
 
@@ -35,14 +34,6 @@ public class NetServer implements Closeable {
     }
     
     public NetServerClient accept() throws IOException {
-        Socket socket = server.accept();
-        try {
-            return new NetServerClient(StandardNetChannel.newProvider(socket));
-        } catch (Throwable e) {
-            if (!socket.isClosed()) {
-                socket.close();
-            }
-            throw e;
-        }
+        return new NetServerClient(StandardNetChannel.fromSocket(server.accept()));
     }
 }

@@ -3,9 +3,6 @@ package com.github.connteam.conn.client.net;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.ProtocolException;
-import java.net.Socket;
-
-import javax.net.ssl.SSLSocketFactory;
 
 import com.github.connteam.conn.core.events.HandleEvent;
 import com.github.connteam.conn.core.events.MultiEventListener;
@@ -34,16 +31,7 @@ public class NetClient implements Closeable {
     }
 
     public static NetClient connect(String host, int port) throws IOException {
-        Socket socket = SSLSocketFactory.getDefault().createSocket(host, port);
-
-        try {
-            return new NetClient(StandardNetChannel.newProvider(socket));
-        } catch (Throwable e) {
-            if (!socket.isClosed()) {
-                socket.close();
-            }
-            throw e;
-        }
+        return new NetClient(StandardNetChannel.connectSSL(host, port));
     }
 
     public NetClientHandler getHandler() {

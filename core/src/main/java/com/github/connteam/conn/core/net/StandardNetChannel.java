@@ -6,6 +6,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLSocketFactory;
+
 import com.github.connteam.conn.core.io.IOUtils;
 import com.github.connteam.conn.core.io.MessageInputStream;
 import com.github.connteam.conn.core.io.MessageOutputStream;
@@ -52,8 +54,16 @@ public class StandardNetChannel extends NetChannel {
         writerExecutor = Executors.newSingleThreadExecutor();
     }
 
-    public static Provider newProvider(Socket socket) {
+    public static Provider fromSocket(Socket socket) {
         return (in, out) -> new StandardNetChannel(socket, in, out);
+    }
+
+    public static Provider connectTCP(String host, int port) throws IOException {
+        return fromSocket(new Socket(host, port));
+    }
+
+    public static Provider connectSSL(String host, int port) throws IOException {
+        return fromSocket(SSLSocketFactory.getDefault().createSocket(host, port));
     }
 
     @Override

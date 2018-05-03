@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.ProtocolException;
 
+import com.github.connteam.conn.client.database.provider.DataProvider;
 import com.github.connteam.conn.core.events.HandleEvent;
 import com.github.connteam.conn.core.events.MultiEventListener;
 import com.github.connteam.conn.core.net.NetChannel;
@@ -17,6 +18,8 @@ import com.google.protobuf.Message;
 
 public class ConnClient implements Closeable {
     private final NetChannel channel;
+    @SuppressWarnings("unused")
+    private final DataProvider database;
     private volatile ConnClientListener listener;
     private volatile State state = State.CREATED;
 
@@ -28,6 +31,7 @@ public class ConnClient implements Closeable {
         private String host;
         private Integer port;
         private Transport transport;
+        private DataProvider database;
 
         private Builder() {}
 
@@ -46,9 +50,14 @@ public class ConnClient implements Closeable {
             return this;
         }
 
+        public Builder setDataProvider(DataProvider database) {
+            this.database = database;
+            return this;
+        }
+
         public ConnClient build() throws IOException {
-            if (host == null || port == null || transport == null) {
-                throw new IllegalStateException();
+            if (host == null || port == null || transport == null || database == null) {
+                throw new IllegalStateException("Missing builder parameters");
             }
             return new ConnClient(this);
         }
@@ -74,6 +83,7 @@ public class ConnClient implements Closeable {
 
         channel = provider.create(NetMessages.CLIENTBOUND, NetMessages.SERVERBOUND);
         channel.setCloseHandler(this::onClose);
+        database = builder.database;
     }
 
     public ConnClientListener getHandler() {

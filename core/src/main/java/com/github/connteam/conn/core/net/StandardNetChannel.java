@@ -27,8 +27,14 @@ public class StandardNetChannel extends NetChannel {
             throws IOException {
 
         this.socket = socket;
-        in = new MessageInputStream(socket.getInputStream(), inRegistry);
-        out = new MessageOutputStream(socket.getOutputStream(), outRegistry);
+        
+        try {
+			in = new MessageInputStream(socket.getInputStream(), inRegistry);
+            out = new MessageOutputStream(socket.getOutputStream(), outRegistry);
+		} catch (IOException e) {
+            socket.close();
+            throw e;
+		}
 
         readerThread = new Thread(() -> {
             try {

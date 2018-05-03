@@ -4,15 +4,20 @@ import javax.validation.constraints.NotNull;
 
 public class Message {
     private int idMessage;
-    private int idFrom;
+    private int idUser;
+    private boolean isOutgoing;
     private String message;
 
     public int getIdMessage() {
         return idMessage;
     }
 
-    public int getIdFrom() {
-        return idFrom;
+    public int getIdUser() {
+        return idUser;
+    }
+
+    public boolean isOutgoing() {
+        return isOutgoing;
     }
 
     public String getMessage() {
@@ -23,8 +28,12 @@ public class Message {
         this.idMessage = idMessage;
     }
 
-    public void setIdFrom(int idFrom) {
-        this.idFrom = idFrom;
+    public void setIdUser(int idUser) {
+        this.idUser = idUser;
+    }
+
+    public void setOutgoing(boolean isOutgoing) {
+        this.isOutgoing = isOutgoing;
     }
 
     public void setMessage(@NotNull String message) {

@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS friends (
 
 CREATE TABLE IF NOT EXISTS messages (
     id_message INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_from INTEGER NOT NULL REFERENCES users(id_user),
-    message VARCHAR(8196) NOT NULL
+    id_user INTEGER NOT NULL REFERENCES users(id_user),
+    message VARCHAR(8196) NOT NULL,
+    is_outgoing TINYINT(1) NOT NULL
 );

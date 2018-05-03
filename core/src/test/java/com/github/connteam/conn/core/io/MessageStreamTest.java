@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import com.github.connteam.conn.core.net.NetProtos.*;
+import com.github.connteam.conn.core.net.proto.NetProtos.*;
 import com.github.connteam.conn.core.net.NetMessages;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;

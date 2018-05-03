@@ -10,9 +10,9 @@ import com.github.connteam.conn.core.net.NetChannel;
 import com.github.connteam.conn.core.net.NetMessages;
 import com.github.connteam.conn.core.net.StandardNetChannel;
 import com.github.connteam.conn.core.net.Transport;
-import com.github.connteam.conn.core.net.NetProtos.AuthRequest;
-import com.github.connteam.conn.core.net.NetProtos.AuthResponse;
-import com.github.connteam.conn.core.net.NetProtos.AuthSuccess;
+import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
+import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
+import com.github.connteam.conn.core.net.proto.NetProtos.AuthSuccess;
 import com.google.protobuf.Message;
 
 public class ConnClient implements Closeable {
@@ -131,8 +131,6 @@ public class ConnClient implements Closeable {
     private class MessageHandler extends MultiEventListener<Message> {
         @HandleEvent
         public void logMessages(Message msg) {
-            System.out.println(msg.getClass().getSimpleName());
-            System.out.println(msg.toString());
         }
     }
 }

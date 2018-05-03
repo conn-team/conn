@@ -8,12 +8,17 @@ import com.github.connteam.conn.core.events.HandleEvent;
 import com.github.connteam.conn.core.events.MultiEventListener;
 import com.github.connteam.conn.core.net.NetChannel;
 import com.github.connteam.conn.core.net.NetMessages;
-import com.github.connteam.conn.core.net.NetProtos.AuthRequest;
-import com.github.connteam.conn.core.net.NetProtos.AuthResponse;
-import com.github.connteam.conn.core.net.NetProtos.AuthSuccess;
+import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
+import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
+import com.github.connteam.conn.core.net.proto.NetProtos.AuthSuccess;
 import com.google.protobuf.Message;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ConnServerClient implements Closeable {
+    private final static Logger LOG = LoggerFactory.getLogger(ConnServerClient.class);
+
     private final ConnServer server;
     private final NetChannel channel;
     private volatile State state = State.CREATED;
@@ -57,7 +62,7 @@ public class ConnServerClient implements Closeable {
         if (msg instanceof AuthResponse) {
             AuthResponse response = (AuthResponse)msg;
 
-            System.out.println("Username: " + response.getUsername());
+            LOG.info("Username: {}", response.getUsername());
 
             state = State.ESTABLISHED;
             channel.setMessageHandler(new MessageHandler());
@@ -71,8 +76,6 @@ public class ConnServerClient implements Closeable {
     private class MessageHandler extends MultiEventListener<Message> {
         @HandleEvent
         public void logMessages(Message msg) {
-            System.out.println(msg.getClass().getSimpleName());
-            System.out.println(msg.toString());
         }
     }
 }

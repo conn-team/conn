@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 
-import com.github.connteam.conn.core.net.NetProtos.AuthRequest;
+import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
 import com.github.connteam.conn.core.net.NetMessages;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;

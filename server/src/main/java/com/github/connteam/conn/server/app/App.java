@@ -19,8 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class App {
-    private final static Logger LOG = LoggerFactory.getLogger(App.class);
-
     public static void main(String[] args) throws IOException {
         final User user = new User();
 
@@ -162,7 +160,6 @@ public class App {
 
         try (ConnServer server = ConnServer.builder().setPort(9090).setTransport(Transport.SSL)
                 .setDataProvider(provider).build()) {
-            LOG.info("Listening");
             server.listen();
         }
     }

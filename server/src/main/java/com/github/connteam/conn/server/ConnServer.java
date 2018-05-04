@@ -3,11 +3,14 @@ package com.github.connteam.conn.server;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.net.ssl.SSLServerSocketFactory;
 
+import com.github.connteam.conn.core.net.NetChannel;
 import com.github.connteam.conn.core.net.StandardNetChannel;
 import com.github.connteam.conn.core.net.Transport;
+import com.github.connteam.conn.server.database.model.User;
 import com.github.connteam.conn.server.database.provider.DataProvider;
 
 import org.slf4j.Logger;
@@ -18,6 +21,7 @@ public class ConnServer implements Closeable {
 
     private final ServerSocket server;
     private final DataProvider database;
+    private final ConcurrentHashMap<String, ConnServerClient> clients = new ConcurrentHashMap<>();
 
     public static class Builder {
         private Integer port;
@@ -83,15 +87,32 @@ public class ConnServer implements Closeable {
 
     public void listen() throws IOException {
         while (true) {
+            LOG.info("Listening on :{}", server.getLocalPort());
             accept().handle();
         }
     }
 
-    public void addClient(ConnServerClient client) {
-        LOG.info("add {}", client);
+    public boolean addClient(ConnServerClient client) {
+        User user = client.getUser();
+        if (user != null && clients.putIfAbsent(user.getUsername(), client) == null) {
+            NetChannel conn = client.getNetChannel();
+            LOG.info("{} connected from {}:{}", user.getUsername(), conn.getAddress().getHostName(), conn.getPort());
+            return true;
+        }
+        return false;
     }
 
-    public void removeClient(ConnServerClient client) {
-        LOG.info("remove {}", client);
+    public boolean removeClient(ConnServerClient client) {
+        User user = client.getUser();
+        if (user != null && clients.remove(user.getUsername(), client)) {
+            NetChannel conn = client.getNetChannel();
+            LOG.info("{} disconnected from {}:{}", user.getUsername(), conn.getAddress().getHostName(), conn.getPort());
+            return true;
+        }
+        return false;
+    }
+
+    public ConnServerClient getClientByName(String username) {
+        return clients.get(username);
     }
 }

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.ProtocolException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
@@ -24,12 +25,19 @@ import com.github.connteam.conn.server.database.model.User;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ConnServerClient implements Closeable {
+    private final static Logger LOG = LoggerFactory.getLogger(ConnServerClient.class);
+
     private final ConnServer server;
     private final NetChannel channel;
-
-    private volatile byte[] authPayload;
     private volatile State state = State.CREATED;
+
+    private volatile User user;
+    private volatile PublicKey publicKey;
+    private byte[] authPayload;
 
     private static enum State {
         CREATED, AUTHENTICATION, ESTABLISHED, CLOSED
@@ -49,6 +57,18 @@ public class ConnServerClient implements Closeable {
 
     protected void close(Exception err) {
         channel.close(err);
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public PublicKey getPublicKey() {
+        return publicKey;
+    }
+
+    public NetChannel getNetChannel() {
+        return channel;
     }
 
     public synchronized void handle() {
@@ -82,17 +102,20 @@ public class ConnServerClient implements Closeable {
         try {
             user = server.getDataProvider().getUserByUsername(response.getUsername()).get();
             if (user != null) {
-                Signature sign = CryptoUtil.newSignature(user.getPublicKey());
-                sign.update(user.getUsername().getBytes());
-                sign.update(user.getRawPublicKey());
-                sign.update(authPayload);
-                success = sign.verify(response.getSignature().toByteArray());
+                success = verifyLogin(user, authPayload, response.getSignature().toByteArray());
             }
-        } catch (DatabaseException | InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException
-                | SignatureException e) {
+            
+            if (success) {
+                publicKey = user.getPublicKey();
+                this.user = user;
+            }
+        } catch (DatabaseException | NoSuchAlgorithmException e) {
+            LOG.error("Error verifying login: {}", e.toString());
             channel.sendMessage(AuthStatus.newBuilder().setStatus(AuthStatus.Status.INTERNAL_ERROR).build());
             close(e);
             return;
+        } catch (InvalidKeyException | InvalidKeySpecException | SignatureException e) {
+            success = false;
         }
 
         if (!success) {
@@ -101,11 +124,24 @@ public class ConnServerClient implements Closeable {
             return;
         }
 
-        server.addClient(this);
+        if (!server.addClient(this)) {
+            channel.sendMessage(AuthStatus.newBuilder().setStatus(AuthStatus.Status.ALREADY_ONLINE).build());
+            close(new AuthenticationException("User connected from another location"));
+            return;
+        }
 
         state = State.ESTABLISHED;
         channel.setMessageHandler(new MessageHandler());
         channel.sendMessage(AuthStatus.newBuilder().setStatus(AuthStatus.Status.SUCCESS).build());
+    }
+
+    private boolean verifyLogin(User user, byte[] toSign, byte[] signature)
+            throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, SignatureException {
+        Signature sign = CryptoUtil.newSignature(user.getPublicKey());
+        sign.update(user.getUsername().getBytes());
+        sign.update(user.getRawPublicKey());
+        sign.update(authPayload);
+        return sign.verify(signature);
     }
 
     public class MessageHandler extends MultiEventListener<Message> {

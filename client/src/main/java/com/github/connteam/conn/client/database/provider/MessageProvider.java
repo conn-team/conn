@@ -8,17 +8,17 @@ import javax.validation.constraints.NotNull;
 import com.github.connteam.conn.client.database.model.Message;
 
 public interface MessageProvider {
-    List<Message> getMessageFrom(int idFrom);
+    List<Message> getMessageFrom(int idFrom) throws DatabaseException;
 
-    List<Message> getMessageTo(int idFrom);
+    List<Message> getMessageTo(int idFrom) throws DatabaseException;
 
-    Optional<Message> getMessage(int idMessage);
+    Optional<Message> getMessage(int idMessage) throws DatabaseException;
 
-    int insertMessage(@NotNull Message message);
+    int insertMessage(@NotNull Message message) throws DatabaseException;
 
-    boolean updateMessage(@NotNull Message message);
+    boolean updateMessage(@NotNull Message message) throws DatabaseException;
 
-    int deleteMessageFrom(int idFrom);
+    int deleteMessageFrom(int idFrom) throws DatabaseException;
 
-    int deleteMessagesTo(int idTo);
+    int deleteMessagesTo(int idTo) throws DatabaseException;
 }

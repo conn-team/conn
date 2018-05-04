@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -24,8 +25,12 @@ public class SQLQuery implements AutoCloseable {
     private Date creationTime = null;
     private String SQLString = null;
 
-    public SQLQuery(@NotNull Connection connection, @NotNull String SQLString) throws SQLException {
+    private boolean autoCloseConnection = true;
+
+    public SQLQuery(@NotNull Connection connection, @NotNull String SQLString, boolean autoCloseConnection)
+            throws SQLException {
         try {
+            this.autoCloseConnection = autoCloseConnection;
             if (connection == null || SQLString == null) {
                 throw new NullPointerException();
             }
@@ -37,10 +42,14 @@ public class SQLQuery implements AutoCloseable {
             LOG.trace("|{}| connection pooled.", SQLString);
         } catch (Throwable t) {
             if (connection != null) {
-                connection.close();
+                closeConnection();
             }
             throw t;
         }
+    }
+
+    public SQLQuery(@NotNull Connection connection, @NotNull String SQLString) throws SQLException {
+        this(connection, SQLString, true);
     }
 
     public SQLQuery set(int i, Object value) throws SQLException {
@@ -50,8 +59,12 @@ public class SQLQuery implements AutoCloseable {
             pstmt.setString(i, (String) value);
         } else if (value instanceof byte[]) {
             pstmt.setBytes(i, (byte[]) value);
+        } else if (value instanceof Timestamp) {
+            pstmt.setTimestamp(i, (Timestamp) value);
+        } else if (value instanceof Boolean) {
+            pstmt.setBoolean(i, (Boolean) value);
         } else {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException(value.getClass().getSimpleName());
         }
         return this;
     }
@@ -86,9 +99,10 @@ public class SQLQuery implements AutoCloseable {
     }
 
     public int executeInsert() throws DatabaseInsertException, SQLException {
-        ResultSet rs = executeQuery();
-        if (rs.next()) {
-            return rs.getInt(1);
+        execute();
+        ResultSet keys = pstmt.getGeneratedKeys();
+        if (keys.next()) {
+            return keys.getInt(1);
         }
 
         throw new DatabaseInsertException();
@@ -105,15 +119,21 @@ public class SQLQuery implements AutoCloseable {
     @Override
     public void close() throws SQLException {
         final long milli = new Date().getTime() - creationTime.getTime();
-        LOG.trace("|{}| connection closed, took {} ms.", SQLString, milli);
+        LOG.trace("|{}| {} took {} ms.", SQLString, autoCloseConnection ? "connection closed," : "", milli);
         try {
             if (pstmt != null) {
                 pstmt.close();
             }
         } finally {
             if (connection != null) {
-                connection.close();
+                closeConnection();
             }
+        }
+    }
+
+    private void closeConnection() throws SQLException {
+        if (autoCloseConnection && connection != null) {
+            connection.close();
         }
     }
 }

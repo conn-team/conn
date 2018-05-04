@@ -5,15 +5,24 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SQLQuery implements AutoCloseable {
+    private final static Logger LOG = LoggerFactory.getLogger(SQLQuery.class);
+
     private Connection connection = null;
     private PreparedStatement pstmt = null;
     private int index = 1;
+
+    private Date creationTime = null;
+    private String SQLString = null;
 
     public SQLQuery(@NotNull Connection connection, @NotNull String SQLString) throws SQLException {
         try {
@@ -22,7 +31,10 @@ public class SQLQuery implements AutoCloseable {
             }
 
             this.connection = connection;
+            this.SQLString = SQLString;
             this.pstmt = connection.prepareStatement(SQLString);
+            this.creationTime = new Date();
+            LOG.trace("|{}| connection pooled.", SQLString);
         } catch (Throwable t) {
             if (connection != null) {
                 connection.close();
@@ -92,6 +104,8 @@ public class SQLQuery implements AutoCloseable {
 
     @Override
     public void close() throws SQLException {
+        final long milli = new Date().getTime() - creationTime.getTime();
+        LOG.trace("|{}| connection closed, took {} ms.", SQLString, milli);
         try {
             if (pstmt != null) {
                 pstmt.close();

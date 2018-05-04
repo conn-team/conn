@@ -331,7 +331,7 @@ public class PostgresDataProvider implements DataProvider {
         }
 
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
-                "UPDATE SET username = ?, public_key = ? WHERE id_user = ?;")) {
+                "UPDATE users SET username = ?, public_key = ? WHERE id_user = ?;")) {
             return q.push(user.getUsername(), user.getPublicKey(), user.getId()).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -344,7 +344,7 @@ public class PostgresDataProvider implements DataProvider {
             throw new NullPointerException();
         }
 
-        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "UPDATE SET public_key = ? WHERE username = ?;")) {
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "UPDATE users SET public_key = ? WHERE username = ?;")) {
             return q.push(user.getPublicKey(), user.getUsername()).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);

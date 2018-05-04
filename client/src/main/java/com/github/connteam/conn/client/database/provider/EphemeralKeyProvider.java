@@ -6,15 +6,16 @@ import java.util.Optional;
 import javax.validation.constraints.NotNull;
 
 import com.github.connteam.conn.client.database.model.EphemeralKey;
+import com.github.connteam.conn.core.database.DatabaseException;
 
 public interface EphemeralKeyProvider {
-    List<EphemeralKey> getEphemeralKeys();
+    List<EphemeralKey> getEphemeralKeys() throws DatabaseException;
 
-    Optional<EphemeralKey> getEphemeralKey(int id);
+    Optional<EphemeralKey> getEphemeralKey(int id) throws DatabaseException;
 
-    int insertEphemeralKey(@NotNull EphemeralKey key);
+    int insertEphemeralKey(@NotNull EphemeralKey key) throws DatabaseException;
 
-    boolean deleteEphemeralKey(int id);
+    boolean deleteEphemeralKey(int id) throws DatabaseException;
 
-    Optional<EphemeralKey> popEphemeralKey();
+    Optional<EphemeralKey> popEphemeralKey() throws DatabaseException;
 }

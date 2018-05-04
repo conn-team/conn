@@ -29,6 +29,7 @@ import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthStatus;
 import com.github.connteam.conn.core.net.proto.NetProtos.KeepAlive;
+import com.github.connteam.conn.core.net.proto.NetProtos.TextMessage;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 
@@ -224,9 +225,14 @@ public class ConnClient implements Closeable {
         }
     }
 
+    public void sendTextMessage(String to, String message) {
+        channel.sendMessage(TextMessage.newBuilder().setUsername(to).setMessage(message).build());
+    }
+
     public class MessageHandler extends MultiEventListener<Message> {
         @HandleEvent
-        public void logMessages(Message msg) {
+        public void onTextMessage(TextMessage msg) {
+            listener.onTextMessage(msg.getUsername(), msg.getMessage());
         }
     }
 }

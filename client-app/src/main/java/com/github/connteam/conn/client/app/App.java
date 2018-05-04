@@ -169,12 +169,18 @@ public class App {
             @Override
             public void onLogin(boolean ok) {
                 LOG.info(ok ? "Logged in!" : "Authentication failed!");
+                client.sendTextMessage(settings.getUsername(), "bye world");
             }
 
             @Override
             public void onDisconnect(Exception err) {
                 LOG.info("Disconnected: {}", err.toString());
             }
+
+			@Override
+			public void onTextMessage(String from, String message) {
+				LOG.info("{}: {}", from, message);
+			}
         });
 
         LOG.info("Authenticating");

@@ -125,6 +125,16 @@ public class StandardNetChannel extends NetChannel {
     }
 
     @Override
+    public int getTimeout() throws IOException {
+        return socket.getSoTimeout();
+    }
+
+    @Override
+    public void setTimeout(int millis) throws IOException {
+        socket.setSoTimeout(millis);
+    }
+
+    @Override
     public synchronized void sendMessage(Message msg) {
         if (!opened) {
             throw new IllegalStateException("Cannot send on not opened channel");

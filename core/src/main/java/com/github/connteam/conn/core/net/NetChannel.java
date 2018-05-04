@@ -26,6 +26,8 @@ public abstract class NetChannel implements Closeable {
     public abstract void sendMessage(Message msg);
     public abstract InetAddress getAddress();
     public abstract int getPort();
+    public abstract int getTimeout() throws IOException;
+    public abstract void setTimeout(int millis) throws IOException;
 
     public void close() {
         close(null);

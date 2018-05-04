@@ -20,6 +20,7 @@ message AuthStatus {
         INTERNAL_ERROR = 0;
         SUCCESS = 1;
         FAILED = 2;
+        ALREADY_ONLINE = 3;
     }
     Status status = 1;
 }

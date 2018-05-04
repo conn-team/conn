@@ -143,7 +143,9 @@ public class ConnClient implements Closeable {
     }
 
     private synchronized void onClose(Exception err) {
-        scheduler.shutdownNow();
+        if (scheduler != null && !scheduler.isShutdown()) {
+            scheduler.shutdownNow();
+        }
         state = State.CLOSED;
         listener.onDisconnect(err);
     }
@@ -163,17 +165,7 @@ public class ConnClient implements Closeable {
         }
 
         try {
-            Signature sign = CryptoUtil.newSignature(privateKey);
-            sign.update(settings.getUsername().getBytes());
-            sign.update(publicKey.getEncoded());
-            sign.update(payload);
-            byte[] signature = sign.sign();
-
-            channel.sendMessage(AuthResponse.newBuilder().setUsername(settings.getUsername())
-                    .setSignature(ByteString.copyFrom(signature)).build());
-            
-            state = State.AUTH_RESPONSE;
-            channel.setMessageHandler(this::onAuthSuccess);
+            login(payload);
         } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {
             close(e);
         }
@@ -204,12 +196,28 @@ public class ConnClient implements Closeable {
         }
     }
 
-    private void startKeepAlive() {
+    private synchronized void login(byte[] toSign) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException {
+        Signature sign = CryptoUtil.newSignature(privateKey);
+        sign.update(settings.getUsername().getBytes());
+        sign.update(publicKey.getEncoded());
+        sign.update(toSign);
+        byte[] signature = sign.sign();
+
+        channel.sendMessage(AuthResponse.newBuilder().setUsername(settings.getUsername())
+                .setSignature(ByteString.copyFrom(signature)).build());
+
+        state = State.AUTH_RESPONSE;
+        channel.setMessageHandler(this::onAuthSuccess);
+    }
+
+    private synchronized void startKeepAlive() {
         final KeepAlive keepAlive = KeepAlive.newBuilder().build();
 
-        scheduler.scheduleWithFixedDelay(() -> {
-            channel.sendMessage(keepAlive);
-        }, 20, 20, TimeUnit.SECONDS);
+        if (!scheduler.isShutdown()) {
+            scheduler.scheduleWithFixedDelay(() -> {
+                channel.sendMessage(keepAlive);
+            }, 20, 20, TimeUnit.SECONDS);
+        }
     }
 
     public class MessageHandler extends MultiEventListener<Message> {

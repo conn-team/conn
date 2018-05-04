@@ -293,9 +293,9 @@ public class SqliteDataProvider implements DataProvider {
     @Override
     synchronized public void close() throws DatabaseException {
         try {
-			connection.close();
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		}
+            connection.close();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 }

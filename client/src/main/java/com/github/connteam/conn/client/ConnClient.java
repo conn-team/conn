@@ -9,6 +9,9 @@ import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import com.github.connteam.conn.client.database.model.Settings;
 import com.github.connteam.conn.client.database.provider.DataProvider;
@@ -24,12 +27,14 @@ import com.github.connteam.conn.core.net.Transport;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthStatus;
+import com.github.connteam.conn.core.net.proto.NetProtos.KeepAlive;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 
 public class ConnClient implements Closeable {
     private final NetChannel channel;
     private final DataProvider database;
+    private ScheduledExecutorService scheduler;
 
     private final Settings settings;
     private PrivateKey privateKey;
@@ -103,6 +108,7 @@ public class ConnClient implements Closeable {
 
         channel = provider.create(NetMessages.CLIENTBOUND, NetMessages.SERVERBOUND);
         channel.setCloseHandler(this::onClose);
+        channel.setTimeout(30000);
     }
 
     public ConnClientListener getHandler() {
@@ -127,12 +133,14 @@ public class ConnClient implements Closeable {
             throw new IllegalStateException("Cannot reuse NetClient");
         }
 
+        scheduler = Executors.newSingleThreadScheduledExecutor();
         state = State.AUTH_REQUEST;
         channel.setMessageHandler(this::onAuthRequest);
         channel.open();
     }
 
     private synchronized void onClose(Exception err) {
+        scheduler.shutdownNow();
         state = State.CLOSED;
         listener.onDisconnect(err);
     }
@@ -178,6 +186,7 @@ public class ConnClient implements Closeable {
         case SUCCESS:
             state = State.ESTABLISHED;
             channel.setMessageHandler(new MessageHandler());
+            startKeepAlive();
             listener.onLogin(true);
             break;
         case FAILED:
@@ -190,7 +199,15 @@ public class ConnClient implements Closeable {
         }
     }
 
-    private class MessageHandler extends MultiEventListener<Message> {
+    private void startKeepAlive() {
+        final KeepAlive keepAlive = KeepAlive.newBuilder().build();
+
+        scheduler.scheduleWithFixedDelay(() -> {
+            channel.sendMessage(keepAlive);
+        }, 20, 20, TimeUnit.SECONDS);
+    }
+
+    public class MessageHandler extends MultiEventListener<Message> {
         @HandleEvent
         public void logMessages(Message msg) {
         }

@@ -23,3 +23,6 @@ message AuthStatus {
     }
     Status status = 1;
 }
+
+message KeepAlive {
+}

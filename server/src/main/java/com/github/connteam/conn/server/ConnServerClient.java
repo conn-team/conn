@@ -19,6 +19,7 @@ import com.github.connteam.conn.core.net.NetMessages;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthStatus;
+import com.github.connteam.conn.core.net.proto.NetProtos.KeepAlive;
 import com.github.connteam.conn.server.database.model.User;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
@@ -38,6 +39,7 @@ public class ConnServerClient implements Closeable {
         this.server = server;
         channel = channelProvider.create(NetMessages.SERVERBOUND, NetMessages.CLIENTBOUND);
         channel.setCloseHandler(this::onClose);
+        channel.setTimeout(30000);
     }
 
     @Override
@@ -104,9 +106,10 @@ public class ConnServerClient implements Closeable {
         channel.sendMessage(AuthStatus.newBuilder().setStatus(AuthStatus.Status.SUCCESS).build());
     }
 
-    private class MessageHandler extends MultiEventListener<Message> {
+    public class MessageHandler extends MultiEventListener<Message> {
         @HandleEvent
-        public void logMessages(Message msg) {
+        public void onKeepAlive(KeepAlive msg) {
+            channel.sendMessage(msg);
         }
     }
 }

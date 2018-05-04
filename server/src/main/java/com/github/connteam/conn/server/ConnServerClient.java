@@ -21,6 +21,7 @@ import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthStatus;
 import com.github.connteam.conn.core.net.proto.NetProtos.KeepAlive;
+import com.github.connteam.conn.core.net.proto.NetProtos.TextMessage;
 import com.github.connteam.conn.server.database.model.User;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
@@ -148,6 +149,16 @@ public class ConnServerClient implements Closeable {
         @HandleEvent
         public void onKeepAlive(KeepAlive msg) {
             channel.sendMessage(msg);
+        }
+
+        @HandleEvent
+        public void onTextMessage(TextMessage msg) {
+            ConnServerClient client = server.getClientByName(msg.getUsername());
+
+            if (client != null) {
+                client.getNetChannel().sendMessage(TextMessage.newBuilder().setUsername(getUser().getUsername())
+                        .setMessage(msg.getMessage()).build());
+            }
         }
     }
 }

@@ -15,9 +15,6 @@ import com.github.connteam.conn.server.database.model.Observed;
 import com.github.connteam.conn.server.database.model.User;
 import com.github.connteam.conn.server.database.provider.DataProvider;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class App {
     public static void main(String[] args) throws IOException {
         final User user = new User();

@@ -5,6 +5,7 @@ import java.util.Optional;
 import javax.validation.constraints.NotNull;
 
 import com.github.connteam.conn.client.database.model.Settings;
+import com.github.connteam.conn.core.database.DatabaseException;
 
 public interface SettingsProvider {
     Optional<Settings> getSettings() throws DatabaseException;

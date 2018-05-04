@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.validation.constraints.NotNull;
 
 import com.github.connteam.conn.client.database.model.Message;
+import com.github.connteam.conn.core.database.DatabaseException;
 
 public interface MessageProvider {
     List<Message> getMessageFrom(int idFrom) throws DatabaseException;

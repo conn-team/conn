@@ -1,6 +1,7 @@
 package com.github.connteam.conn.client.app;
 
 import java.io.IOException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +14,7 @@ import com.github.connteam.conn.client.database.model.Message;
 import com.github.connteam.conn.client.database.model.Settings;
 import com.github.connteam.conn.client.database.model.User;
 import com.github.connteam.conn.client.database.provider.DataProvider;
+import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.net.Transport;
 
 import org.slf4j.Logger;
@@ -21,7 +23,7 @@ import org.slf4j.LoggerFactory;
 public class App {
     private final static Logger LOG = LoggerFactory.getLogger(App.class);
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, DatabaseException, InvalidKeySpecException {
         final Settings settings = new Settings();
 
         settings.setUsername("teapot");
@@ -170,8 +172,8 @@ public class App {
             }
 
             @Override
-            public void onDisconnect(IOException err) {
-                LOG.info("Disconnected: {}", err);
+            public void onDisconnect(Exception err) {
+                LOG.info("Disconnected: {}", err.toString());
             }
         });
 

@@ -17,7 +17,6 @@ public class ConnServer implements Closeable {
     private final static Logger LOG = LoggerFactory.getLogger(ConnServer.class);
 
     private final ServerSocket server;
-    @SuppressWarnings("unused")
     private final DataProvider database;
 
     public static class Builder {
@@ -72,6 +71,10 @@ public class ConnServer implements Closeable {
     @Override
     public void close() throws IOException {
         server.close();
+    }
+
+    public DataProvider getDataProvider() {
+        return database;
     }
 
     private ConnServerClient accept() throws IOException {

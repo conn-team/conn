@@ -77,7 +77,7 @@ public class StandardNetChannelTest {
             return channel.isOpen();
         }
 
-        public IOException getError() {
+        public Exception getError() {
             return channel.getError();
         }
 

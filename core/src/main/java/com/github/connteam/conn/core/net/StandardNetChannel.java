@@ -30,7 +30,7 @@ public class StandardNetChannel extends NetChannel {
     private final ExecutorService writerExecutor;
 
     private volatile boolean opened = false, closed = false;
-    private volatile IOException lastError = null;
+    private volatile Exception lastError = null;
 
     public StandardNetChannel(Socket socket, MessageRegistry inRegistry, MessageRegistry outRegistry)
             throws IOException {
@@ -86,7 +86,7 @@ public class StandardNetChannel extends NetChannel {
     }
 
     @Override
-    public synchronized void close(IOException err) {
+    public synchronized void close(Exception err) {
         if (!opened) {
             throw new IllegalStateException("Cannot close not opened channel");
         }
@@ -113,7 +113,7 @@ public class StandardNetChannel extends NetChannel {
     }
 
     @Override
-    public IOException getError() {
+    public Exception getError() {
         return lastError;
     }
 

@@ -3,8 +3,17 @@ package com.github.connteam.conn.client;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.ProtocolException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
 
+import com.github.connteam.conn.client.database.model.Settings;
 import com.github.connteam.conn.client.database.provider.DataProvider;
+import com.github.connteam.conn.core.crypto.CryptoUtil;
+import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.events.HandleEvent;
 import com.github.connteam.conn.core.events.MultiEventListener;
 import com.github.connteam.conn.core.net.NetChannel;
@@ -14,12 +23,16 @@ import com.github.connteam.conn.core.net.Transport;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthSuccess;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 
 public class ConnClient implements Closeable {
     private final NetChannel channel;
-    @SuppressWarnings("unused")
     private final DataProvider database;
+
+    private final Settings settings;
+    private PrivateKey privateKey;
+
     private volatile ConnClientListener listener;
     private volatile State state = State.CREATED;
 
@@ -55,7 +68,7 @@ public class ConnClient implements Closeable {
             return this;
         }
 
-        public ConnClient build() throws IOException {
+        public ConnClient build() throws IOException, DatabaseException, InvalidKeySpecException {
             if (host == null || port == null || transport == null || database == null) {
                 throw new IllegalStateException("Missing builder parameters");
             }
@@ -67,8 +80,14 @@ public class ConnClient implements Closeable {
         return new Builder();
     }
 
-    private ConnClient(Builder builder) throws IOException {
+    private ConnClient(Builder builder) throws IOException, DatabaseException, InvalidKeySpecException {
         NetChannel.Provider provider;
+
+        database = builder.database;
+        settings = database.getSettings()
+                .orElseThrow(() -> new IllegalArgumentException("Settings missing from identity file"));
+
+        privateKey = settings.getPrivateKey();
 
         switch (builder.transport) {
         case TCP:
@@ -83,7 +102,6 @@ public class ConnClient implements Closeable {
 
         channel = provider.create(NetMessages.CLIENTBOUND, NetMessages.SERVERBOUND);
         channel.setCloseHandler(this::onClose);
-        database = builder.database;
     }
 
     public ConnClientListener getHandler() {
@@ -99,7 +117,7 @@ public class ConnClient implements Closeable {
         close(null);
     }
 
-    protected void close(IOException err) {
+    protected void close(Exception err) {
         channel.close(err);
     }
 
@@ -113,18 +131,37 @@ public class ConnClient implements Closeable {
         channel.open();
     }
 
-    private synchronized void onClose(IOException err) {
+    private synchronized void onClose(Exception err) {
         state = State.CLOSED;
         listener.onDisconnect(err);
     }
 
     private synchronized void onAuthRequest(Message msg) {
-        if (msg instanceof AuthRequest) {
+        if (!(msg instanceof AuthRequest)) {
+            close(new ProtocolException("Unexpected message on authentication stage"));
+            return;
+        }
+
+        AuthRequest request = (AuthRequest)msg;
+        byte[] payload = request.getPayload().toByteArray();
+
+        if (payload.length == 0) {
+            close(new ProtocolException("Server didn't provide payload to sign"));
+            return;
+        }
+
+        try {
+            Signature sign = CryptoUtil.newSignature(privateKey);
+            sign.update(payload);
+            byte[] signature = sign.sign();
+
+            channel.sendMessage(AuthResponse.newBuilder().setUsername(settings.getUsername())
+                    .setSignature(ByteString.copyFrom(signature)).build());
+            
             state = State.AUTH_RESPONSE;
             channel.setMessageHandler(this::onAuthSuccess);
-            channel.sendMessage(AuthResponse.newBuilder().setUsername("admin123").build());
-        } else {
-            close(new ProtocolException("Unexpected message on authentication stage"));
+        } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {
+            close(e);
         }
     }
 

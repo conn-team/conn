@@ -134,8 +134,8 @@ public class PostgresDataProvider implements DataProvider {
             throw new NullPointerException();
         }
 
-        try (SQLQuery q = new SQLQuery(cpds.getConnection(),
-                "INSERT INTO ephemeral_keys (id_user, key, signature) VALUES () RETURNING id_key;")) {
+        String SQLString = "INSERT INTO ephemeral_keys (id_user, key, signature) VALUES (?, ?, ?);";
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), SQLString)) {
             return q.push(key.getIdUser(), key.getRawKey(), key.getSignature()).executeInsert();
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -148,8 +148,8 @@ public class PostgresDataProvider implements DataProvider {
             throw new NullPointerException();
         }
 
-        try (SQLQuery q = new SQLQuery(cpds.getConnection(),
-                "INSERT INTO ephemeral_keys (id_user, key, signature) VALUES (?, ?, ?);")) {
+        String SQLString = "INSERT INTO ephemeral_keys (id_user, key, signature) VALUES (?, ?, ?);";
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), SQLString)) {
             return q.push(key.getIdUser(), key.getRawKey(), key.getSignature()).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -208,7 +208,7 @@ public class PostgresDataProvider implements DataProvider {
         }
 
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
-                "INSERT INTO messages (id_from, id_to, message, key, signature, time) VALUES (?, ?, ?, ?, ?, ?) RETURNING id_message;")) {
+                "INSERT INTO messages (id_from, id_to, message, key, signature, time) VALUES (?, ?, ?, ?, ?, ?);")) {
             return q.push(message.getIdFrom(), message.getIdTo(), message.getIdMessage(), message.getRawKey(),
                     message.getSignature(), message.getTime()).executeInsert();
         } catch (SQLException e) {
@@ -317,7 +317,7 @@ public class PostgresDataProvider implements DataProvider {
         }
 
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
-                "INSERT INTO users (username, public_key) VALUES (?, ?) RETURNING id_user;")) {
+                "INSERT INTO users (username, public_key) VALUES (?, ?);")) {
             return q.push(user.getUsername(), user.getRawPublicKey()).executeInsert();
         } catch (SQLException e) {
             throw new DatabaseException(e);

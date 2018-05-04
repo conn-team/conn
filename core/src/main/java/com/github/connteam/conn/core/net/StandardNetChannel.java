@@ -65,7 +65,7 @@ public class StandardNetChannel extends NetChannel {
             } catch (IOException e) {
                 close(e);
             } catch (Exception e) {
-                LOG.error("Unexpected error in reader thread: {}", e.getMessage());
+                LOG.error("Unexpected error in reader thread: {}", e.toString());
                 close(e);
             }
         });
@@ -96,16 +96,17 @@ public class StandardNetChannel extends NetChannel {
     }
 
     @Override
-    public synchronized void close(Exception err) {
-        if (!opened) {
-            throw new IllegalStateException("Cannot close not opened channel");
+    public void close(Exception err) {
+        synchronized (this) {
+            if (!opened) {
+                throw new IllegalStateException("Cannot close not opened channel");
+            }
+            if (closed) {
+                return;
+            }
+            closed = true;
+            lastError = err;
         }
-        if (closed) {
-            return;
-        }
-
-        closed = true;
-        lastError = err;
 
         writerExecutor.submit(() -> {
             IOUtils.closeQuietly(in);
@@ -157,7 +158,7 @@ public class StandardNetChannel extends NetChannel {
                 } catch (IOException e) {
                     close(e);
                 } catch (Exception e) {
-                    LOG.error("Unexpected error in writer thread: {}", e.getMessage());
+                    LOG.error("Unexpected error in writer thread: {}", e.toString());
                     close(e);
                 }
             });

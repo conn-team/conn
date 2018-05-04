@@ -1,6 +1,12 @@
 package com.github.connteam.conn.client.database.model;
 
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+
 import javax.validation.constraints.NotNull;
+
+import com.github.connteam.conn.core.crypto.CryptoUtil;
 
 public class Settings {
     private String username;
@@ -11,11 +17,11 @@ public class Settings {
         return username;
     }
 
-    public byte[] getPublicKey() {
+    public byte[] getRawPublicKey() {
         return publicKey;
     }
 
-    public byte[] getPrivateKey() {
+    public byte[] getRawPrivateKey() {
         return privateKey;
     }
 
@@ -38,5 +44,21 @@ public class Settings {
             throw new NullPointerException();
         }
         this.privateKey = privateKey;
+    }
+
+    public PublicKey getPublicKey() throws InvalidKeySpecException {
+        return CryptoUtil.decodePublicKey(getRawPublicKey());
+    }
+
+    public PrivateKey getPrivateKey() throws InvalidKeySpecException {
+        return CryptoUtil.decodePrivateKey(getRawPrivateKey());
+    }
+
+    public void setPublicKey(@NotNull PublicKey publicKey) {
+        setPublicKey(publicKey.getEncoded());
+    }
+
+    public void setPrivateKey(@NotNull PrivateKey privateKey) {
+        setPrivateKey(privateKey.getEncoded());
     }
 }

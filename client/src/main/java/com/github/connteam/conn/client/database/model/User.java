@@ -1,6 +1,11 @@
 package com.github.connteam.conn.client.database.model;
 
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+
 import javax.validation.constraints.NotNull;
+
+import com.github.connteam.conn.core.crypto.CryptoUtil;
 
 public class User {
     private int idUser;
@@ -18,7 +23,7 @@ public class User {
         return username;
     }
 
-    public byte[] getPublicKey() {
+    public byte[] getRawPublicKey() {
         return publicKey;
     }
 
@@ -62,5 +67,13 @@ public class User {
 
     public void setinSequence(int inSequence) {
         this.inSequence = inSequence;
+    }
+
+    public PublicKey getPublicKey() throws InvalidKeySpecException {
+        return CryptoUtil.decodePublicKey(getRawPublicKey());
+    }
+
+    public void setPublicKey(@NotNull PublicKey publicKey) {
+        setPublicKey(publicKey.getEncoded());
     }
 }

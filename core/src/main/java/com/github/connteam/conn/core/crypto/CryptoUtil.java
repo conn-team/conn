@@ -7,6 +7,7 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -19,6 +20,7 @@ public final class CryptoUtil {
 
     private static final KeyFactory keyFactory;
     private static final KeyPairGenerator keyGen;
+    private static final SecureRandom random;
 
     private CryptoUtil() {}
 
@@ -27,6 +29,7 @@ public final class CryptoUtil {
             keyFactory = KeyFactory.getInstance(KEYPAIR_ALGORITHM);
             keyGen = KeyPairGenerator.getInstance(KEYPAIR_ALGORITHM);
             keyGen.initialize(KEY_SIZE);
+            random = new SecureRandom();
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
@@ -66,5 +69,13 @@ public final class CryptoUtil {
         Signature sign = Signature.getInstance(SIGNATURE_ALGORITHM);
         sign.initSign(key);
         return sign;
+    }
+
+    public static byte[] randomBytes(int len) {
+        byte[] out = new byte[len];
+        synchronized (random) {
+            random.nextBytes(out);
+        }
+        return out;
     }
 }

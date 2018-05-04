@@ -1,16 +1,22 @@
 package com.github.connteam.conn.core.crypto;
 
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.Signature;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 public final class CryptoUtil {
+    public static final String KEYPAIR_ALGORITHM = "EC";
+    public static final String SIGNATURE_ALGORITHM = "SHA512withECDSA";
+    public static final int KEY_SIZE = 256;
+
     private static final KeyFactory keyFactory;
     private static final KeyPairGenerator keyGen;
 
@@ -18,9 +24,9 @@ public final class CryptoUtil {
 
     static {
         try {
-            keyFactory = KeyFactory.getInstance("EC");
-            keyGen = KeyPairGenerator.getInstance("EC");
-            keyGen.initialize(256);
+            keyFactory = KeyFactory.getInstance(KEYPAIR_ALGORITHM);
+            keyGen = KeyPairGenerator.getInstance(KEYPAIR_ALGORITHM);
+            keyGen.initialize(KEY_SIZE);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
@@ -48,5 +54,17 @@ public final class CryptoUtil {
 
     public static KeyPair decodeKeyPair(byte[] publicKey, byte[] privateKey) throws InvalidKeySpecException {
         return new KeyPair(decodePublicKey(publicKey), decodePrivateKey(privateKey));
+    }
+
+    public static Signature newSignature(PublicKey key) throws NoSuchAlgorithmException, InvalidKeyException {
+        Signature sign = Signature.getInstance(SIGNATURE_ALGORITHM);
+        sign.initVerify(key);
+        return sign;
+    }
+
+    public static Signature newSignature(PrivateKey key) throws NoSuchAlgorithmException, InvalidKeyException {
+        Signature sign = Signature.getInstance(SIGNATURE_ALGORITHM);
+        sign.initSign(key);
+        return sign;
     }
 }

@@ -83,6 +83,8 @@ public class ConnServerClient implements Closeable {
             user = server.getDataProvider().getUserByUsername(response.getUsername()).get();
             if (user != null) {
                 Signature sign = CryptoUtil.newSignature(user.getPublicKey());
+                sign.update(user.getUsername().getBytes());
+                sign.update(user.getRawPublicKey());
                 sign.update(authPayload);
                 success = sign.verify(response.getSignature().toByteArray());
             }

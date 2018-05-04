@@ -6,6 +6,7 @@ import java.net.ProtocolException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
@@ -37,7 +38,8 @@ public class ConnClient implements Closeable {
     private ScheduledExecutorService scheduler;
 
     private final Settings settings;
-    private PrivateKey privateKey;
+    private final PublicKey publicKey;
+    private final PrivateKey privateKey;
 
     private volatile ConnClientListener listener;
     private volatile State state = State.CREATED;
@@ -93,6 +95,7 @@ public class ConnClient implements Closeable {
         settings = database.getSettings()
                 .orElseThrow(() -> new IllegalArgumentException("Settings missing from identity file"));
 
+        publicKey = settings.getPublicKey();
         privateKey = settings.getPrivateKey();
 
         switch (builder.transport) {
@@ -161,6 +164,8 @@ public class ConnClient implements Closeable {
 
         try {
             Signature sign = CryptoUtil.newSignature(privateKey);
+            sign.update(settings.getUsername().getBytes());
+            sign.update(publicKey.getEncoded());
             sign.update(payload);
             byte[] signature = sign.sign();
 

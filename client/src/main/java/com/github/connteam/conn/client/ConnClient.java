@@ -50,7 +50,7 @@ public class ConnClient implements Closeable {
             return this;
         }
 
-        public Builder setDataProvider(DataProvider database) {
+        public Builder setIdentity(DataProvider database) {
             this.database = database;
             return this;
         }

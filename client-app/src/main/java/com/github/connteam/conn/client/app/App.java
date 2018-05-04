@@ -161,7 +161,7 @@ public class App {
 
         LOG.info("Connecting");
         ConnClient client = ConnClient.builder().setHost("localhost").setPort(9090).setTransport(Transport.SSL)
-                .setDataProvider(provider).build();
+                .setIdentity(provider).build();
 
         client.setHandler(new ConnClientListener() {
             @Override

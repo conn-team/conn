@@ -2,6 +2,7 @@ package com.github.connteam.conn.server.database.model;
 
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.sql.Timestamp;
 
 import javax.validation.constraints.NotNull;
 
@@ -14,6 +15,7 @@ public class Message {
     private byte[] message;
     private byte[] key;
     private byte[] signature;
+    private Timestamp time;
 
     public int getIdMessage() {
         return idMessage;
@@ -39,8 +41,19 @@ public class Message {
         return signature;
     }
 
+    public Timestamp getTime() {
+        return time;
+    }
+
     public void setIdMessage(int idMessage) {
         this.idMessage = idMessage;
+    }
+
+    public void setTime(@NotNull Timestamp time) {
+        if (time == null) {
+            throw new NullPointerException();
+        }
+        this.time = time;
     }
 
     public void setIdFrom(int idFrom) {

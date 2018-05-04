@@ -208,9 +208,9 @@ public class PostgresDataProvider implements DataProvider {
         }
 
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
-                "INSERT INTO messages (id_from, id_to, message, key, signature) VALUES (?, ?, ?, ?, ?) RETURNING id_message;")) {
+                "INSERT INTO messages (id_from, id_to, message, key, signature, time) VALUES (?, ?, ?, ?, ?, ?) RETURNING id_message;")) {
             return q.push(message.getIdFrom(), message.getIdTo(), message.getIdMessage(), message.getRawKey(),
-                    message.getSignature()).executeInsert();
+                    message.getSignature(), message.getTime()).executeInsert();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -219,9 +219,9 @@ public class PostgresDataProvider implements DataProvider {
     @Override
     public boolean updateMessage(Message message) throws DatabaseException {
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
-                "UPDATE messages SET id_from = ?, id_to = ?, message = ?, key = ?, signature = ? WHERE id_message = ?;")) {
+                "UPDATE messages SET id_from = ?, id_to = ?, message = ?, key = ?, signature = ?, time = ? WHERE id_message = ?;")) {
             return q.push(message.getIdFrom(), message.getIdTo(), message.getMessage(), message.getRawKey(),
-                    message.getSignature(), message.getIdMessage()).executeUpdate() > 0;
+                    message.getSignature(), message.getIdMessage(), message.getTime()).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

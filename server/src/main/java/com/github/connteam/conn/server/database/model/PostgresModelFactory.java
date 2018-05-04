@@ -20,6 +20,7 @@ public class PostgresModelFactory {
         message.setIdTo(rs.getInt("id_to"));
         message.setKey(rs.getBytes("key"));
         message.setSignature(rs.getBytes("signature"));
+        message.setTime(rs.getTimestamp("time"));
         return message;
     }
 

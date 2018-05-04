@@ -1,5 +1,7 @@
 package com.github.connteam.conn.core.net;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -23,6 +25,8 @@ public class StandardNetChannel extends NetChannel {
     private final static Logger LOG = LoggerFactory.getLogger(StandardNetChannel.class);
     
     private final Socket socket;
+    private final BufferedInputStream bufIn;
+    private final BufferedOutputStream bufOut;
     private final MessageInputStream in;
     private final MessageOutputStream out;
 
@@ -38,12 +42,15 @@ public class StandardNetChannel extends NetChannel {
         this.socket = socket;
         
         try {
-			in = new MessageInputStream(socket.getInputStream(), inRegistry);
-            out = new MessageOutputStream(socket.getOutputStream(), outRegistry);
+            bufIn = new BufferedInputStream(socket.getInputStream());
+            bufOut = new BufferedOutputStream(socket.getOutputStream());
 		} catch (IOException e) {
             socket.close();
             throw e;
-		}
+        }
+        
+        in = new MessageInputStream(bufIn, inRegistry);
+        out = new MessageOutputStream(bufOut, outRegistry);
 
         readerThread = new Thread(() -> {
             try {
@@ -131,7 +138,9 @@ public class StandardNetChannel extends NetChannel {
                 try {
                     LOG.trace("Sending {} to {}:{}\n{}", msg.getClass().getSimpleName(), getAddress().getHostName(),
                             getPort(), JsonFormat.printer().print(msg));
+                    
                     out.writeMessage(msg);
+                    bufOut.flush();
                 } catch (IOException e) {
                     close(e);
                 }

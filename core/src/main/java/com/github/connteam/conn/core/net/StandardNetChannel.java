@@ -64,6 +64,9 @@ public class StandardNetChannel extends NetChannel {
                 }
             } catch (IOException e) {
                 close(e);
+            } catch (Exception e) {
+                LOG.error("Unexpected error in reader thread: {}", e.getMessage());
+                close(e);
             }
         });
 
@@ -152,6 +155,9 @@ public class StandardNetChannel extends NetChannel {
                     out.writeMessage(msg);
                     bufOut.flush();
                 } catch (IOException e) {
+                    close(e);
+                } catch (Exception e) {
+                    LOG.error("Unexpected error in writer thread: {}", e.getMessage());
                     close(e);
                 }
             });

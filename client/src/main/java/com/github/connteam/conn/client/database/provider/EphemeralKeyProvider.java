@@ -16,6 +16,4 @@ public interface EphemeralKeyProvider {
     int insertEphemeralKey(@NotNull EphemeralKey key) throws DatabaseException;
 
     boolean deleteEphemeralKey(int id) throws DatabaseException;
-
-    Optional<EphemeralKey> popEphemeralKey() throws DatabaseException;
 }

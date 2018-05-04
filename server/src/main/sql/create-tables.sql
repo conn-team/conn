@@ -24,5 +24,6 @@ CREATE TABLE IF NOT EXISTS messages (
     id_to INT NOT NULL REFERENCES users(id_user),
     message bytea NOT NULL,
     key bytea NOT NULL,
-    signature bytea NOT NULL
+    signature bytea NOT NULL,
+    time TIMESTAMP NOT NULL DEFAULT current_timestamp
 );

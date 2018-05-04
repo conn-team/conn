@@ -16,13 +16,14 @@ import com.github.connteam.conn.core.crypto.CryptoUtil;
 import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.events.HandleEvent;
 import com.github.connteam.conn.core.events.MultiEventListener;
+import com.github.connteam.conn.core.net.AuthenticationException;
 import com.github.connteam.conn.core.net.NetChannel;
 import com.github.connteam.conn.core.net.NetMessages;
 import com.github.connteam.conn.core.net.StandardNetChannel;
 import com.github.connteam.conn.core.net.Transport;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
-import com.github.connteam.conn.core.net.proto.NetProtos.AuthSuccess;
+import com.github.connteam.conn.core.net.proto.NetProtos.AuthStatus;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 
@@ -166,12 +167,26 @@ public class ConnClient implements Closeable {
     }
 
     private synchronized void onAuthSuccess(Message msg) {
-        if (msg instanceof AuthSuccess) {
+        if (!(msg instanceof AuthStatus)) {
+            close(new ProtocolException("Unexpected message on authentication stage"));
+            return;
+        }
+
+        AuthStatus resp = (AuthStatus)msg;
+
+        switch (resp.getStatus()) {
+        case SUCCESS:
             state = State.ESTABLISHED;
             channel.setMessageHandler(new MessageHandler());
-            listener.onLogin();
-        } else {
-            close(new ProtocolException("Unexpected message on authentication stage"));
+            listener.onLogin(true);
+            break;
+        case FAILED:
+            close(new AuthenticationException("Authentication failed"));
+            listener.onLogin(false);
+            break;
+        default:
+            close(new ProtocolException("Internal server error"));
+            break;
         }
     }
 

@@ -18,7 +18,7 @@ import com.github.connteam.conn.core.net.NetChannel;
 import com.github.connteam.conn.core.net.NetMessages;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
-import com.github.connteam.conn.core.net.proto.NetProtos.AuthSuccess;
+import com.github.connteam.conn.core.net.proto.NetProtos.AuthStatus;
 import com.github.connteam.conn.server.database.model.User;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
@@ -86,11 +86,13 @@ public class ConnServerClient implements Closeable {
             }
         } catch (DatabaseException | InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException
                 | SignatureException e) {
+            channel.sendMessage(AuthStatus.newBuilder().setStatus(AuthStatus.Status.INTERNAL_ERROR).build());
             close(e);
             return;
         }
 
         if (!success) {
+            channel.sendMessage(AuthStatus.newBuilder().setStatus(AuthStatus.Status.FAILED).build());
             close(new AuthenticationException("Authentication failed"));
             return;
         }
@@ -99,7 +101,7 @@ public class ConnServerClient implements Closeable {
 
         state = State.ESTABLISHED;
         channel.setMessageHandler(new MessageHandler());
-        channel.sendMessage(AuthSuccess.newBuilder().build());
+        channel.sendMessage(AuthStatus.newBuilder().setStatus(AuthStatus.Status.SUCCESS).build());
     }
 
     private class MessageHandler extends MultiEventListener<Message> {

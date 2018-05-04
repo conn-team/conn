@@ -15,5 +15,11 @@ message AuthResponse {
     bytes signature = 2;
 }
 
-message AuthSuccess {
+message AuthStatus {
+    enum Status {
+        INTERNAL_ERROR = 0;
+        SUCCESS = 1;
+        FAILED = 2;
+    }
+    Status status = 1;
 }

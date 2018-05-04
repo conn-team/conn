@@ -167,8 +167,8 @@ public class App {
 
         client.setHandler(new ConnClientListener() {
             @Override
-            public void onLogin() {
-                LOG.info("Logged in!");
+            public void onLogin(boolean ok) {
+                LOG.info(ok ? "Logged in!" : "Authentication failed!");
             }
 
             @Override

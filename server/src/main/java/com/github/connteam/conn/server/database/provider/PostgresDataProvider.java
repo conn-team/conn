@@ -136,7 +136,7 @@ public class PostgresDataProvider implements DataProvider {
 
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
                 "INSERT INTO ephemeral_keys (id_user, key, signature) VALUES () RETURNING id_key;")) {
-            return q.push(key.getIdUser(), key.getKey(), key.getSignature()).executeInsert();
+            return q.push(key.getIdUser(), key.getRawKey(), key.getSignature()).executeInsert();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -150,7 +150,7 @@ public class PostgresDataProvider implements DataProvider {
 
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
                 "INSERT INTO ephemeral_keys (id_user, key, signature) VALUES (?, ?, ?);")) {
-            return q.push(key.getIdUser(), key.getKey(), key.getSignature()).executeUpdate() > 0;
+            return q.push(key.getIdUser(), key.getRawKey(), key.getSignature()).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -209,7 +209,7 @@ public class PostgresDataProvider implements DataProvider {
 
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
                 "INSERT INTO messages (id_from, id_to, message, key, signature) VALUES (?, ?, ?, ?, ?) RETURNING id_message;")) {
-            return q.push(message.getIdFrom(), message.getIdTo(), message.getIdMessage(), message.getKey(),
+            return q.push(message.getIdFrom(), message.getIdTo(), message.getIdMessage(), message.getRawKey(),
                     message.getSignature()).executeInsert();
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -220,7 +220,7 @@ public class PostgresDataProvider implements DataProvider {
     public boolean updateMessage(Message message) throws DatabaseException {
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
                 "UPDATE messages SET id_from = ?, id_to = ?, message = ?, key = ?, signature = ? WHERE id_message = ?;")) {
-            return q.push(message.getIdFrom(), message.getIdTo(), message.getMessage(), message.getKey(),
+            return q.push(message.getIdFrom(), message.getIdTo(), message.getMessage(), message.getRawKey(),
                     message.getSignature(), message.getIdMessage()).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -318,7 +318,7 @@ public class PostgresDataProvider implements DataProvider {
 
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
                 "INSERT INTO users (username, public_key) VALUES (?, ?) RETURNING id_user;")) {
-            return q.push(user.getUsername(), user.getPublicKey()).executeInsert();
+            return q.push(user.getUsername(), user.getRawPublicKey()).executeInsert();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -332,7 +332,7 @@ public class PostgresDataProvider implements DataProvider {
 
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
                 "UPDATE users SET username = ?, public_key = ? WHERE id_user = ?;")) {
-            return q.push(user.getUsername(), user.getPublicKey(), user.getId()).executeUpdate() > 0;
+            return q.push(user.getUsername(), user.getRawPublicKey(), user.getId()).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -345,7 +345,7 @@ public class PostgresDataProvider implements DataProvider {
         }
 
         try (SQLQuery q = new SQLQuery(cpds.getConnection(), "UPDATE users SET public_key = ? WHERE username = ?;")) {
-            return q.push(user.getPublicKey(), user.getUsername()).executeUpdate() > 0;
+            return q.push(user.getRawPublicKey(), user.getUsername()).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

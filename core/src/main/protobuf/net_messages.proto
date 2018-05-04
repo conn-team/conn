@@ -27,3 +27,8 @@ message AuthStatus {
 
 message KeepAlive {
 }
+
+message TextMessage {
+    string username = 1;
+    string message = 2;
+}

@@ -1,6 +1,11 @@
 package com.github.connteam.conn.server.database.model;
 
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+
 import javax.validation.constraints.NotNull;
+
+import com.github.connteam.conn.core.crypto.CryptoUtil;
 
 public class EphemeralKey {
     private int idKey;
@@ -16,7 +21,7 @@ public class EphemeralKey {
         return idUser;
     }
 
-    public byte[] getKey() {
+    public byte[] getRawKey() {
         return key;
     }
 
@@ -44,5 +49,13 @@ public class EphemeralKey {
             throw new NullPointerException();
         }
         this.signature = signature;
+    }
+
+    public PublicKey getKey() throws InvalidKeySpecException {
+        return CryptoUtil.decodePublicKey(getRawKey());
+    }
+
+    public void setKey(@NotNull PublicKey publicKey) {
+        setKey(publicKey.getEncoded());
     }
 }

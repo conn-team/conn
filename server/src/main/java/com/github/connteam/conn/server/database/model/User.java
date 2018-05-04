@@ -1,8 +1,12 @@
 package com.github.connteam.conn.server.database.model;
 
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.sql.Timestamp;
 
 import javax.validation.constraints.NotNull;
+
+import com.github.connteam.conn.core.crypto.CryptoUtil;
 
 public class User {
     private int id;
@@ -18,7 +22,7 @@ public class User {
         return username;
     }
 
-    public byte[] getPublicKey() {
+    public byte[] getRawPublicKey() {
         return publicKey;
     }
 
@@ -49,5 +53,13 @@ public class User {
             throw new NullPointerException();
         }
         this.signupTime = signupTime;
+    }
+
+    public PublicKey getPublicKey() throws InvalidKeySpecException {
+        return CryptoUtil.decodePublicKey(getRawPublicKey());
+    }
+
+    public void setPublicKey(@NotNull PublicKey publicKey) {
+        setPublicKey(publicKey.getEncoded());
     }
 }

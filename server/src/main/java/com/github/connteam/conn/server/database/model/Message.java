@@ -1,6 +1,11 @@
 package com.github.connteam.conn.server.database.model;
 
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+
 import javax.validation.constraints.NotNull;
+
+import com.github.connteam.conn.core.crypto.CryptoUtil;
 
 public class Message {
     private int idMessage;
@@ -26,7 +31,7 @@ public class Message {
         return message;
     }
 
-    public byte[] getKey() {
+    public byte[] getRawKey() {
         return key;
     }
 
@@ -65,5 +70,13 @@ public class Message {
             throw new NullPointerException();
         }
         this.signature = signature;
+    }
+
+    public PublicKey getKey() throws InvalidKeySpecException {
+        return CryptoUtil.decodePublicKey(getRawKey());
+    }
+
+    public void setKey(@NotNull PublicKey publicKey) {
+        setKey(publicKey.getEncoded());
     }
 }

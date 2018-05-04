@@ -57,11 +57,6 @@ public class App {
             }
 
             @Override
-            public Optional<EphemeralKey> popEphemeralKey() {
-                return null;
-            }
-
-            @Override
             public List<Friend> getFriends() {
                 return null;
             }

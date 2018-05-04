@@ -37,7 +37,7 @@ public class SQLQuery implements AutoCloseable {
 
             this.connection = connection;
             this.SQLString = SQLString;
-            this.pstmt = connection.prepareStatement(SQLString);
+            this.pstmt = connection.prepareStatement(SQLString, PreparedStatement.RETURN_GENERATED_KEYS);
             this.creationTime = new Date();
             LOG.trace("|{}| connection pooled.", SQLString);
         } catch (Throwable t) {

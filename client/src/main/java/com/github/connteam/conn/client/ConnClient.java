@@ -190,6 +190,10 @@ public class ConnClient implements Closeable {
             close(new AuthenticationException("Authentication failed"));
             listener.onLogin(false);
             break;
+        case ALREADY_ONLINE:
+            close(new AuthenticationException("User connected from another location"));
+            listener.onLogin(false);
+            break;
         default:
             close(new ProtocolException("Internal server error"));
             break;

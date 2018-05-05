@@ -163,7 +163,11 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public boolean updateMessage(Message message) throws DatabaseException {
+    synchronized public boolean updateMessage(@NotNull Message message) throws DatabaseException {
+        if (message == null) {
+            throw new NullPointerException();
+        }
+
         String SQLString = "UPDATE messages SET id_user = ?, is_outgoing = ?, message = ?, time = ? WHERE id_message = ?;";
         try (SQLQuery q = query(SQLString)) {
             return q.push(message.getIdUser(), message.isOutgoing(), message.getMessage(), message.getTime())

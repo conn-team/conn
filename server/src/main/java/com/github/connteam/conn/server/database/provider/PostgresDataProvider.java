@@ -391,7 +391,7 @@ public class PostgresDataProvider implements DataProvider {
     }
 
     @Override
-    public void deleteTables() throws DatabaseException {
+    public void dropTables() throws DatabaseException {
         try (Connection conn = cpds.getConnection()) {
             DatabaseUtil.executeScriptFromResource(conn, getClass(), "sql/drop-tables.sql");
         } catch (SQLException | IOException e) {

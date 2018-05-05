@@ -43,7 +43,7 @@ public class SqliteModelFactory {
         user.setPublicKey(rs.getBytes("public_key"));
         user.setVerified(rs.getBoolean("is_verified"));
         user.setOutSequence(rs.getInt("out_sequence"));
-        user.setinSequence(rs.getInt("in_sequence"));
+        user.setInSequence(rs.getInt("in_sequence"));
         return user;
     }
 }

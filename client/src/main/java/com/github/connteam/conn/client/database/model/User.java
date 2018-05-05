@@ -35,7 +35,7 @@ public class User {
         return outSequence;
     }
 
-    public int getinSequence() {
+    public int getInSequence() {
         return inSequence;
     }
 
@@ -65,7 +65,7 @@ public class User {
         this.outSequence = outSequence;
     }
 
-    public void setinSequence(int inSequence) {
+    public void setInSequence(int inSequence) {
         this.inSequence = inSequence;
     }
 

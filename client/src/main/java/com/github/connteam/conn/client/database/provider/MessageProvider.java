@@ -19,7 +19,7 @@ public interface MessageProvider {
 
     boolean updateMessage(@NotNull Message message) throws DatabaseException;
 
-    int deleteMessageFrom(int idFrom) throws DatabaseException;
+    int deleteMessagesFrom(int idFrom) throws DatabaseException;
 
     int deleteMessagesTo(int idTo) throws DatabaseException;
 }

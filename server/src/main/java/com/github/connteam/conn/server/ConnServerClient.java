@@ -101,7 +101,7 @@ public class ConnServerClient implements Closeable {
         boolean success = false;
 
         try {
-            user = server.getDataProvider().getUserByUsername(response.getUsername()).get();
+            user = server.getDataProvider().getUserByUsername(response.getUsername()).orElse(null);
             if (user != null) {
                 success = verifyLogin(user, authPayload, response.getSignature().toByteArray());
             }

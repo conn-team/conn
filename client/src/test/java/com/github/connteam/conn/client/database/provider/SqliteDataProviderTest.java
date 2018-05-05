@@ -1,4 +1,4 @@
-package com.github.connteam.conn.client;
+package com.github.connteam.conn.client.database.provider;
 
 import static org.junit.Assert.*;
 
@@ -17,9 +17,10 @@ import com.github.connteam.conn.client.database.provider.DataProvider;
 import com.github.connteam.conn.client.database.provider.SqliteDataProvider;
 import com.github.connteam.conn.core.database.DatabaseException;
 
+import org.junit.Before;
 import org.junit.Test;
 
-public class ClientTest {
+public class SqliteDataProviderTest {
     private DataProvider dp = null;
     private User[] users = new User[3];
 
@@ -36,7 +37,8 @@ public class ClientTest {
         }
     }
 
-    public ClientTest() {
+    @Before
+    public void initDatabase() {
         wrapper(() -> {
             dp = new SqliteDataProvider("/tmp/conn_test.db");
             dp.dropTables();

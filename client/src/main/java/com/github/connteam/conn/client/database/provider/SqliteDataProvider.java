@@ -174,7 +174,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public int deleteMessageFrom(int idFrom) throws DatabaseException {
+    synchronized public int deleteMessagesFrom(int idFrom) throws DatabaseException {
         try (SQLQuery q = query("DELETE FROM messages WHERE (id_user = ?) AND (is_outgoing = 0);")) {
             return q.push(idFrom).executeUpdate();
         } catch (SQLException e) {
@@ -264,7 +264,7 @@ public class SqliteDataProvider implements DataProvider {
         String SQLString = "INSERT INTO users (username, public_key, is_verified, out_sequence, in_sequence) VALUES (?, ?, ?, ?, ?);";
         try (SQLQuery q = query(SQLString)) {
             return q.push(user.getUsername(), user.getRawPublicKey(), user.isVerified(), user.getOutSequence(),
-                    user.getinSequence()).executeInsert();
+                    user.getInSequence()).executeInsert();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

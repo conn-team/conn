@@ -14,7 +14,7 @@ public final class DatabaseUtil {
 
     public static void executeScriptFromResource(Connection conn, Class<?> clazz, String resourceName)
             throws SQLException, IOException {
-        byte[] bytes = IOUtils.readAllBytes(clazz.getClassLoader().getResourceAsStream(resourceName));
+        byte[] bytes = IOUtils.getResourceBytes(clazz, resourceName);
         if (bytes == null) {
             throw new IOException("Resource not found");
         }

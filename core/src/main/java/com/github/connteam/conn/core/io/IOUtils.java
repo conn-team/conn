@@ -34,4 +34,10 @@ public final class IOUtils {
         buffer.flush();
         return buffer.toByteArray();
     }
+
+    public static byte[] getResourceBytes(Class<?> clazz, String resourceName) throws IOException {
+        try (InputStream input = clazz.getClassLoader().getResourceAsStream(resourceName)) {
+            return IOUtils.readAllBytes(input);
+        }
+    }
 }

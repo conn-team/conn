@@ -386,7 +386,7 @@ public class PostgresDataProvider implements DataProvider {
         try (Connection conn = cpds.getConnection()) {
             DatabaseUtil.executeScriptFromResource(conn, getClass(), "sql/create-tables.sql");
         } catch (SQLException | IOException e) {
-			throw new DatabaseException(e);
-		}
+            throw new DatabaseException(e);
+        }
     }
 }

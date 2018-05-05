@@ -7,6 +7,9 @@ import javax.validation.constraints.NotNull;
 
 import com.github.connteam.conn.core.crypto.CryptoUtil;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 public class EphemeralKey {
     private int idKey;
     private int idUser;
@@ -57,5 +60,15 @@ public class EphemeralKey {
 
     public void setKey(@NotNull PublicKey publicKey) {
         setKey(publicKey.getEncoded());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
     }
 }

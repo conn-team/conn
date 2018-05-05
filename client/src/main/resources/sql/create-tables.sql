@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS ephemeral_keys (
 
 CREATE TABLE IF NOT EXISTS users (
     id_user INTEGER PRIMARY KEY AUTOINCREMENT,
-    username VARCHAR(32) NOT NULL,
+    username VARCHAR(32) NOT NULL UNIQUE,
     public_key BLOB(32) NOT NULL,
     is_verified TINYINT(1) NOT NULL,
     out_sequence INTEGER NOT NULL,

@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS users (
     id_user SERIAL PRIMARY KEY,
-    username VARCHAR(32) NOT NULL,
+    username VARCHAR(32) NOT NULL UNIQUE,
     public_key BYTEA NOT NULL,
     signup_time TIMESTAMP NOT NULL DEFAULT current_timestamp
 );

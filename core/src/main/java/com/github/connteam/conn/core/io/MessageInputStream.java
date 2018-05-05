@@ -8,7 +8,7 @@ import java.io.DataInputStream;
 import com.google.protobuf.Message;
 
 public class MessageInputStream extends DataInputStream {
-    public static final int MAX_MESSAGE_LENGTH = 1 << 20;
+    public static final int MAX_MESSAGE_LENGTH = 4096;
 
     private final MessageRegistry registry;
     

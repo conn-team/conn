@@ -16,16 +16,18 @@ public abstract class NetChannel implements Closeable {
     }
 
     private volatile EventListener<Message> messageHandler;
-    private volatile EventListener<IOException> closeHandler;
+    private volatile EventListener<Exception> closeHandler;
 
     public abstract void open();
-    public abstract void close(IOException err);
+    public abstract void close(Exception err);
     public abstract void awaitTermination(long timeout, TimeUnit unit) throws InterruptedException;
     public abstract boolean isOpen();
-    public abstract IOException getError();
+    public abstract Exception getError();
     public abstract void sendMessage(Message msg);
     public abstract InetAddress getAddress();
     public abstract int getPort();
+    public abstract int getTimeout() throws IOException;
+    public abstract void setTimeout(int millis) throws IOException;
 
     public void close() {
         close(null);
@@ -35,7 +37,7 @@ public abstract class NetChannel implements Closeable {
         return messageHandler;
     }
 
-    public EventListener<IOException> getCloseHandler() {
+    public EventListener<Exception> getCloseHandler() {
         return closeHandler;
     }
 
@@ -43,7 +45,7 @@ public abstract class NetChannel implements Closeable {
         messageHandler = handler;
     }
 
-    public void setCloseHandler(EventListener<IOException> handler) {
+    public void setCloseHandler(EventListener<Exception> handler) {
         closeHandler = handler;
     }
 }

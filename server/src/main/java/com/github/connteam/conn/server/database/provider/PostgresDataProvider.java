@@ -151,9 +151,9 @@ public class PostgresDataProvider implements DataProvider {
             throw new NullPointerException();
         }
 
-        String SQLString = "INSERT INTO ephemeral_keys (id_user, key, signature) VALUES (?, ?, ?);";
+        String SQLString = "UPDATE ephemeral_keys SET id_user = ?, key = ?, signature = ? WHERE id_key = ?;";
         try (SQLQuery q = new SQLQuery(cpds.getConnection(), SQLString)) {
-            return q.push(key.getIdUser(), key.getRawKey(), key.getSignature()).executeUpdate() > 0;
+            return q.push(key.getIdUser(), key.getRawKey(), key.getSignature(), key.getIdKey()).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

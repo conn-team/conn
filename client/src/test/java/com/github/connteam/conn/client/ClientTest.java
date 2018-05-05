@@ -38,7 +38,7 @@ public class ClientTest {
 
     public ClientTest() {
         wrapper(() -> {
-            dp = new SqliteDataProvider("test.db");
+            dp = new SqliteDataProvider("/tmp/conn_test.db");
             dp.dropTables();
             dp.createTables();
         });

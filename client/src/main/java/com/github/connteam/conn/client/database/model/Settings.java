@@ -8,6 +8,9 @@ import javax.validation.constraints.NotNull;
 
 import com.github.connteam.conn.core.crypto.CryptoUtil;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 public class Settings {
     private String username;
     private byte[] publicKey;
@@ -60,5 +63,15 @@ public class Settings {
 
     public void setPrivateKey(@NotNull PrivateKey privateKey) {
         setPrivateKey(privateKey.getEncoded());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
     }
 }

@@ -389,4 +389,13 @@ public class PostgresDataProvider implements DataProvider {
 			throw new DatabaseException(e);
 		}
     }
+
+    @Override
+    public void deleteTables() throws DatabaseException {
+        try (Connection conn = cpds.getConnection()) {
+            DatabaseUtil.executeScriptFromResource(conn, getClass(), "sql/drop-tables.sql");
+        } catch (SQLException | IOException e) {
+            throw new DatabaseException(e);
+        }
+    }
 }

@@ -313,4 +313,13 @@ public class SqliteDataProvider implements DataProvider {
             throw new DatabaseException(e);
         }
     }
+
+    @Override
+    public void dropTables() throws DatabaseException {
+        try {
+            DatabaseUtil.executeScriptFromResource(connection, getClass(), "sql/drop-tables.sql");
+        } catch (SQLException | IOException e) {
+            throw new DatabaseException(e);
+        }
+    }
 }

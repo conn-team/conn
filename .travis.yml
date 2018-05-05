@@ -1,4 +1,4 @@
 language: java
 before_install:
 - ./generate-protos.sh
-- ./generate-keys.sh
+- ./generate-ssl-keys.sh

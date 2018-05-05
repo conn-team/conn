@@ -1,4 +1,8 @@
 language: java
+services:
+- postgresql
 before_install:
+- psql -U postgres -c "CREATE DATABASE conn_test;"
+- psql -U postgres -c "CREATE USER conn WITH PASSWORD '';"
 - ./generate-protos.sh
 - ./generate-ssl-keys.sh

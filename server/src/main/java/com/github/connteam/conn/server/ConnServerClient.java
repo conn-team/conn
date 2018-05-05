@@ -9,6 +9,7 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 
 import com.github.connteam.conn.core.crypto.CryptoUtil;
 import com.github.connteam.conn.core.database.DatabaseException;
@@ -23,6 +24,7 @@ import com.github.connteam.conn.core.net.proto.NetProtos.AuthStatus;
 import com.github.connteam.conn.core.net.proto.NetProtos.KeepAlive;
 import com.github.connteam.conn.core.net.proto.NetProtos.TextMessage;
 import com.github.connteam.conn.server.database.model.User;
+import com.github.connteam.conn.server.database.provider.DataProvider;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 
@@ -96,53 +98,83 @@ public class ConnServerClient implements Closeable {
             return;
         }
 
-        AuthResponse response = (AuthResponse)msg;
-        User user = null;
-        boolean success = false;
+        AuthStatus.Status status;
+		try {
+			status = attemptLogin((AuthResponse)msg);
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException | DatabaseException e) {
+            status = AuthStatus.Status.INTERNAL_ERROR;
+            LOG.info("Error while authenticating user: " + e.toString());
+		}
 
-        try {
-            user = server.getDataProvider().getUserByUsername(response.getUsername()).orElse(null);
-            if (user != null) {
-                success = verifyLogin(user, authPayload, response.getSignature().toByteArray());
-            }
-            
-            if (success) {
-                publicKey = user.getPublicKey();
-                this.user = user;
-            }
-        } catch (DatabaseException | NoSuchAlgorithmException e) {
-            LOG.error("Error verifying login: {}", e.toString());
-            channel.sendMessage(AuthStatus.newBuilder().setStatus(AuthStatus.Status.INTERNAL_ERROR).build());
-            close(e);
-            return;
-        } catch (InvalidKeyException | InvalidKeySpecException | SignatureException e) {
-            success = false;
+        channel.sendMessage(AuthStatus.newBuilder().setStatus(status).build());
+
+        if (status != AuthStatus.Status.LOGGED_IN && status != AuthStatus.Status.REGISTERED) {
+            close(new AuthenticationException(status));
+        }
+    }
+
+    private AuthStatus.Status attemptLogin(AuthResponse msg) throws DatabaseException, NoSuchAlgorithmException, InvalidKeySpecException {
+        String username = msg.getUsername();
+        byte[] receivedPublicKey = msg.getPublicKey().toByteArray();
+        byte[] sign = msg.getSignature().toByteArray();
+
+        // Verify if user is owner of private key by checking signature
+
+        if (!verifyLoginSignature(username, receivedPublicKey, authPayload, sign)) {
+            return AuthStatus.Status.INVALID_SIGNATURE;
         }
 
-        if (!success) {
-            channel.sendMessage(AuthStatus.newBuilder().setStatus(AuthStatus.Status.FAILED).build());
-            close(new AuthenticationException("Authentication failed"));
-            return;
+        // Get user from database, if not present - register him
+
+        DataProvider db = server.getDataProvider();
+        User user = db.getUserByUsername(username).orElse(null);
+        AuthStatus.Status mode = AuthStatus.Status.LOGGED_IN;
+
+        if (user == null) {
+            user = new User();
+            user.setUsername(username);
+            user.setPublicKey(receivedPublicKey);
+
+            db.insertUser(user);
+            user = db.getUserByUsername(username).orElse(null);
+            mode = AuthStatus.Status.REGISTERED;
+
+            if (user == null) {
+                return AuthStatus.Status.MISMATCHED_PUBLICKEY;
+            }
         }
+
+        // Check if public key matches with user in database
+
+        if (!Arrays.equals(user.getRawPublicKey(), receivedPublicKey)) {
+            return AuthStatus.Status.MISMATCHED_PUBLICKEY;
+        }
+
+        // User is verified
+
+        this.user = user;
+        publicKey = user.getPublicKey();
 
         if (!server.addClient(this)) {
-            channel.sendMessage(AuthStatus.newBuilder().setStatus(AuthStatus.Status.ALREADY_ONLINE).build());
-            close(new AuthenticationException("User connected from another location"));
-            return;
+            return AuthStatus.Status.ALREADY_ONLINE;
         }
 
         state = State.ESTABLISHED;
         channel.setMessageHandler(new MessageHandler());
-        channel.sendMessage(AuthStatus.newBuilder().setStatus(AuthStatus.Status.SUCCESS).build());
+        return mode;
     }
 
-    private boolean verifyLogin(User user, byte[] toSign, byte[] signature)
-            throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, SignatureException {
-        Signature sign = CryptoUtil.newSignature(user.getPublicKey());
-        sign.update(user.getUsername().getBytes());
-        sign.update(user.getRawPublicKey());
-        sign.update(authPayload);
-        return sign.verify(signature);
+    private boolean verifyLoginSignature(String username, byte[] pubKey, byte[] toSign, byte[] signature)
+            throws NoSuchAlgorithmException {
+        try {
+            Signature sign = CryptoUtil.newSignature(CryptoUtil.decodePublicKey(pubKey));
+            sign.update(username.getBytes());
+            sign.update(pubKey);
+            sign.update(authPayload);
+            return sign.verify(signature);
+        } catch (SignatureException | InvalidKeyException | InvalidKeySpecException e) {
+            return false;
+        }
     }
 
     public class MessageHandler extends MultiEventListener<Message> {

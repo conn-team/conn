@@ -4,8 +4,8 @@ import com.budhash.cliche.Command;
 import com.budhash.cliche.ShellFactory;
 import com.github.connteam.conn.client.ConnClient;
 import com.github.connteam.conn.client.ConnClientListener;
+import com.github.connteam.conn.client.IdentityFactory;
 import com.github.connteam.conn.client.database.provider.DataProvider;
-import com.github.connteam.conn.client.database.provider.SqliteDataProvider;
 import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.net.Transport;
 
@@ -23,27 +23,34 @@ public class App {
     }
 
     @Command
-    public void login(String identity) throws Exception {
+    public void login(String username) throws Exception {
         logout();
 
-        DataProvider database = new SqliteDataProvider(System.getProperty("user.home") + "/" + identity);
-        this.database = database;
+        String path = System.getProperty("user.home") + "/" + username + ".db";
+        
+		try {
+			database = IdentityFactory.load(path);
+		} catch (DatabaseException e) {
+            database = IdentityFactory.create(path, username);
+        }
+        
+        DataProvider db = database;
 
         ConnClient client = ConnClient.builder().setHost("localhost").setPort(9090).setTransport(Transport.SSL)
-                .setIdentity(database).build();
+                .setIdentity(db).build();
         this.client = client;
 
         client.setHandler(new ConnClientListener() {
             @Override
-            public void onLogin(boolean ok) {
-                LOG.info(ok ? "Logged in!" : "Authentication failed!");
+            public void onLogin(boolean hasBeenRegistered) {
+                LOG.info("Logged in!" + (hasBeenRegistered ? " (new account)" : " (existing account)"));
             }
 
             @Override
             public void onDisconnect(Exception err) {
-                LOG.info("Disconnected: {}", err.toString());
+                LOG.info("Disconnected: {}", (err != null ? err.toString() : null));
                 try {
-					database.close();
+					db.close();
 				} catch (DatabaseException e) {
 					e.printStackTrace();
 				}

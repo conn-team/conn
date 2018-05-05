@@ -12,15 +12,18 @@ message AuthRequest {
 
 message AuthResponse {
     string username = 1;
-    bytes signature = 2;
+    bytes publicKey = 2;
+    bytes signature = 3;
 }
 
 message AuthStatus {
     enum Status {
         INTERNAL_ERROR = 0;
-        SUCCESS = 1;
-        FAILED = 2;
-        ALREADY_ONLINE = 3;
+        LOGGED_IN = 1;
+        REGISTERED = 2;
+        MISMATCHED_PUBLICKEY = 3;
+        INVALID_SIGNATURE = 4;
+        ALREADY_ONLINE = 5;
     }
     Status status = 1;
 }

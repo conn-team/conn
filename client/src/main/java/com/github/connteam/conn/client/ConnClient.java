@@ -176,7 +176,7 @@ public class ConnClient implements Closeable {
         }
     }
 
-    private synchronized void onAuthSuccess(Message msg) {
+    private synchronized void onAuthStatus(Message msg) {
         if (!(msg instanceof AuthStatus)) {
             close(new ProtocolException("Unexpected message on authentication stage"));
             return;
@@ -185,41 +185,42 @@ public class ConnClient implements Closeable {
         AuthStatus resp = (AuthStatus)msg;
 
         switch (resp.getStatus()) {
-        case SUCCESS:
-            state = State.ESTABLISHED;
-            channel.setMessageHandler(new MessageHandler());
-            startKeepAlive();
-            listener.onLogin(true);
+        case LOGGED_IN:
+            onLogin(false);
             break;
-        case FAILED:
-            close(new AuthenticationException("Authentication failed"));
-            listener.onLogin(false);
-            break;
-        case ALREADY_ONLINE:
-            close(new AuthenticationException("User connected from another location"));
-            listener.onLogin(false);
+        case REGISTERED:
+            onLogin(true);
             break;
         default:
-            close(new ProtocolException("Internal server error"));
-            break;
+            close(new AuthenticationException(resp.getStatus()));
         }
     }
 
     private synchronized void login(byte[] toSign) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException {
+        String name = settings.getUsername();
+        byte[] pubKey = publicKey.getEncoded();
+        
         Signature sign = CryptoUtil.newSignature(privateKey);
-        sign.update(settings.getUsername().getBytes());
-        sign.update(publicKey.getEncoded());
+        sign.update(name.getBytes());
+        sign.update(pubKey);
         sign.update(toSign);
-        byte[] signature = sign.sign();
 
-        channel.sendMessage(AuthResponse.newBuilder().setUsername(settings.getUsername())
-                .setSignature(ByteString.copyFrom(signature)).build());
+        AuthResponse.Builder response = AuthResponse.newBuilder();
+        response.setUsername(name);
+        response.setSignature(ByteString.copyFrom(sign.sign()));
+        response.setPublicKey(ByteString.copyFrom(pubKey));
+
+        channel.sendMessage(response.build());
 
         state = State.AUTH_RESPONSE;
-        channel.setMessageHandler(this::onAuthSuccess);
+        channel.setMessageHandler(this::onAuthStatus);
     }
 
-    private synchronized void startKeepAlive() {
+    private synchronized void onLogin(boolean hasBeenRegistered) {
+        state = State.ESTABLISHED;
+        channel.setMessageHandler(new MessageHandler());
+        listener.onLogin(hasBeenRegistered);
+
         final KeepAlive keepAlive = KeepAlive.newBuilder().build();
 
         if (!scheduler.isShutdown()) {

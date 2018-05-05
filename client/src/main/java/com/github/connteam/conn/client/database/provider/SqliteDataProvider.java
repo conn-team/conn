@@ -1,5 +1,10 @@
 package com.github.connteam.conn.client.database.provider;
 
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -16,6 +21,7 @@ import com.github.connteam.conn.client.database.model.SqliteModelFactory;
 import com.github.connteam.conn.client.database.model.User;
 import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.database.SQLQuery;
+import com.github.connteam.conn.core.io.IOUtils;
 
 public class SqliteDataProvider implements DataProvider {
     private Connection connection;
@@ -291,7 +297,23 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public void close() throws SQLException {
-        connection.close();
+    synchronized public void close() throws DatabaseException {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
+    synchronized public void createTables() throws IOException, DatabaseException {
+        byte[] bytes = IOUtils.readAllBytes(getClass().getClassLoader().getResourceAsStream("sql/create-tables.sql"));
+        if (bytes == null) {
+            throw new IOException("Missing create-tables.sql");
+        }
+
+        final String SQLString = new String(bytes, StandardCharsets.UTF_8);
+        throw new UnsupportedOperationException();
+        // TODO: Write multi statement execution
     }
 }

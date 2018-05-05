@@ -2,7 +2,7 @@ package com.github.connteam.conn.server.database.provider;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -10,8 +10,8 @@ import java.util.Optional;
 import javax.validation.constraints.NotNull;
 
 import com.github.connteam.conn.core.database.DatabaseException;
+import com.github.connteam.conn.core.database.DatabaseUtil;
 import com.github.connteam.conn.core.database.SQLQuery;
-import com.github.connteam.conn.core.io.IOUtils;
 import com.github.connteam.conn.server.database.model.EphemeralKey;
 import com.github.connteam.conn.server.database.model.Message;
 import com.github.connteam.conn.server.database.model.Observed;
@@ -382,14 +382,11 @@ public class PostgresDataProvider implements DataProvider {
     }
 
     @Override
-    public void createTables() throws DatabaseException, IOException {
-        byte[] bytes = IOUtils.readAllBytes(getClass().getClassLoader().getResourceAsStream("sql/create-tables.sql"));
-        if (bytes == null) {
-            throw new IOException("Missing create-tables.sql");
-        }
-
-        final String SQLString = new String(bytes, StandardCharsets.UTF_8);
-        throw new UnsupportedOperationException();
-        // TODO: Write multi statement execution
+    public void createTables() throws DatabaseException {
+        try (Connection conn = cpds.getConnection()) {
+            DatabaseUtil.executeScriptFromResource(conn, getClass(), "sql/create-tables.sql");
+        } catch (SQLException | IOException e) {
+			throw new DatabaseException(e);
+		}
     }
 }

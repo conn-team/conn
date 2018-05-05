@@ -64,7 +64,7 @@ public class SqliteDataProvider implements DataProvider {
 
         final String SQLString = "INSERT INTO ephemeral_keys (public_key, private_key) VALUES (?, ?);";
         try (SQLQuery q = query(SQLString)) {
-            return q.push(key.getRawPublicKey(), key.getRawPublicKey()).executeInsert();
+            return q.push(key.getRawPublicKey(), key.getRawPrivateKey()).executeInsert();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -91,7 +91,7 @@ public class SqliteDataProvider implements DataProvider {
     @Override
     synchronized public Optional<Friend> getFriendById(int id) throws DatabaseException {
         try (SQLQuery q = query("SELECT * FROM friends WHERE id_user = ?;")) {
-            return q.executeQueryFirst(SqliteModelFactory::friendFromResultSet);
+            return q.push(id).executeQueryFirst(SqliteModelFactory::friendFromResultSet);
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

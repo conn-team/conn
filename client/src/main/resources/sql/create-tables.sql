@@ -29,5 +29,6 @@ CREATE TABLE IF NOT EXISTS messages (
     id_message INTEGER PRIMARY KEY AUTOINCREMENT,
     id_user INTEGER NOT NULL REFERENCES users(id_user),
     message VARCHAR(8196) NOT NULL,
-    is_outgoing TINYINT(1) NOT NULL
+    is_outgoing TINYINT(1) NOT NULL,
+    time TIMESTAMP NOT NULL DEFAULT current_timestamp
 );

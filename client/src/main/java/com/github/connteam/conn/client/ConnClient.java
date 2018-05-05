@@ -123,6 +123,10 @@ public class ConnClient implements Closeable {
         this.listener = listener;
     }
 
+    public Settings getSettings() {
+        return settings;
+    }
+
     @Override
     public void close() {
         close(null);

@@ -7,9 +7,6 @@ import javax.validation.constraints.NotNull;
 
 import com.github.connteam.conn.core.crypto.CryptoUtil;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 public class User {
     private int idUser;
     private String username;
@@ -78,15 +75,5 @@ public class User {
 
     public void setPublicKey(@NotNull PublicKey publicKey) {
         setPublicKey(publicKey.getEncoded());
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
-    }
-
-    @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
     }
 }

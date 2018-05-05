@@ -4,9 +4,6 @@ import java.sql.Timestamp;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 public class Message {
     private int idMessage;
     private int idUser;
@@ -58,15 +55,5 @@ public class Message {
             throw new NullPointerException();
         }
         this.message = message;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
-    }
-
-    @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
     }
 }

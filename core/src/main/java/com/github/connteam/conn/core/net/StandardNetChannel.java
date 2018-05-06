@@ -67,6 +67,9 @@ public class StandardNetChannel extends NetChannel {
             } catch (Exception e) {
                 LOG.error("Unexpected error in reader thread: {}", e.toString());
                 close(e);
+            } catch (Throwable e) {
+                LOG.error("Unexpected error in reader thread: {}", e.toString());
+                close(new Exception(e));
             }
         });
 

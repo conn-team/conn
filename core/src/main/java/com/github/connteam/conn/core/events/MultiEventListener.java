@@ -32,6 +32,8 @@ public abstract class MultiEventListener<T> implements EventListener<T> {
         }
     }
 
+    public void onDefault(T event) {}
+
     private void scanMethod(Method method) {
         if (!method.isAnnotationPresent(HandleEvent.class)) {
             return;
@@ -67,6 +69,7 @@ public abstract class MultiEventListener<T> implements EventListener<T> {
         }
 
         Class<?> type = event.getClass();
+        boolean matched = false;
 
         while (type != null) {
             List<Method> list = handlers.get(type);
@@ -75,6 +78,7 @@ public abstract class MultiEventListener<T> implements EventListener<T> {
                 for (Method handler : list) {
                     try {
                         handler.invoke(this, event);
+                        matched = true;
                     } catch (IllegalAccessException e) {
                         throw new EventHandlerException("Inaccesible handler");
                     } catch (InvocationTargetException e) {
@@ -91,6 +95,10 @@ public abstract class MultiEventListener<T> implements EventListener<T> {
             }
 
             type = type.getSuperclass();
+        }
+
+        if (!matched) {
+            onDefault(event);
         }
     }
 }

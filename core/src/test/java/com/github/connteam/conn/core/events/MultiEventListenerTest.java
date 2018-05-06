@@ -80,6 +80,18 @@ public class MultiEventListenerTest {
         }
     }
 
+    static class DefaultListener extends MultiEventListener<BaseEvent> {
+        @Override
+        public void onDefault(BaseEvent event) {
+            log.append("default:" + event.text + ";");
+        }
+
+        @HandleEvent
+        public void onA(EventA event) {
+            log.append("A:" + event.text + ";");
+        }
+    }
+
     @Test
     public void test() {
         try {
@@ -101,14 +113,20 @@ public class MultiEventListenerTest {
         }
 
         log = new StringBuilder();
-        TestListener tmp = new TestListener();
 
+        TestListener tmp = new TestListener();
         tmp.handle(new BaseEvent("1"));
         log.append(" ");
         tmp.handle(new EventA("2"));
         log.append(" ");
         tmp.handle(new EventB("3"));
+        log.append(" ");
 
-        assertEquals("base:1;object; A:2;base:2;object; B:3;base:3;object;", log.toString());
+        DefaultListener def = new DefaultListener();
+        def.handle(new EventA("2"));
+        log.append(" ");
+        def.handle(new EventB("3"));
+
+        assertEquals("base:1;object; A:2;base:2;object; B:3;base:3;object; A:2; default:3;", log.toString());
     }
 }

@@ -3,6 +3,7 @@ package com.github.connteam.conn.server.database.model;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.Timestamp;
+import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
@@ -16,7 +17,7 @@ public class User {
     private int id;
     private String username;
     private byte[] publicKey;
-    private Timestamp signupTime;
+    private Timestamp signupTime = new Timestamp(new Date().getTime());
 
     @Override
     public boolean equals(Object obj) {

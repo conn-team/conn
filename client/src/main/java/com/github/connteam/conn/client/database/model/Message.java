@@ -1,6 +1,7 @@
 package com.github.connteam.conn.client.database.model;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
@@ -13,7 +14,7 @@ public class Message {
     private int idUser;
     private boolean isOutgoing;
     private String message;
-    private Timestamp time;
+    private Timestamp time = new Timestamp(new Date().getTime());
 
     @Override
     public boolean equals(Object obj) {

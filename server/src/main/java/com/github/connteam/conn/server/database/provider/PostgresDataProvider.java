@@ -123,7 +123,7 @@ public class PostgresDataProvider implements DataProvider {
     }
 
     @Override
-    public List<EphemeralKey> getEphemeralKeyByUserId(int userId) throws DatabaseException {
+    public List<EphemeralKey> getEphemeralKeysByUserId(int userId) throws DatabaseException {
         try (SQLQuery q = new SQLQuery(cpds.getConnection(), "SELECT * FROM ephemeral_keys WHERE id_user = ?;")) {
             return q.push(userId).executeQuery(PostgresModelFactory::ephemeralKeyFromResultSet);
         } catch (SQLException e) {
@@ -169,7 +169,7 @@ public class PostgresDataProvider implements DataProvider {
     }
 
     @Override
-    public int deleteEphemeralKeyByUserId(int userId) throws DatabaseException {
+    public int deleteEphemeralKeysByUserId(int userId) throws DatabaseException {
         try (SQLQuery q = new SQLQuery(cpds.getConnection(), "DELETE FROM ephemeral_keys WHERE id_user = ?;")) {
             return q.push(userId).executeUpdate();
         } catch (SQLException e) {
@@ -212,7 +212,7 @@ public class PostgresDataProvider implements DataProvider {
 
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
                 "INSERT INTO messages (id_from, id_to, message, key, signature, time) VALUES (?, ?, ?, ?, ?, ?);")) {
-            return q.push(message.getIdFrom(), message.getIdTo(), message.getIdMessage(), message.getRawKey(),
+            return q.push(message.getIdFrom(), message.getIdTo(), message.getMessage(), message.getRawKey(),
                     message.getSignature(), message.getTime()).executeInsert();
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -224,7 +224,7 @@ public class PostgresDataProvider implements DataProvider {
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
                 "UPDATE messages SET id_from = ?, id_to = ?, message = ?, key = ?, signature = ?, time = ? WHERE id_message = ?;")) {
             return q.push(message.getIdFrom(), message.getIdTo(), message.getMessage(), message.getRawKey(),
-                    message.getSignature(), message.getIdMessage(), message.getTime()).executeUpdate() > 0;
+                    message.getSignature(), message.getTime(), message.getIdMessage()).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -320,8 +320,8 @@ public class PostgresDataProvider implements DataProvider {
         }
 
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
-                "INSERT INTO users (username, public_key) VALUES (?, ?);")) {
-            return q.push(user.getUsername(), user.getRawPublicKey()).executeInsert();
+                "INSERT INTO users (username, public_key, signup_time) VALUES (?, ?, ?);")) {
+            return q.push(user.getUsername(), user.getRawPublicKey(), user.getSignupTime()).executeInsert();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -334,8 +334,9 @@ public class PostgresDataProvider implements DataProvider {
         }
 
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
-                "UPDATE users SET username = ?, public_key = ? WHERE id_user = ?;")) {
-            return q.push(user.getUsername(), user.getRawPublicKey(), user.getId()).executeUpdate() > 0;
+                "UPDATE users SET username = ?, public_key = ?, signup_time = ? WHERE id_user = ?;")) {
+            return q.push(user.getUsername(), user.getRawPublicKey(), user.getSignupTime(), user.getIdUser())
+                    .executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -347,8 +348,8 @@ public class PostgresDataProvider implements DataProvider {
             throw new NullPointerException();
         }
 
-        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "UPDATE users SET public_key = ? WHERE username = ?;")) {
-            return q.push(user.getRawPublicKey(), user.getUsername()).executeUpdate() > 0;
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "UPDATE users SET public_key = ?, signup_time = ? WHERE username = ?;")) {
+            return q.push(user.getRawPublicKey(), user.getSignupTime(), user.getUsername()).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

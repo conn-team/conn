@@ -15,9 +15,10 @@ public class PostgresModelFactory {
 
     public static Message messageFromResultSet(ResultSet rs) throws SQLException {
         Message message = new Message();
-        message.setIdFrom(rs.getInt("id_from"));
         message.setIdMessage(rs.getInt("id_message"));
+        message.setIdFrom(rs.getInt("id_from"));
         message.setIdTo(rs.getInt("id_to"));
+        message.setMessage(rs.getBytes("message"));
         message.setKey(rs.getBytes("key"));
         message.setSignature(rs.getBytes("signature"));
         message.setTime(rs.getTimestamp("time"));
@@ -33,7 +34,7 @@ public class PostgresModelFactory {
 
     public static User userFromResultSet(ResultSet rs) throws SQLException {
         User user = new User();
-        user.setId(rs.getInt("id_user"));
+        user.setIdUser(rs.getInt("id_user"));
         user.setUsername(rs.getString("username"));
         user.setPublicKey(rs.getBytes("public_key"));
         user.setSignupTime(rs.getTimestamp("signup_time"));

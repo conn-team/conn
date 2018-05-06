@@ -11,7 +11,7 @@ import com.github.connteam.conn.server.database.model.EphemeralKey;
 public interface EphemeralKeyProvider {
     Optional<EphemeralKey> getEphemeralKey(int keyId) throws DatabaseException;
 
-    List<EphemeralKey> getEphemeralKeyByUserId(int userId) throws DatabaseException;
+    List<EphemeralKey> getEphemeralKeysByUserId(int userId) throws DatabaseException;
 
     int insertEphemeralKey(@NotNull EphemeralKey key) throws DatabaseException;
 
@@ -19,5 +19,5 @@ public interface EphemeralKeyProvider {
 
     boolean deleteEphemeralKey(int keyId) throws DatabaseException;
 
-    int deleteEphemeralKeyByUserId(int userId) throws DatabaseException;
+    int deleteEphemeralKeysByUserId(int userId) throws DatabaseException;
 }

@@ -14,7 +14,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class User {
-    private int id;
+    private int idUser;
     private String username;
     private byte[] publicKey;
     private Timestamp signupTime = new Timestamp(new Date().getTime());
@@ -23,7 +23,7 @@ public class User {
     public boolean equals(Object obj) {
         if (obj instanceof User) {
             User x = (User)obj;
-            return new EqualsBuilder().append(id, x.id).append(username, x.username).append(publicKey, x.publicKey)
+            return new EqualsBuilder().append(idUser, x.idUser).append(username, x.username).append(publicKey, x.publicKey)
                     .append(signupTime, x.signupTime).isEquals();
         }
         return false;
@@ -31,7 +31,7 @@ public class User {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(id).append(username).append(publicKey).append(signupTime).toHashCode();
+        return new HashCodeBuilder().append(idUser).append(username).append(publicKey).append(signupTime).toHashCode();
     }
 
     @Override
@@ -39,8 +39,8 @@ public class User {
         return ToStringBuilder.reflectionToString(this);
     }
 
-    public int getId() {
-        return id;
+    public int getIdUser() {
+        return idUser;
     }
 
     public String getUsername() {
@@ -55,8 +55,8 @@ public class User {
         return signupTime;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setIdUser(int id) {
+        this.idUser = id;
     }
 
     public void setUsername(@NotNull String username) {

@@ -7,6 +7,10 @@ import javax.validation.constraints.NotNull;
 
 import com.github.connteam.conn.core.crypto.CryptoUtil;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 public class User {
     private int idUser;
     private String username;
@@ -14,6 +18,28 @@ public class User {
     private boolean isVerified;
     private int outSequence;
     private int inSequence;
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof User) {
+            User x = (User)obj;
+            return new EqualsBuilder().append(idUser, x.idUser).append(username, x.username)
+                    .append(publicKey, x.publicKey).append(isVerified, x.isVerified).append(outSequence, x.outSequence)
+                    .append(inSequence, x.inSequence).isEquals();
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(idUser).append(username).append(publicKey).append(isVerified)
+                .append(outSequence).append(inSequence).toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
 
     public int getId() {
         return idUser;

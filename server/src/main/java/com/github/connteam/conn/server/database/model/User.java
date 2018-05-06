@@ -8,11 +8,35 @@ import javax.validation.constraints.NotNull;
 
 import com.github.connteam.conn.core.crypto.CryptoUtil;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 public class User {
     private int id;
     private String username;
     private byte[] publicKey;
     private Timestamp signupTime;
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof User) {
+            User x = (User)obj;
+            return new EqualsBuilder().append(id, x.id).append(username, x.username).append(publicKey, x.publicKey)
+                    .append(signupTime, x.signupTime).isEquals();
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(id).append(username).append(publicKey).append(signupTime).toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
 
     public int getId() {
         return id;

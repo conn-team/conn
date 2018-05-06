@@ -8,6 +8,10 @@ import javax.validation.constraints.NotNull;
 
 import com.github.connteam.conn.core.crypto.CryptoUtil;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 public class Message {
     private int idMessage;
     private int idFrom;
@@ -16,6 +20,28 @@ public class Message {
     private byte[] key;
     private byte[] signature;
     private Timestamp time;
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Message) {
+            Message x = (Message)obj;
+            return new EqualsBuilder().append(idMessage, x.idMessage).append(idFrom, x.idFrom).append(idTo, x.idTo)
+                    .append(message, x.message).append(key, x.key).append(signature, x.signature).append(time, x.time)
+                    .isEquals();
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(idMessage).append(idFrom).append(idTo).append(message).append(key)
+                .append(signature).append(time).toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
 
     public int getIdMessage() {
         return idMessage;

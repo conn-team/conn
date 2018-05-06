@@ -7,11 +7,35 @@ import javax.validation.constraints.NotNull;
 
 import com.github.connteam.conn.core.crypto.CryptoUtil;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 public class EphemeralKey {
     private int idKey;
     private int idUser;
     private byte[] key;
     private byte[] signature;
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof EphemeralKey) {
+            EphemeralKey x = (EphemeralKey)obj;
+            return new EqualsBuilder().append(idKey, x.idKey).append(idUser, x.idUser).append(key, x.key)
+                    .append(signature, x.signature).isEquals();
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(idKey).append(idUser).append(key).append(signature).toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
 
     public int getIdKey() {
         return idKey;

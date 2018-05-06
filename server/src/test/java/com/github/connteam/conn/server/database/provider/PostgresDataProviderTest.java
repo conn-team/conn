@@ -41,13 +41,6 @@ public class PostgresDataProviderTest {
         db.close();
     }
 
-    private void checkEphemeralKeys(EphemeralKey key, EphemeralKey other) {
-        assertEquals(key.getIdKey(), other.getIdKey());
-        assertArrayEquals(key.getRawKey(), other.getRawKey());
-        assertArrayEquals(key.getSignature(), other.getSignature());
-        assertEquals(key.getIdUser(), other.getIdUser());
-    }
-
     @Test
     public void testEphemeralKeys() throws DatabaseException {
         List<EphemeralKey> keys = new ArrayList<>();
@@ -68,9 +61,9 @@ public class PostgresDataProviderTest {
         // getEphemeralKey, getEphemeralKeyByUserId
 
         for (EphemeralKey key : keys) {
-            checkEphemeralKeys(key, db.getEphemeralKey(key.getIdKey()).get());
+            assertEquals(key, db.getEphemeralKey(key.getIdKey()).get());
             db.getEphemeralKeyByUserId(key.getIdUser()).stream().filter(x -> x.getIdKey() == key.getIdKey())
-                    .forEach(x -> checkEphemeralKeys(key, x));
+                    .forEach(x -> assertEquals(key, x));
         }
 
         // updateEphemeralKey
@@ -82,7 +75,7 @@ public class PostgresDataProviderTest {
             key.setSignature(("update sign" + i).getBytes());
 
             assertTrue(db.updateEphemeralKey(key));
-            checkEphemeralKeys(key, db.getEphemeralKey(key.getIdKey()).get());
+            assertEquals(key, db.getEphemeralKey(key.getIdKey()).get());
         }
 
         // deleteEphemeralKeyByUserId

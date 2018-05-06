@@ -4,12 +4,37 @@ import java.sql.Timestamp;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 public class Message {
     private int idMessage;
     private int idUser;
     private boolean isOutgoing;
     private String message;
     private Timestamp time;
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Message) {
+            Message x = (Message)obj;
+            return new EqualsBuilder().append(idMessage, x.idMessage).append(idUser, x.idUser)
+                    .append(isOutgoing, x.isOutgoing).append(message, x.message).append(time, x.time).isEquals();
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(idMessage).append(idUser).append(isOutgoing).append(message).append(time)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
 
     public int getIdMessage() {
         return idMessage;

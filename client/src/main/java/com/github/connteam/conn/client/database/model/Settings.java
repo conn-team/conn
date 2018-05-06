@@ -8,10 +8,34 @@ import javax.validation.constraints.NotNull;
 
 import com.github.connteam.conn.core.crypto.CryptoUtil;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 public class Settings {
     private String username;
     private byte[] publicKey;
     private byte[] privateKey;
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Settings) {
+            Settings x = (Settings)obj;
+            return new EqualsBuilder().append(username, x.username).append(publicKey, x.publicKey)
+                    .append(privateKey, x.privateKey).isEquals();
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(username).append(publicKey).append(privateKey).toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
 
     public String getUsername() {
         return username;

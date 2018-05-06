@@ -24,6 +24,7 @@ message AuthStatus {
         MISMATCHED_PUBLICKEY = 3;
         INVALID_SIGNATURE = 4;
         ALREADY_ONLINE = 5;
+        INVALID_INPUT = 6;
     }
     Status status = 1;
 }

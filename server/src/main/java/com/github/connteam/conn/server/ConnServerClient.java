@@ -11,6 +11,7 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 
+import com.github.connteam.conn.core.Sanitization;
 import com.github.connteam.conn.core.crypto.CryptoUtil;
 import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.events.HandleEvent;
@@ -117,6 +118,10 @@ public class ConnServerClient implements Closeable {
         String username = msg.getUsername();
         byte[] receivedPublicKey = msg.getPublicKey().toByteArray();
         byte[] sign = msg.getSignature().toByteArray();
+
+        if (!Sanitization.isValidUsername(username)) {
+            return AuthStatus.Status.INVALID_INPUT;
+        }
 
         // Verify if user is owner of private key by checking signature
 

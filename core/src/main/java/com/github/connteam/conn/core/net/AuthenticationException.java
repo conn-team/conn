@@ -51,6 +51,8 @@ public class AuthenticationException extends Exception {
             return "Publickey doesn't match (username taken by someone else)";
         case INVALID_SIGNATURE:
             return "Invalid signature";
+        case INVALID_INPUT:
+            return "Invalid input";
         case ALREADY_ONLINE:
             return "User connected from another location";
         case INTERNAL_ERROR:

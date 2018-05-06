@@ -1,0 +1,26 @@
+.root {
+    -fx-background-color: #4CAF50;
+}
+
+.main-icon {
+    -fx-fill: #ffffff;
+}
+
+.button {
+    -fx-background-color: #388E3C;
+    -fx-padding: 6px;
+    -fx-text-fill: #ffffff;
+}
+
+.button:hover {
+    -fx-background-color: #338637;
+}
+
+.button:pressed {
+    -fx-background-color: #2E7D32;
+}
+
+.hyperlink {
+    -fx-text-fill: #ffffff;
+    -fx-focus-color: transparent;
+}

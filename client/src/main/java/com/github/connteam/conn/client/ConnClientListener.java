@@ -1,7 +1,7 @@
 package com.github.connteam.conn.client;
 
 public interface ConnClientListener {
-    void onDisconnect(Exception err);
-    void onLogin(boolean hasBeenRegistered);
-    void onTextMessage(String from, String message);
+    default void onDisconnect(Exception err) {}
+    default void onLogin(boolean hasBeenRegistered) {}
+    default void onTextMessage(String from, String message) {}
 }

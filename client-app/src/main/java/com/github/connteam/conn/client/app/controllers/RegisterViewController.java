@@ -42,7 +42,7 @@ public class RegisterViewController {
             return;
         }
 
-        // TODO
+        app.getIdentityManager().createAndRegisterIdentity(username);
     }
 
     @FXML

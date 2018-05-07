@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.MissingResourceException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.github.connteam.conn.client.app.controllers.LoginViewController;
 import com.github.connteam.conn.client.app.controllers.RegisterViewController;
@@ -18,13 +20,23 @@ public class App extends Application {
     public static final String CONFIG_DIR = System.getProperty("user.home") + "/.conn";
     public static final String TITLE = "Conn";
 
+    private ExecutorService executor;
     private IdentityManager identities;
+    private Session session;
 
     private Stage stage;
     private Parent loginView, registerView;
 
+    public void asyncTask(Runnable task) {
+        executor.execute(task);
+    }
+
     public IdentityManager getIdentityManager() {
         return identities;
+    }
+
+    public Session getSession() {
+        return session;
     }
 
     public Stage getStage() {
@@ -64,8 +76,11 @@ public class App extends Application {
     }
 
     private void initModel() throws IOException {
+        executor = Executors.newSingleThreadExecutor();
         createConfigDir();
-        identities = new IdentityManager();
+
+        identities = new IdentityManager(this);
+        session = new Session(this);
     }
 
     private void initViews() throws IOException {
@@ -86,5 +101,10 @@ public class App extends Application {
         stage.setScene(new Scene(identities.getIdentities().isEmpty() ? registerView : loginView));
         stage.setTitle(TITLE);
         stage.show();
+    }
+
+    @Override
+    public void stop() {
+        executor.shutdown();
     }
 }

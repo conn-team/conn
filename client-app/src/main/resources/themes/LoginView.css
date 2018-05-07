@@ -1,5 +1,5 @@
 .root {
-    -fx-background-color: #4CAF50;
+    -fx-background-color: #68a624;
 }
 
 .main-icon {
@@ -7,17 +7,17 @@
 }
 
 .button {
-    -fx-background-color: #388E3C;
+    -fx-background-color: #568d1a;
     -fx-padding: 6px;
     -fx-text-fill: #ffffff;
 }
 
 .button:hover {
-    -fx-background-color: #338637;
+    -fx-background-color: #518618;
 }
 
 .button:pressed {
-    -fx-background-color: #2E7D32;
+    -fx-background-color: #4a7a16;
 }
 
 .hyperlink {

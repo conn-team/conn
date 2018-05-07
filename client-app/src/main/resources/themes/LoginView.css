@@ -20,6 +20,18 @@
     -fx-background-color: #4a7a16;
 }
 
+.combo-box {
+    -fx-background-color: #ffffff;
+}
+
+.combo-box:hover {
+    -fx-background-color: #f8f8f8;
+}
+
+.combo-box:pressed {
+    -fx-background-color: #eeeeee;
+}
+
 .hyperlink {
     -fx-text-fill: #ffffff;
     -fx-focus-color: transparent;

@@ -21,8 +21,8 @@
             <Insets bottom="7.0" top="7.0" />
          </VBox.margin>
       </ProgressBar>
-      <TextField fx:id="username" maxWidth="-Infinity" minWidth="-Infinity" onAction="#onRegister" prefWidth="250.0" promptText="Nazwa użytkownika" />
-      <Button maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onRegister" prefWidth="250.0" styleClass="flat-button" text="Zarejestruj się">
+      <TextField fx:id="usernameField" maxWidth="-Infinity" minWidth="-Infinity" onAction="#onRegister" prefWidth="250.0" promptText="Nazwa użytkownika" />
+      <Button fx:id="registerButton" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onRegister" prefWidth="250.0" styleClass="flat-button" text="Zarejestruj się">
          <font>
             <Font size="14.0" />
          </font>

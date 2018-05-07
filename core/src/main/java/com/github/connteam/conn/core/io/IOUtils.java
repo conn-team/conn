@@ -1,7 +1,6 @@
 package com.github.connteam.conn.core.io;
 
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -9,12 +8,12 @@ public final class IOUtils {
     private IOUtils() {
     }
 
-    public static void closeQuietly(Closeable obj) {
+    public static void closeQuietly(AutoCloseable obj) {
         try {
             if (obj != null) {
                 obj.close();
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
         }
     }
 

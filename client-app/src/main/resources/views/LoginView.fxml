@@ -20,11 +20,11 @@
             <Insets bottom="5.0" top="5.0" />
          </VBox.margin>
       </ProgressBar>
-      <Button maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefWidth="250.0" styleClass="flat-button" text="Zaloguj się">
+      <Button maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onLogin" prefWidth="250.0" styleClass="flat-button" text="Zaloguj się">
          <font>
             <Font size="14.0" />
          </font>
       </Button>
-      <Hyperlink text="...lub zarejestruj" />
+      <Hyperlink onAction="#onRegisterSwitch" text="...lub zarejestruj" />
    </children>
 </VBox>

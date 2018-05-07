@@ -25,7 +25,7 @@
               <minimizeJar>false</minimizeJar>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>com.github.connteam.conn.client.app.App</mainClass>
+                  <mainClass>com.github.connteam.conn.client.app.Main</mainClass>
                 </transformer>
               </transformers>
             </configuration>

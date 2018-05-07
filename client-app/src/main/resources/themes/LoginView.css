@@ -23,4 +23,25 @@
 .hyperlink {
     -fx-text-fill: #ffffff;
     -fx-focus-color: transparent;
+    -fx-underline: false;
+}
+
+.hyperlink:hover {
+    -fx-underline: true;
+}
+
+.progress-bar {
+    -fx-indeterminate-bar-escape: true;
+    -fx-indeterminate-bar-flip: false;
+    -fx-indeterminate-bar-animation-time: 1.5;
+}
+
+.progress-bar > .track {
+    -fx-background-color: transparent;
+}
+
+.progress-bar > .bar {
+    -fx-background-color: #0085b1;
+    -fx-background-radius: 2;
+    -fx-background-insets: 0;
 }

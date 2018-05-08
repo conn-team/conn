@@ -12,9 +12,11 @@ public final class NetMessages {
         CLIENTBOUND.registerMessage(2, AuthStatus.getDefaultInstance());
         CLIENTBOUND.registerMessage(3, KeepAlive.getDefaultInstance());
         CLIENTBOUND.registerMessage(4, TextMessage.getDefaultInstance());
+        CLIENTBOUND.registerMessage(5, UserInfo.getDefaultInstance());
 
         SERVERBOUND.registerMessage(101, AuthResponse.getDefaultInstance());
         SERVERBOUND.registerMessage(102, KeepAlive.getDefaultInstance());
         SERVERBOUND.registerMessage(103, TextMessage.getDefaultInstance());
+        SERVERBOUND.registerMessage(104, UserInfoRequest.getDefaultInstance());
     }
 }

@@ -1,6 +1,8 @@
 package com.github.connteam.conn.client.app.controllers;
 
 import com.github.connteam.conn.client.app.App;
+import com.github.connteam.conn.client.app.Conversation;
+import com.github.connteam.conn.client.app.Session;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,7 +15,7 @@ import javafx.scene.input.KeyEvent;
 public class MainViewController {
     private final App app;
 
-    @FXML private ListView<?> friendsListView;
+    @FXML private ListView<Conversation> friendsListView;
     @FXML private TextArea submitField;
     @FXML private TextArea messagesView;
 
@@ -25,6 +27,22 @@ public class MainViewController {
 
     @FXML
     public void initialize() {
+        app.getSessionManager().sessionProperty().addListener((prop, old, cur) -> {
+            if (old != null) {
+                unbindSession(old);
+            }
+            if (cur != null) {
+                bindSession(cur);
+            }
+        });
+    }
+
+    private void bindSession(Session session) {
+        friendsListView.setItems(session.getConversations());
+    }
+
+    private void unbindSession(Session session) {
+        friendsListView.setItems(null);
     }
 
     @FXML
@@ -35,9 +53,7 @@ public class MainViewController {
         dialog.getDialogPane().setContentText("Nazwa użytkownika:");
         dialog.initOwner(app.getStage().getScene().getWindow());
 
-        dialog.showAndWait().ifPresent(name -> {
-            // TODO
-        });
+        dialog.showAndWait().ifPresent(name -> app.getSessionManager().getSession().openConversation(name));
     }
 
     @FXML

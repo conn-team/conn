@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 import com.github.connteam.conn.client.database.model.Settings;
 import com.github.connteam.conn.client.database.model.User;
 import com.github.connteam.conn.client.database.provider.DataProvider;
+import com.github.connteam.conn.core.Sanitization;
 import com.github.connteam.conn.core.crypto.CryptoUtil;
 import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.events.HandleEvent;
@@ -247,7 +248,7 @@ public class ConnClient implements Closeable {
     public void getUserInfo(String username, Consumer<User> callback) throws DatabaseException {
         User user = database.getUserByUsername(username).orElse(null);
 
-        if (user != null) {
+        if (user != null || !Sanitization.isValidUsername(username)) {
             callback.accept(user);
             return;
         }

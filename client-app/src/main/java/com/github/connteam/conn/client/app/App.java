@@ -63,13 +63,17 @@ public class App extends Application {
         return registerView;
     }
 
-    public void reportError(Exception err) {
+    public void reportError(String err) {
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle("Conn");
         alert.setHeaderText("Błąd");
-        alert.setContentText(err.toString());
+        alert.setContentText(err);
         alert.initOwner(stage.getScene().getWindow());
         alert.showAndWait();
+    }
+
+    public void reportError(Exception err) {
+        reportError(String.valueOf(err));
     }
 
     private Parent loadView(String resourceName, Object controller) throws IOException {

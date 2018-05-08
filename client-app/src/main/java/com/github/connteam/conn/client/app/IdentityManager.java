@@ -7,8 +7,6 @@ import com.github.connteam.conn.client.app.App;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 
 public class IdentityManager {
     public static final String EXTENSION = ".id";
@@ -52,6 +50,15 @@ public class IdentityManager {
         return identities;
     }
 
+    public IdentityInfo getIdentityByName(String name) {
+        for (IdentityInfo info : identities) {
+            if (info.getName().equals(name)) {
+                return info;
+            }
+        }
+        return null;
+    }
+
     public void update() {
         identities.removeIf(id -> !id.getFile().exists());
 
@@ -67,18 +74,16 @@ public class IdentityManager {
         FXCollections.sort(identities);
     }
 
-    public void createAndRegisterIdentity(String username) {
+    public void createAndUseIdentity(String username) {
+        app.getSessionManager().setConnecting(true);
+
         app.asyncTask(new IdentityRegisterTask(username, err -> Platform.runLater(() -> {
             update();
-
             if (err != null) {
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Conn");
-                alert.setHeaderText("Błąd rejestracji");
-                alert.setContentText(err.toString());
-                alert.showAndWait();
+                app.getSessionManager().setConnecting(false);
+                app.reportError(err);
             } else {
-                app.setView(app.getLoginView());
+                app.getSessionManager().connect(getIdentityByName(username));
             }
         })));
     }

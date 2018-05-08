@@ -27,6 +27,6 @@
             <Font size="14.0" />
          </font>
       </Button>
-      <Hyperlink onAction="#onRegisterSwitch" text="...lub zarejestruj" />
+      <Hyperlink fx:id="registerSwitchButton" onAction="#onRegisterSwitch" text="...lub zarejestruj" />
    </children>
 </VBox>

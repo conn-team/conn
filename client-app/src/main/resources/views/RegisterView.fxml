@@ -27,6 +27,6 @@
             <Font size="14.0" />
          </font>
       </Button>
-      <Hyperlink onAction="#onLoginSwitch" text="...lub zaloguj" />
+      <Hyperlink fx:id="loginSwitchButton" onAction="#onLoginSwitch" text="...lub zaloguj" />
    </children>
 </VBox>

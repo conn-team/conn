@@ -44,7 +44,12 @@ public class IdentityRegisterTask implements Runnable {
 
     private void onFinish(Exception err) {
         if (err == null) {
-            new File(tempPath).renameTo(new File(finalPath));
+            File dst = new File(finalPath);
+            if (dst.exists()) {
+                err = new IOException("Identity file already exists");
+            } else if (!new File(tempPath).renameTo(dst)) {
+                err = new IOException("Error renaming identity file");
+            }
         } else {
             new File(tempPath).delete();
         }

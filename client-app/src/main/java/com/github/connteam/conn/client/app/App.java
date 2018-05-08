@@ -15,6 +15,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 
 public class App extends Application {
     public static final String CONFIG_DIR = System.getProperty("user.home") + "/.conn";
@@ -22,10 +24,10 @@ public class App extends Application {
 
     private ExecutorService executor;
     private IdentityManager identities;
-    private Session session;
+    private SessionManager sessionMgr;
 
     private Stage stage;
-    private Parent loginView, registerView;
+    private Parent mainView, loginView, registerView;
 
     public void asyncTask(Runnable task) {
         executor.execute(task);
@@ -35,8 +37,8 @@ public class App extends Application {
         return identities;
     }
 
-    public Session getSession() {
-        return session;
+    public SessionManager getSessionManager() {
+        return sessionMgr;
     }
 
     public Stage getStage() {
@@ -48,12 +50,24 @@ public class App extends Application {
         stage.getScene().setRoot(view);
     }
 
+    public Parent getMainView() {
+        return mainView;
+    }
+
     public Parent getLoginView() {
         return loginView;
     }
 
     public Parent getRegisterView() {
         return registerView;
+    }
+
+    public void reportError(Exception err) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Conn");
+        alert.setHeaderText("Błąd");
+        alert.setContentText(err.toString());
+        alert.showAndWait();
     }
 
     private Parent loadView(String resourceName, Object controller) throws IOException {
@@ -80,10 +94,11 @@ public class App extends Application {
         createConfigDir();
 
         identities = new IdentityManager(this);
-        session = new Session(this);
+        sessionMgr = new SessionManager(this);
     }
 
     private void initViews() throws IOException {
+        mainView = loadView("views/MainView.fxml", null);
         loginView = loadView("views/LoginView.fxml", new LoginViewController(this));
         registerView = loadView("views/RegisterView.fxml", new RegisterViewController(this));
     }
@@ -98,9 +113,10 @@ public class App extends Application {
         });
 
         this.stage = stage;
-        stage.setScene(new Scene(identities.getIdentities().isEmpty() ? registerView : loginView));
+        stage.setScene(new Scene(mainView));
         stage.setTitle(TITLE);
         stage.show();
+        sessionMgr.setSession(null);
     }
 
     @Override

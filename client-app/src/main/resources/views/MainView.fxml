@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="520.0" prefWidth="813.0" stylesheets="@../themes/MainView.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/9.0.4">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="520.0" prefWidth="813.0" stylesheets="@../themes/MainView.css" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1">
   <columnConstraints>
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="100.0" prefWidth="250.0" />
     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -19,12 +19,13 @@
       <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <ListView prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1" GridPane.rowSpan="2" />
-      <TextArea prefHeight="200.0" prefWidth="200.0" promptText="Napisz wiadomość" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-      <TextArea editable="false" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowSpan="2" />
-      <MenuButton maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Łączenie...">
+      <ListView fx:id="friendsListView" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1" GridPane.rowSpan="2" />
+      <TextArea fx:id="submitField" onKeyPressed="#onSubmitFieldKeyPress" prefHeight="200.0" prefWidth="200.0" promptText="Napisz wiadomość" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+      <TextArea fx:id="messagesView" editable="false" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowSpan="2" />
+      <MenuButton fx:id="mainMenu" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Łączenie...">
         <items>
-          <MenuItem mnemonicParsing="false" text="Wyloguj się" />
+            <MenuItem mnemonicParsing="false" onAction="#onAddFriend" text="Dodaj znajomego" />
+          <MenuItem mnemonicParsing="false" onAction="#onLogout" text="Wyloguj się" />
         </items>
       </MenuButton>
    </children>

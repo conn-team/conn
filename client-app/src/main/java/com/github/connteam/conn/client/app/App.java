@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.github.connteam.conn.client.app.controllers.LoginViewController;
+import com.github.connteam.conn.client.app.controllers.MainViewController;
 import com.github.connteam.conn.client.app.controllers.RegisterViewController;
 
 import javafx.application.Application;
@@ -98,7 +99,7 @@ public class App extends Application {
     }
 
     private void initViews() throws IOException {
-        mainView = loadView("views/MainView.fxml", null);
+        mainView = loadView("views/MainView.fxml", new MainViewController(this));
         loginView = loadView("views/LoginView.fxml", new LoginViewController(this));
         registerView = loadView("views/RegisterView.fxml", new RegisterViewController(this));
     }

@@ -1,3 +1,7 @@
+.root {
+    -fx-background-color: #fff;
+}
+
 .list-view, .text-area {
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
@@ -5,50 +9,43 @@
     -fx-focus-color: transparent;
 }
 
-.menu-button, .context-menu {
-    -fx-background-color: #eee;
+.main-menu {
+    -fx-background-color: #fff;
     -fx-border-color: rgba(0, 0, 0, 0.1);
-    -fx-border-width: 0 1 1 0;
+    -fx-border-width: 0 1 0 0;
+}
+
+.context-menu {
+    -fx-background-color: #fff;
+    -fx-border-color: rgba(0, 0, 0, 0.1);
+    -fx-border-width: 1 1 1 1;
 }
 
 .menu-item:focused .label {
     -fx-text-fill: #111;
 }
 
-.list-view {
-    -fx-background-color: #eee;
-    -fx-border-color: rgba(0, 0, 0, 0.1);
-    -fx-border-width: 0 1 0 0;
-}
-
-.submitField .content {
-    -fx-background-color: #eee;
+.friends-view {
+    -fx-background-color: #fff;
     -fx-border-color: rgba(0, 0, 0, 0.1);
     -fx-border-width: 1 1 0 0;
 }
 
+.submitField .content {
+    -fx-background-color: #fff;
+    -fx-border-style: none;
+}
+
 .bottomPane {
-    -fx-background-color: #eee;
-    -fx-border-color: rgba(0, 0, 0, 0.1);
-    -fx-border-width: 1 0 0 0;
+    -fx-background-color: #fff;
 }
 
 .messagesView .content {
-    -fx-background-color: #eee;
+    -fx-background-color: #fff;
+    -fx-border-color: rgba(0, 0, 0, 0.1);
+    -fx-border-width: 0 0 1 0;
 }
 
 .sendButton {
-    -fx-background-color: #eee;
-    -fx-background-radius: 0 0 0 0;
-    -fx-border-radius: 0 0 0 0;
-    -fx-text-fill: #29c901;
-    -fx-text: '';
-}
-
-.sendButton:hover {
-    -fx-background-color: #d0d0d0;
-}
-
-.sendButton:pressed {
-    -fx-background-color: #c0c0c0;
+    -fx-fill: #287e13;
 }

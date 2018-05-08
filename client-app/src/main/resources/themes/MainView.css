@@ -47,7 +47,7 @@
 
 .friends-view .scroll-bar:vertical {
     -fx-opacity: 0;
-    -fx-padding: 0 -10000 0 0; /* if it works and it's stupid then it ain't stupid */
+    -fx-padding: 0 -2137 0 0; /* if it works and it's stupid then it ain't stupid */
 }
 
  .friends-view .list-cell {

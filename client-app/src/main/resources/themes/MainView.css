@@ -32,7 +32,7 @@
 }
 
 .context-menu {
-    -fx-background-color: #dfdfdf;
+    -fx-background-color: #eaeaea;
     -fx-border-color: rgba(0, 0, 0, 0.1);
     -fx-border-width: 1 1 1 1;
 }
@@ -52,23 +52,28 @@
 
  .friends-view .list-cell {
     -fx-padding: 12 6 12 6;
-    -fx-border-color: rgba(0, 0, 0, 0.1);
+    -fx-border-color: rgba(0, 0, 0, 0.04);
     -fx-border-width: 0 0 1 0;
 }
 
 .friends-view .list-cell {
-    -fx-background-color: #dfdfdf;
+    -fx-background-color: #ebebeb;
 }
 
 .friends-view .list-cell:hover {
-    -fx-background-color: #d9d9d9;
-}
-
-.friends-view .list-cell:selected {
-    -fx-background-color: #d4d4d4;
+    -fx-background-color: #e0e0e0;
     -fx-text-fill: #111;
 }
 
+.friends-view .list-cell:selected {
+    -fx-background-color: #dddddd;
+    -fx-text-fill: #111;
+}
+
+.friends-view .list-cell:pressed {
+    -fx-background-color: #d4d4d4;
+    -fx-text-fill: #111;
+}
 
 .submitField .content {
     -fx-background-color: #eee;

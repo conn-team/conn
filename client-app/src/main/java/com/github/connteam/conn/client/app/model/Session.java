@@ -34,6 +34,14 @@ public class Session implements AutoCloseable {
         this.db = db;
     }
 
+    public ConnClient getClient() {
+        return client;
+    }
+
+    public DataProvider getDataProvider() {
+        return db;
+    }
+
     public ObservableList<Conversation> getConversations() {
         return conversations;
     }
@@ -46,7 +54,7 @@ public class Session implements AutoCloseable {
         currentConversation.setValue(val);
     }
 
-    public Property<Conversation> conversationProperty() {
+    public Property<Conversation> currentConversationProperty() {
         return currentConversation;
     }
 

@@ -11,6 +11,7 @@ import com.github.connteam.conn.client.app.controllers.LoginViewController;
 import com.github.connteam.conn.client.app.controllers.MainViewController;
 import com.github.connteam.conn.client.app.controllers.RegisterViewController;
 import com.github.connteam.conn.client.app.model.IdentityManager;
+import com.github.connteam.conn.client.app.model.Session;
 import com.github.connteam.conn.client.app.model.SessionManager;
 
 import javafx.application.Application;
@@ -42,6 +43,10 @@ public class App extends Application {
 
     public SessionManager getSessionManager() {
         return sessionMgr;
+    }
+
+    public Session getSession() {
+        return sessionMgr.getSession();
     }
 
     public Stage getStage() {

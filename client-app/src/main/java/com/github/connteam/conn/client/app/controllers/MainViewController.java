@@ -3,13 +3,18 @@ package com.github.connteam.conn.client.app.controllers;
 import com.github.connteam.conn.client.app.App;
 import com.github.connteam.conn.client.app.model.Conversation;
 import com.github.connteam.conn.client.app.model.Session;
+import com.github.connteam.conn.client.database.model.Message;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
 public class MainViewController {
@@ -21,9 +26,11 @@ public class MainViewController {
     private TextArea submitField;
     @FXML
     private TextArea messagesView;
-
     @FXML
     private MenuButton mainMenu;
+
+    private final ChangeListener<Conversation> currentConversationObserver = this::onCurrentConversationChange;
+    private final ListChangeListener<Message> messagesObserver = this::onMessagesChange;
 
     public MainViewController(App app) {
         this.app = app;
@@ -33,20 +40,55 @@ public class MainViewController {
     public void initialize() {
         app.getSessionManager().sessionProperty().addListener((prop, old, cur) -> {
             if (old != null) {
-                unbindSession(old);
+                old.currentConversationProperty().removeListener(currentConversationObserver);
+                onCurrentConversationChange(old.currentConversationProperty(), old.getCurrentConversation(), null);
             }
+
             if (cur != null) {
-                bindSession(cur);
+                friendsListView.setItems(cur.getConversations());
+                cur.currentConversationProperty().addListener(currentConversationObserver);
+                onCurrentConversationChange(cur.currentConversationProperty(), null, cur.getCurrentConversation());
+            } else {
+                friendsListView.setItems(null);
+            }
+        });
+
+        friendsListView.getSelectionModel().selectedItemProperty().addListener((prop, old, cur) -> {
+            Session session = app.getSession();
+            if (session != null && old != cur) {
+                session.setCurrentConversation(cur);
             }
         });
     }
 
-    private void bindSession(Session session) {
-        friendsListView.setItems(session.getConversations());
+    private void onCurrentConversationChange(ObservableValue<?> observable, Conversation old, Conversation cur) {
+        if (old != null) {
+            submitField.textProperty().unbindBidirectional(old.currentMessageProperty());
+            old.getMessages().removeListener(messagesObserver);
+        }
+        if (cur != null) {
+            friendsListView.getSelectionModel().select(cur);
+            submitField.textProperty().bindBidirectional(cur.currentMessageProperty());
+            cur.getMessages().addListener(messagesObserver);
+            onMessagesChange(null); // TODO
+        }
     }
 
-    private void unbindSession(Session session) {
-        friendsListView.setItems(null);
+    private void onMessagesChange(ListChangeListener.Change<? extends Message> change) {
+        StringBuilder str = new StringBuilder();
+
+        for (Message msg : app.getSession().getCurrentConversation().getMessages()) {
+            if (msg.isOutgoing()) {
+                str.append(app.getSession().getClient().getSettings().getUsername());
+            } else {
+                str.append(app.getSession().getCurrentConversation().getUser().getUsername());
+            }
+            str.append(": ");
+            str.append(msg.getMessage());
+            str.append("\n");
+        }
+
+        messagesView.setText(str.toString());
     }
 
     @FXML
@@ -57,7 +99,7 @@ public class MainViewController {
         dialog.getDialogPane().setContentText("Nazwa użytkownika:");
         dialog.initOwner(app.getStage().getScene().getWindow());
 
-        dialog.showAndWait().ifPresent(name -> app.getSessionManager().getSession().openConversation(name));
+        dialog.showAndWait().ifPresent(name -> app.getSession().openConversation(name));
     }
 
     @FXML
@@ -67,5 +109,15 @@ public class MainViewController {
 
     @FXML
     void onSubmitFieldKeyPress(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            String msg = submitField.getText();
+            submitField.setText("");
+
+            Conversation conv = app.getSession().getCurrentConversation();
+            if (conv != null) {
+                conv.sendMessage(msg);
+            }
+            event.consume();
+        }
     }
 }

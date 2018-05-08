@@ -44,4 +44,11 @@ public class Conversation {
     public String toString() {
         return user.getUsername();
     }
+
+    public void sendMessage(String text) {
+        Message msg = new Message();
+        msg.setMessage(text);
+        msg.setOutgoing(true);
+        messages.add(msg);
+    }
 }

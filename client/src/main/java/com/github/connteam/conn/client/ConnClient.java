@@ -10,11 +10,16 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import com.github.connteam.conn.client.database.model.Settings;
+import com.github.connteam.conn.client.database.model.User;
 import com.github.connteam.conn.client.database.provider.DataProvider;
 import com.github.connteam.conn.core.crypto.CryptoUtil;
 import com.github.connteam.conn.core.database.DatabaseException;
@@ -30,6 +35,8 @@ import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthStatus;
 import com.github.connteam.conn.core.net.proto.NetProtos.KeepAlive;
 import com.github.connteam.conn.core.net.proto.NetProtos.TextMessage;
+import com.github.connteam.conn.core.net.proto.NetProtos.UserInfo;
+import com.github.connteam.conn.core.net.proto.NetProtos.UserInfoRequest;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 
@@ -44,6 +51,9 @@ public class ConnClient implements Closeable {
 
     private volatile ConnClientListener listener;
     private volatile State state = State.CREATED;
+
+    private final AtomicInteger requestCounter = new AtomicInteger();
+    private final Map<Integer, Consumer<User>> userInfoRequests = new ConcurrentHashMap<>();
 
     private static enum State {
         CREATED, AUTH_REQUEST, AUTH_RESPONSE, ESTABLISHED, CLOSED
@@ -234,10 +244,54 @@ public class ConnClient implements Closeable {
         channel.sendMessage(TextMessage.newBuilder().setUsername(to).setMessage(message).build());
     }
 
+    public void getUserInfo(String username, Consumer<User> callback) throws DatabaseException {
+        User user = database.getUserByUsername(username).orElse(null);
+
+        if (user != null) {
+            callback.accept(user);
+            return;
+        }
+
+        int i = requestCounter.incrementAndGet();
+        userInfoRequests.put(i, callback);
+
+        UserInfoRequest.Builder request = UserInfoRequest.newBuilder();
+        request.setRequestID(i);
+        request.setUsername(username);
+        channel.sendMessage(request.build());
+    }
+
     public class MessageHandler extends MultiEventListener<Message> {
         @HandleEvent
         public void onTextMessage(TextMessage msg) {
             listener.onTextMessage(msg.getUsername(), msg.getMessage());
+        }
+
+        @HandleEvent
+        public void onUserInfo(UserInfo msg) {
+            Consumer<User> callback = userInfoRequests.remove(msg.getRequestID());
+            if (callback == null) {
+                close(new ProtocolException("UserInfo received with invalid requestID"));
+                return;
+            }
+
+            if (!msg.getExists()) {
+                callback.accept(null);
+                return;
+            }
+
+            User user = new User();
+            user.setUsername(msg.getUsername());
+            user.setPublicKey(msg.getPublicKey().toByteArray());
+
+            try {
+				database.insertUser(user);
+			} catch (DatabaseException e) {
+                close(e);
+                return;
+            }
+            
+            callback.accept(user);
         }
     }
 }

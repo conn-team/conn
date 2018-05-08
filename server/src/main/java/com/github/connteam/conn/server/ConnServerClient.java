@@ -24,6 +24,8 @@ import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthStatus;
 import com.github.connteam.conn.core.net.proto.NetProtos.KeepAlive;
 import com.github.connteam.conn.core.net.proto.NetProtos.TextMessage;
+import com.github.connteam.conn.core.net.proto.NetProtos.UserInfo;
+import com.github.connteam.conn.core.net.proto.NetProtos.UserInfoRequest;
 import com.github.connteam.conn.server.database.model.User;
 import com.github.connteam.conn.server.database.provider.DataProvider;
 import com.google.protobuf.ByteString;
@@ -196,6 +198,30 @@ public class ConnServerClient implements Closeable {
                 client.getNetChannel().sendMessage(TextMessage.newBuilder().setUsername(getUser().getUsername())
                         .setMessage(msg.getMessage()).build());
             }
+        }
+
+        @HandleEvent
+        public void onUserInfoRequest(UserInfoRequest msg) {
+            String username = msg.getUsername();
+            User user;
+
+            try {
+				user = server.getDataProvider().getUserByUsername(username).orElse(null);
+			} catch (DatabaseException e) {
+                close(e);
+                return;
+            }
+            
+            UserInfo.Builder resp = UserInfo.newBuilder();
+            resp.setRequestID(msg.getRequestID());
+            resp.setExists(user != null);
+
+            if (user != null) {
+                resp.setUsername(user.getUsername());
+                resp.setPublicKey(ByteString.copyFrom(user.getRawPublicKey()));
+            }
+
+            channel.sendMessage(resp.build());
         }
     }
 }

@@ -32,6 +32,18 @@ message AuthStatus {
 message KeepAlive {
 }
 
+message UserInfoRequest {
+    int32 requestID = 1;
+    string username = 2;
+}
+
+message UserInfo {
+    int32 requestID = 1;
+    bool exists = 2;
+    string username = 3;
+    bytes publicKey = 4;
+}
+
 message TextMessage {
     string username = 1;
     string message = 2;

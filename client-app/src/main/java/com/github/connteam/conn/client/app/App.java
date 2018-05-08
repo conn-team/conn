@@ -113,6 +113,10 @@ public class App extends Application {
             identities.update();
         });
 
+        stage.setOnCloseRequest(e -> {
+            stage.close();
+        });
+
         this.stage = stage;
         stage.setScene(new Scene(mainView));
         stage.setTitle(TITLE);

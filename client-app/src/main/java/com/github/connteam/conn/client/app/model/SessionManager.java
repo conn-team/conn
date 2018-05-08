@@ -1,7 +1,8 @@
-package com.github.connteam.conn.client.app;
+package com.github.connteam.conn.client.app.model;
 
 import com.github.connteam.conn.client.IdentityFactory;
-import com.github.connteam.conn.client.app.IdentityManager.IdentityInfo;
+import com.github.connteam.conn.client.app.App;
+import com.github.connteam.conn.client.app.model.IdentityManager.IdentityInfo;
 import com.github.connteam.conn.client.database.provider.DataProvider;
 import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.net.Transport;
@@ -52,7 +53,7 @@ public class SessionManager {
         } else {
             app.setView(app.getMainView());
         }
-        
+
         session.setValue(val);
     }
 
@@ -71,12 +72,12 @@ public class SessionManager {
                     setSession(new Session(app, db));
                     getSession().start();
                 });
-			} catch (DatabaseException e) {
+            } catch (DatabaseException e) {
                 Platform.runLater(() -> {
                     app.getSessionManager().setConnecting(false);
                     app.reportError(e);
                 });
-			}
+            }
         });
     }
 

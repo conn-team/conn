@@ -10,6 +10,8 @@ import java.util.concurrent.Executors;
 import com.github.connteam.conn.client.app.controllers.LoginViewController;
 import com.github.connteam.conn.client.app.controllers.MainViewController;
 import com.github.connteam.conn.client.app.controllers.RegisterViewController;
+import com.github.connteam.conn.client.app.model.IdentityManager;
+import com.github.connteam.conn.client.app.model.SessionManager;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

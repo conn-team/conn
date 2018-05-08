@@ -1,8 +1,9 @@
-package com.github.connteam.conn.client.app;
+package com.github.connteam.conn.client.app.model;
 
 import java.io.File;
 
 import com.github.connteam.conn.client.app.App;
+import com.github.connteam.conn.client.app.IdentityRegisterTask;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -35,10 +36,10 @@ public class IdentityManager {
             return getName();
         }
 
-		@Override
-		public int compareTo(IdentityInfo other) {
-			return getName().compareTo(other.getName());
-		}
+        @Override
+        public int compareTo(IdentityInfo other) {
+            return getName().compareTo(other.getName());
+        }
     }
 
     public IdentityManager(App app) {

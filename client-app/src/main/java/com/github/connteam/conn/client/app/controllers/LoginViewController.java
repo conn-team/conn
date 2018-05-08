@@ -3,7 +3,7 @@ package com.github.connteam.conn.client.app.controllers;
 import java.util.List;
 
 import com.github.connteam.conn.client.app.App;
-import com.github.connteam.conn.client.app.IdentityManager.IdentityInfo;
+import com.github.connteam.conn.client.app.model.IdentityManager.IdentityInfo;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,11 +14,15 @@ import javafx.scene.control.ProgressBar;
 
 public class LoginViewController {
     private final App app;
-    
-    @FXML private ProgressBar progressBar;
-    @FXML private ComboBox<IdentityInfo> identityChooser;
-    @FXML private Button loginButton;
-    @FXML private Hyperlink registerSwitchButton;
+
+    @FXML
+    private ProgressBar progressBar;
+    @FXML
+    private ComboBox<IdentityInfo> identityChooser;
+    @FXML
+    private Button loginButton;
+    @FXML
+    private Hyperlink registerSwitchButton;
 
     public LoginViewController(App app) {
         this.app = app;

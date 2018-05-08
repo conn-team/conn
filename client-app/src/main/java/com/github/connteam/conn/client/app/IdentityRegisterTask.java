@@ -8,6 +8,8 @@ import java.util.function.Consumer;
 import com.github.connteam.conn.client.ConnClient;
 import com.github.connteam.conn.client.ConnClientListener;
 import com.github.connteam.conn.client.IdentityFactory;
+import com.github.connteam.conn.client.app.model.IdentityManager;
+import com.github.connteam.conn.client.app.model.Session;
 import com.github.connteam.conn.client.database.provider.DataProvider;
 import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.io.IOUtils;
@@ -28,8 +30,8 @@ public class IdentityRegisterTask implements Runnable {
         this.callback = callback;
     }
 
-	@Override
-	public void run() {
+    @Override
+    public void run() {
         try {
             db = IdentityFactory.create(tempPath, username);
             client = Session.createClient(db);
@@ -55,7 +57,7 @@ public class IdentityRegisterTask implements Runnable {
         }
         callback.accept(err);
     }
-    
+
     private class Handler implements ConnClientListener {
         @Override
         public void onLogin(boolean hasBeenRegistered) {

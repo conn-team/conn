@@ -1,4 +1,4 @@
-package com.github.connteam.conn.client.app;
+package com.github.connteam.conn.client.app.model;
 
 import com.github.connteam.conn.client.database.model.Message;
 import com.github.connteam.conn.client.database.model.User;

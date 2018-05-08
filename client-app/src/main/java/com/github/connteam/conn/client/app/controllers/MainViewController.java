@@ -1,8 +1,8 @@
 package com.github.connteam.conn.client.app.controllers;
 
 import com.github.connteam.conn.client.app.App;
-import com.github.connteam.conn.client.app.Conversation;
-import com.github.connteam.conn.client.app.Session;
+import com.github.connteam.conn.client.app.model.Conversation;
+import com.github.connteam.conn.client.app.model.Session;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -15,11 +15,15 @@ import javafx.scene.input.KeyEvent;
 public class MainViewController {
     private final App app;
 
-    @FXML private ListView<Conversation> friendsListView;
-    @FXML private TextArea submitField;
-    @FXML private TextArea messagesView;
+    @FXML
+    private ListView<Conversation> friendsListView;
+    @FXML
+    private TextArea submitField;
+    @FXML
+    private TextArea messagesView;
 
-    @FXML private MenuButton mainMenu;
+    @FXML
+    private MenuButton mainMenu;
 
     public MainViewController(App app) {
         this.app = app;

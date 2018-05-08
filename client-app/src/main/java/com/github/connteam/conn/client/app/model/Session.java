@@ -1,10 +1,11 @@
-package com.github.connteam.conn.client.app;
+package com.github.connteam.conn.client.app.model;
 
 import java.io.IOException;
 import java.security.spec.InvalidKeySpecException;
 
 import com.github.connteam.conn.client.ConnClient;
 import com.github.connteam.conn.client.ConnClientListener;
+import com.github.connteam.conn.client.app.App;
 import com.github.connteam.conn.client.database.provider.DataProvider;
 import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.io.IOUtils;
@@ -54,15 +55,15 @@ public class Session implements AutoCloseable {
 
         app.asyncTask(() -> {
             try {
-				client = Session.createClient(db);
+                client = Session.createClient(db);
                 client.setHandler(new SessionHandler());
                 client.start();
-			} catch (InvalidKeySpecException | IOException | DatabaseException e) {
+            } catch (InvalidKeySpecException | IOException | DatabaseException e) {
                 Platform.runLater(() -> {
                     app.getSessionManager().setConnecting(false);
                     app.reportError(e);
                 });
-			}
+            }
         });
     }
 

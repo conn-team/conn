@@ -68,6 +68,7 @@ public class App extends Application {
         alert.setTitle("Conn");
         alert.setHeaderText("Błąd");
         alert.setContentText(err.toString());
+        alert.initOwner(stage.getScene().getWindow());
         alert.showAndWait();
     }
 

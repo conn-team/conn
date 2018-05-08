@@ -61,11 +61,7 @@ public class SessionManager {
     }
 
     public void connect(IdentityInfo identity) {
-        if (getSession() != null) {
-            getSession().close();
-            setSession(null);
-        }
-
+        disconnect();
         app.getSessionManager().setConnecting(true);
 
         app.asyncTask(() -> {
@@ -82,5 +78,12 @@ public class SessionManager {
                 });
 			}
         });
+    }
+
+    public void disconnect() {
+        if (getSession() != null) {
+            getSession().close();
+            setSession(null);
+        }
     }
 }

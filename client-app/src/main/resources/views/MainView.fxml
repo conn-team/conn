@@ -64,7 +64,7 @@
                   </FontAwesomeIconView>
                </children>
             </GridPane>
-            <TextArea fx:id="messagesView" editable="false" prefHeight="200.0" prefWidth="200.0" styleClass="messagesView" text="a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;" wrapText="true">
+            <TextArea fx:id="messagesView" editable="false" prefHeight="200.0" prefWidth="200.0" styleClass="messagesView" wrapText="true">
                <font>
                   <Font size="14.0" />
                </font></TextArea>

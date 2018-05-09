@@ -94,8 +94,9 @@ public class MainViewController {
             str.append("\n");
         }
 
-        messagesView.setText(str.toString());
-        messagesView.setScrollTop(100000);
+        messagesView.setText(str.toString().trim());
+        messagesView.selectEnd(); // TODO
+        messagesView.deselect();
     }
 
     @FXML

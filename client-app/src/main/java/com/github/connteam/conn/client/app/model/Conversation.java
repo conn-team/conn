@@ -46,9 +46,15 @@ public class Conversation {
     }
 
     public void sendMessage(String text) {
+        if (session.getClient() == null) {
+            return;
+        }
+
         Message msg = new Message();
         msg.setMessage(text);
         msg.setOutgoing(true);
+
+        session.getClient().sendTextMessage(user.getUsername(), text);
         messages.add(msg);
     }
 }

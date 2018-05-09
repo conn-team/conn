@@ -2,10 +2,13 @@ package com.github.connteam.conn.client.app.model;
 
 import java.io.IOException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.function.Consumer;
 
 import com.github.connteam.conn.client.ConnClient;
 import com.github.connteam.conn.client.ConnClientListener;
 import com.github.connteam.conn.client.app.App;
+import com.github.connteam.conn.client.database.model.Message;
+import com.github.connteam.conn.client.database.model.User;
 import com.github.connteam.conn.client.database.provider.DataProvider;
 import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.io.IOUtils;
@@ -88,10 +91,15 @@ public class Session implements AutoCloseable {
         return ConnClient.builder().setHost(HOST).setPort(PORT).setTransport(TRANSPORT).setIdentity(db).build();
     }
 
-    public void openConversation(String username) {
+    public void openConversation(String username, Consumer<Conversation> callback) {
+        if (client == null) {
+            return;
+        }
+        
         for (Conversation conv : conversations) {
             if (conv.getUser().getUsername().equals(username)) {
                 setCurrentConversation(conv);
+                callback.accept(conv);
                 return;
             }
         }
@@ -102,6 +110,7 @@ public class Session implements AutoCloseable {
                     Conversation conv = new Conversation(this, info);
                     conversations.add(conv);
                     setCurrentConversation(conv);
+                    callback.accept(conv);
                 } else {
                     app.reportError("Nie ma takiego użytkownika!");
                 }
@@ -111,10 +120,24 @@ public class Session implements AutoCloseable {
         }
     }
 
+    public void openConversation(String username) {
+        openConversation(username, x -> {});
+    }
+
     private class SessionHandler implements ConnClientListener {
         @Override
         public void onLogin(boolean hasBeenRegistered) {
-            Platform.runLater(() -> app.getSessionManager().setConnecting(false));
+            Platform.runLater(() -> {
+                app.getSessionManager().setConnecting(false);
+
+                try {
+                    for (User user : db.getUsers()) {
+                        openConversation(user.getUsername());
+                    }
+                } catch (DatabaseException e) {
+                    app.reportError(e);
+                }
+            });
         }
 
         @Override
@@ -127,6 +150,16 @@ public class Session implements AutoCloseable {
                     app.reportError(err);
                 });
             }
+        }
+
+        @Override
+        public void onTextMessage(String from, String message) {
+            openConversation(from, conv -> {
+                Message msg = new Message();
+                msg.setMessage(message);
+                msg.setOutgoing(false);
+                conv.getMessages().add(msg);
+            });
         }
     }
 }

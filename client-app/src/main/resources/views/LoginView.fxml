@@ -16,7 +16,7 @@
             <Insets />
          </VBox.margin>
       </FontAwesomeIconView>
-      <ProgressBar fx:id="progressBar" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="4.0" prefWidth="600.0" progress="0.0">
+      <ProgressBar fx:id="progressBar" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="4.0" prefWidth="100000.0" progress="0.0">
          <VBox.margin>
             <Insets bottom="7.0" top="7.0" />
          </VBox.margin>

@@ -50,6 +50,7 @@ public class MainViewController {
                 onCurrentConversationChange(cur.currentConversationProperty(), null, cur.getCurrentConversation());
             } else {
                 friendsListView.setItems(null);
+                messagesView.setText("");
             }
         });
 
@@ -58,6 +59,10 @@ public class MainViewController {
             if (session != null && old != cur) {
                 session.setCurrentConversation(cur);
             }
+        });
+
+        app.getSessionManager().connectingProperty().addListener((prop, old, cur) -> {
+            mainMenu.setText(cur ? "Łączenie..." : "Połączono!");
         });
     }
 
@@ -109,8 +114,12 @@ public class MainViewController {
 
     @FXML
     void onSubmitFieldKeyPress(KeyEvent event) {
-        if (event.getCode() == KeyCode.ENTER) {
-            String msg = submitField.getText();
+        if (event.getCode() == KeyCode.ENTER && !event.isShortcutDown()) {
+            String msg = submitField.getText().trim();
+            if (msg.length() == 0) {
+                return;
+            }
+
             submitField.setText("");
 
             Conversation conv = app.getSession().getCurrentConversation();

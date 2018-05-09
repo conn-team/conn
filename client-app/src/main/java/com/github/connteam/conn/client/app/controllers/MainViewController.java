@@ -16,6 +16,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 
 public class MainViewController {
     private final App app;
@@ -94,6 +95,7 @@ public class MainViewController {
         }
 
         messagesView.setText(str.toString());
+        messagesView.setScrollTop(100000);
     }
 
     @FXML
@@ -114,19 +116,28 @@ public class MainViewController {
 
     @FXML
     void onSubmitFieldKeyPress(KeyEvent event) {
-        if (event.getCode() == KeyCode.ENTER && !event.isShortcutDown()) {
-            String msg = submitField.getText().trim();
-            if (msg.length() == 0) {
-                return;
-            }
-
-            submitField.setText("");
-
-            Conversation conv = app.getSession().getCurrentConversation();
-            if (conv != null) {
-                conv.sendMessage(msg);
-            }
+        if (event.getCode() == KeyCode.ENTER) {
             event.consume();
+            onSubmit();
+        }
+    }
+
+    @FXML
+    void onSubmitButtonClick(MouseEvent event) {
+        onSubmit();
+    }
+
+    void onSubmit() {
+        String msg = submitField.getText().trim();
+        if (msg.length() == 0) {
+            return;
+        }
+
+        submitField.setText("");
+
+        Conversation conv = app.getSession().getCurrentConversation();
+        if (conv != null) {
+            conv.sendMessage(msg);
         }
     }
 }

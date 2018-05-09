@@ -56,15 +56,15 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <TextArea fx:id="submitField" onKeyPressed="#onSubmitFieldKeyPress" prefHeight="200.0" prefWidth="200.0" promptText="Napisz wiadomość" styleClass="submitField" />
-                  <FontAwesomeIconView glyphName="PAPER_PLANE" size="20" styleClass="sendButton" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                  <TextArea fx:id="submitField" onKeyPressed="#onSubmitFieldKeyPress" prefHeight="200.0" prefWidth="200.0" promptText="Napisz wiadomość" styleClass="submitField" wrapText="true" />
+                  <FontAwesomeIconView glyphName="PAPER_PLANE" onMousePressed="#onSubmitButtonClick" size="20" styleClass="sendButton" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor>
                   </FontAwesomeIconView>
                </children>
             </GridPane>
-            <TextArea fx:id="messagesView" editable="false" prefHeight="200.0" prefWidth="200.0" styleClass="messagesView" wrapText="true">
+            <TextArea fx:id="messagesView" editable="false" prefHeight="200.0" prefWidth="200.0" styleClass="messagesView" text="a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;a&#10;" wrapText="true">
                <font>
                   <Font size="14.0" />
                </font></TextArea>

@@ -84,10 +84,13 @@
     -fx-background-color: #eee;
 }
 
-.messagesView .content {
-    -fx-background-color: #eee;
+.messagesView {
     -fx-border-color: rgba(0, 0, 0, 0.1);
     -fx-border-width: 0 0 1 0;
+}
+
+.messagesView .content {
+    -fx-background-color: #eee;
 }
 
 .sendButton {

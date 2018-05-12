@@ -71,17 +71,16 @@ public class IdentityManager {
                 identities.add(new IdentityInfo(file));
             }
         }
-
-        FXCollections.sort(identities);
     }
 
     public void createAndUseIdentity(String username) {
         app.getSessionManager().setConnecting(true);
 
         app.asyncTask(new IdentityRegisterTask(username, err -> Platform.runLater(() -> {
+            app.getSessionManager().setConnecting(false);
             update();
+
             if (err != null) {
-                app.getSessionManager().setConnecting(false);
                 app.reportError(err);
             } else {
                 app.getSessionManager().connect(getIdentityByName(username));

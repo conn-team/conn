@@ -2,7 +2,6 @@ package com.github.connteam.conn.client.app;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.function.Consumer;
 
 import com.github.connteam.conn.client.ConnClient;
@@ -11,7 +10,6 @@ import com.github.connteam.conn.client.IdentityFactory;
 import com.github.connteam.conn.client.app.model.IdentityManager;
 import com.github.connteam.conn.client.app.model.Session;
 import com.github.connteam.conn.client.database.provider.DataProvider;
-import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.io.IOUtils;
 
 public class IdentityRegisterTask implements Runnable {
@@ -37,7 +35,7 @@ public class IdentityRegisterTask implements Runnable {
             client = Session.createClient(db);
             client.setHandler(new Handler());
             client.start();
-        } catch (DatabaseException | InvalidKeySpecException | IOException e) {
+        } catch (Exception e) {
             IOUtils.closeQuietly(client);
             IOUtils.closeQuietly(db);
             onFinish(e);
@@ -46,15 +44,20 @@ public class IdentityRegisterTask implements Runnable {
 
     private void onFinish(Exception err) {
         if (err == null) {
+            File src = new File(tempPath);
             File dst = new File(finalPath);
-            if (dst.exists()) {
+
+            if (!src.exists()) {
+                err = new IOException("No identity file generated (shouldn't happen here)");
+            } else if (dst.exists()) {
                 err = new IOException("Identity file already exists");
-            } else if (!new File(tempPath).renameTo(dst)) {
+            } else if (!src.renameTo(dst)) {
                 err = new IOException("Error renaming identity file");
             }
         } else {
             new File(tempPath).delete();
         }
+
         callback.accept(err);
     }
 
@@ -62,7 +65,7 @@ public class IdentityRegisterTask implements Runnable {
         @Override
         public void onLogin(boolean hasBeenRegistered) {
             success = true;
-            client.close();
+            IOUtils.closeQuietly(client);
         }
 
         @Override

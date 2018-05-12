@@ -77,7 +77,9 @@ public class MainViewController {
         }
 
         messagesView.setText(str.toString().trim());
-        messagesView.selectEnd(); // TODO
+
+        // Hacky way to scroll to bottom (setScrollTop didn't work as expected)
+        messagesView.selectEnd();
         messagesView.deselect();
     }
 

@@ -4,8 +4,6 @@ import com.github.connteam.conn.client.IdentityFactory;
 import com.github.connteam.conn.client.app.App;
 import com.github.connteam.conn.client.app.model.IdentityManager.IdentityInfo;
 import com.github.connteam.conn.client.database.provider.DataProvider;
-import com.github.connteam.conn.core.database.DatabaseException;
-import com.github.connteam.conn.core.net.Transport;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -14,10 +12,6 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 
 public class SessionManager {
-    public static final String HOST = "localhost";
-    public static final int PORT = 9090;
-    public static final Transport TRANSPORT = Transport.SSL;
-
     private final App app;
 
     private final BooleanProperty connecting = new SimpleBooleanProperty();
@@ -44,16 +38,6 @@ public class SessionManager {
     }
 
     public void setSession(Session val) {
-        if (val == null) {
-            if (app.getIdentityManager().getIdentities().isEmpty()) {
-                app.setView(app.getRegisterView());
-            } else {
-                app.setView(app.getLoginView());
-            }
-        } else {
-            app.setView(app.getMainView());
-        }
-
         session.setValue(val);
     }
 
@@ -72,7 +56,7 @@ public class SessionManager {
                     setSession(new Session(app, db));
                     getSession().start();
                 });
-            } catch (DatabaseException e) {
+            } catch (Exception e) {
                 Platform.runLater(() -> {
                     app.getSessionManager().setConnecting(false);
                     app.reportError(e);
@@ -83,6 +67,7 @@ public class SessionManager {
 
     public void disconnect() {
         if (getSession() != null) {
+            app.getSessionManager().setConnecting(false);
             getSession().close();
             setSession(null);
         }

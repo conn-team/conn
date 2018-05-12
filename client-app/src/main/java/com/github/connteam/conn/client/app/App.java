@@ -4,8 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.MissingResourceException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import com.github.connteam.conn.client.app.controllers.LoginViewController;
 import com.github.connteam.conn.client.app.controllers.MainViewController;
@@ -13,6 +14,9 @@ import com.github.connteam.conn.client.app.controllers.RegisterViewController;
 import com.github.connteam.conn.client.app.model.IdentityManager;
 import com.github.connteam.conn.client.app.model.Session;
 import com.github.connteam.conn.client.app.model.SessionManager;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -23,10 +27,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
 public class App extends Application {
+    private final static Logger LOG = LoggerFactory.getLogger(App.class);
+
     public static final String CONFIG_DIR = System.getProperty("user.home") + "/.conn";
     public static final String TITLE = "Conn";
 
-    private ExecutorService executor;
+    private ScheduledExecutorService executor;
     private IdentityManager identities;
     private SessionManager sessionMgr;
 
@@ -35,6 +41,10 @@ public class App extends Application {
 
     public void asyncTask(Runnable task) {
         executor.execute(task);
+    }
+
+    public void asyncTaskLater(Runnable task, long delay, TimeUnit unit) {
+        executor.schedule(task, delay, unit);
     }
 
     public IdentityManager getIdentityManager() {
@@ -70,6 +80,18 @@ public class App extends Application {
         return registerView;
     }
 
+    private void updateCurrentView() {
+        if (getSession() == null) {
+            if (identities.getIdentities().isEmpty()) {
+                setView(registerView);
+            } else {
+                setView(loginView);
+            }
+        } else {
+            setView(mainView);
+        }
+    }
+
     public void reportError(String err) {
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle("Conn");
@@ -80,7 +102,16 @@ public class App extends Application {
     }
 
     public void reportError(Exception err) {
+        LOG.error("Reported error", err);
         reportError(String.valueOf(err));
+    }
+
+    private void createConfigDir() throws IOException {
+        File dir = new File(CONFIG_DIR);
+        dir.mkdirs();
+        if (!dir.exists()) {
+            throw new IOException("Cannot create .conn directory");
+        }
     }
 
     private Parent loadView(String resourceName, Object controller) throws IOException {
@@ -94,16 +125,8 @@ public class App extends Application {
         return loader.load();
     }
 
-    private void createConfigDir() throws IOException {
-        File dir = new File(CONFIG_DIR);
-        dir.mkdirs();
-        if (!dir.exists()) {
-            throw new IOException("Cannot create .conn directory");
-        }
-    }
-
     private void initModel() throws IOException {
-        executor = Executors.newSingleThreadExecutor();
+        executor = Executors.newSingleThreadScheduledExecutor();
         createConfigDir();
 
         identities = new IdentityManager(this);
@@ -121,19 +144,15 @@ public class App extends Application {
         initModel();
         initViews();
 
-        stage.focusedProperty().addListener(x -> {
-            identities.update();
-        });
-
-        stage.setOnCloseRequest(e -> {
-            System.exit(0); // TODO: should be Platform.exit tbh
-        });
+        sessionMgr.sessionProperty().addListener(x -> updateCurrentView());
+        stage.focusedProperty().addListener(x -> identities.update());
+        stage.setOnCloseRequest(x -> getSessionManager().disconnect());
 
         this.stage = stage;
         stage.setScene(new Scene(mainView));
         stage.setTitle(TITLE);
         stage.show();
-        sessionMgr.setSession(null);
+        updateCurrentView();
     }
 
     @Override

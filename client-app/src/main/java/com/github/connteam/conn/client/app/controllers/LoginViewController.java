@@ -31,13 +31,13 @@ public class LoginViewController {
     @FXML
     public void initialize() {
         loginButton.setDisable(true);
-        identityChooser.setItems(app.getIdentityManager().getIdentities());
+        identityChooser.setItems(app.getIdentityManager().getIdentities().sorted());
 
         identityChooser.valueProperty().addListener(x -> {
             loginButton.setDisable(identityChooser.getValue() == null);
         });
 
-        List<IdentityInfo> list = app.getIdentityManager().getIdentities();
+        List<IdentityInfo> list = identityChooser.getItems();
         if (!list.isEmpty()) {
             identityChooser.setValue(list.get(0));
         }

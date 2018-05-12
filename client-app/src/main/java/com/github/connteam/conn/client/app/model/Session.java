@@ -26,15 +26,22 @@ public class Session implements AutoCloseable {
     public static final Transport TRANSPORT = Transport.SSL;
 
     private final App app;
-    private final DataProvider db;
+    private final DataProvider database;
+
     private ConnClient client;
+    private volatile boolean closed = false;
 
     private final ObservableList<Conversation> conversations = FXCollections.observableArrayList();
     private final Property<Conversation> currentConversation = new SimpleObjectProperty<>();
 
+    public static ConnClient createClient(DataProvider db)
+            throws IOException, DatabaseException, InvalidKeySpecException {
+        return ConnClient.builder().setHost(HOST).setPort(PORT).setTransport(TRANSPORT).setIdentity(db).build();
+    }
+
     public Session(App app, DataProvider db) {
         this.app = app;
-        this.db = db;
+        this.database = db;
     }
 
     public ConnClient getClient() {
@@ -42,7 +49,7 @@ public class Session implements AutoCloseable {
     }
 
     public DataProvider getDataProvider() {
-        return db;
+        return database;
     }
 
     public ObservableList<Conversation> getConversations() {
@@ -63,32 +70,52 @@ public class Session implements AutoCloseable {
 
     public void start() {
         app.getSessionManager().setConnecting(true);
+        app.asyncTask(() -> connect());
+    }
 
-        app.asyncTask(() -> {
-            try {
-                client = Session.createClient(db);
+    private void connect() {
+        if (closed) {
+            return;
+        }
+
+        try {
+            ConnClient tmp = Session.createClient(database);
+            Platform.runLater(() -> {
+                client = tmp;
                 client.setHandler(new SessionHandler());
                 client.start();
-            } catch (InvalidKeySpecException | IOException | DatabaseException e) {
-                Platform.runLater(() -> {
-                    app.getSessionManager().setConnecting(false);
-                    app.reportError(e);
-                });
-            }
-        });
+            });
+        } catch (Exception e) {
+            Platform.runLater(() -> onConnectionClose(e));
+        }
+    }
+
+    private void onConnectionClose(Exception err) {
+        app.getSessionManager().setConnecting(false);
+        client = null;
+
+        if (closed) {
+            IOUtils.closeQuietly(database);
+        }
+
+        if (err != null) {
+            app.reportError(err);
+        }
     }
 
     @Override
     public void close() {
+        if (closed) {
+            return;
+        }
+
+        closed = true;
+
         if (client != null) {
             client.close();
+        } else {
+            IOUtils.closeQuietly(database);
         }
-        IOUtils.closeQuietly(db); // TODO: close it properly (when connection is closed)
-    }
-
-    public static ConnClient createClient(DataProvider db)
-            throws IOException, DatabaseException, InvalidKeySpecException {
-        return ConnClient.builder().setHost(HOST).setPort(PORT).setTransport(TRANSPORT).setIdentity(db).build();
     }
 
     public void openConversation(String username, Consumer<Conversation> callback) {
@@ -132,7 +159,7 @@ public class Session implements AutoCloseable {
                 app.getSessionManager().setConnecting(false);
 
                 try {
-                    for (User user : db.getUsers()) {
+                    for (User user : database.getUsers()) {
                         openConversation(user.getUsername());
                     }
                 } catch (DatabaseException e) {
@@ -143,14 +170,7 @@ public class Session implements AutoCloseable {
 
         @Override
         public void onDisconnect(Exception err) {
-            client.close();
-
-            if (err != null) {
-                Platform.runLater(() -> {
-                    app.getSessionManager().setConnecting(false);
-                    app.reportError(err);
-                });
-            }
+            Platform.runLater(() -> onConnectionClose(err));
         }
 
         @Override

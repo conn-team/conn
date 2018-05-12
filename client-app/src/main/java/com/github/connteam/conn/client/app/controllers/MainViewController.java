@@ -46,7 +46,7 @@ public class MainViewController {
                         ctxConv.listen(curConv.getMessages(), x -> onMessagesChange(x));
                     }
                 });
-                
+
                 friendsListView.getSelectionModel().selectedItemProperty().addListener((prop, oldElem, curElem) -> {
                     if (oldElem != curElem) {
                         cur.setCurrentConversation(curElem);

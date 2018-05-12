@@ -28,8 +28,7 @@ public class DeepObserver<T> {
         this.setup = setup;
     }
 
-    public static <T> DeepObserver<T> listen(ObservableValue<? extends T> target,
-            ObserveInitializer<? super T> setup) {
+    public static <T> DeepObserver<T> listen(ObservableValue<? extends T> target, ObserveInitializer<? super T> setup) {
         DeepObserver<T> observer = new DeepObserver<>(target, setup);
         observer.enable();
         return observer;
@@ -110,35 +109,35 @@ public class DeepObserver<T> {
                 listener.onChanged(new ListChangeListener.Change<S>(prop) {
                     int stage = 0;
 
-					@Override
-					public boolean next() {
-						return ++stage < 2;
-					}
+                    @Override
+                    public boolean next() {
+                        return ++stage < 2;
+                    }
 
-					@Override
-					public void reset() {
+                    @Override
+                    public void reset() {
                         stage = 0;
-					}
+                    }
 
-					@Override
-					public int getFrom() {
-						return 0;
-					}
+                    @Override
+                    public int getFrom() {
+                        return 0;
+                    }
 
-					@Override
-					public int getTo() {
-						return (stage == 1 ? prop.size() : 0);
-					}
+                    @Override
+                    public int getTo() {
+                        return (stage == 1 ? prop.size() : 0);
+                    }
 
-					@Override
-					public List<S> getRemoved() {
-						return Collections.emptyList();
-					}
+                    @Override
+                    public List<S> getRemoved() {
+                        return Collections.emptyList();
+                    }
 
-					@Override
-					protected int[] getPermutation() {
-						return new int[0];
-					}
+                    @Override
+                    protected int[] getPermutation() {
+                        return new int[0];
+                    }
                 });
             }
 

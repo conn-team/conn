@@ -14,10 +14,14 @@ import javafx.scene.control.TextField;
 public class RegisterViewController {
     private final App app;
 
-    @FXML private ProgressBar progressBar;
-    @FXML private TextField usernameField;
-    @FXML private Button registerButton;
-    @FXML private Hyperlink loginSwitchButton;
+    @FXML
+    private ProgressBar progressBar;
+    @FXML
+    private TextField usernameField;
+    @FXML
+    private Button registerButton;
+    @FXML
+    private Hyperlink loginSwitchButton;
 
     public RegisterViewController(App app) {
         this.app = app;

@@ -95,7 +95,7 @@ public class Session implements AutoCloseable {
         if (client == null) {
             return;
         }
-        
+
         for (Conversation conv : conversations) {
             if (conv.getUser().getUsername().equals(username)) {
                 setCurrentConversation(conv);
@@ -121,7 +121,8 @@ public class Session implements AutoCloseable {
     }
 
     public void openConversation(String username) {
-        openConversation(username, x -> {});
+        openConversation(username, x -> {
+        });
     }
 
     private class SessionHandler implements ConnClientListener {

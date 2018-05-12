@@ -2,13 +2,11 @@ package com.github.connteam.conn.client.app.controllers;
 
 import com.github.connteam.conn.client.app.App;
 import com.github.connteam.conn.client.app.model.Conversation;
-import com.github.connteam.conn.client.app.model.Session;
+import com.github.connteam.conn.client.app.util.DeepObserver;
 import com.github.connteam.conn.client.database.model.Message;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
@@ -30,35 +28,32 @@ public class MainViewController {
     @FXML
     private MenuButton mainMenu;
 
-    private final ChangeListener<Conversation> currentConversationObserver = this::onCurrentConversationChange;
-    private final ListChangeListener<Message> messagesObserver = this::onMessagesChange;
-
     public MainViewController(App app) {
         this.app = app;
     }
 
     @FXML
     public void initialize() {
-        app.getSessionManager().sessionProperty().addListener((prop, old, cur) -> {
-            if (old != null) {
-                old.currentConversationProperty().removeListener(currentConversationObserver);
-                onCurrentConversationChange(old.currentConversationProperty(), old.getCurrentConversation(), null);
-            }
-
+        DeepObserver.listen(app.getSessionManager().sessionProperty(), (ctx, old, cur) -> {
             if (cur != null) {
                 friendsListView.setItems(cur.getConversations());
-                cur.currentConversationProperty().addListener(currentConversationObserver);
-                onCurrentConversationChange(cur.currentConversationProperty(), null, cur.getCurrentConversation());
+
+                ctx.deepListen(cur.currentConversationProperty(), (ctxConv, oldConv, curConv) -> {
+                    friendsListView.getSelectionModel().select(curConv);
+
+                    if (curConv != null) {
+                        ctxConv.bindBidirectional(submitField.textProperty(), curConv.currentMessageProperty());
+                        ctxConv.listen(curConv.getMessages(), x -> onMessagesChange(x));
+                    }
+                });
+                
+                friendsListView.getSelectionModel().selectedItemProperty().addListener((prop, oldElem, curElem) -> {
+                    if (oldElem != curElem) {
+                        cur.setCurrentConversation(curElem);
+                    }
+                });
             } else {
                 friendsListView.setItems(null);
-                messagesView.setText("");
-            }
-        });
-
-        friendsListView.getSelectionModel().selectedItemProperty().addListener((prop, old, cur) -> {
-            Session session = app.getSession();
-            if (session != null && old != cur) {
-                session.setCurrentConversation(cur);
             }
         });
 
@@ -67,23 +62,10 @@ public class MainViewController {
         });
     }
 
-    private void onCurrentConversationChange(ObservableValue<?> observable, Conversation old, Conversation cur) {
-        if (old != null) {
-            submitField.textProperty().unbindBidirectional(old.currentMessageProperty());
-            old.getMessages().removeListener(messagesObserver);
-        }
-        if (cur != null) {
-            friendsListView.getSelectionModel().select(cur);
-            submitField.textProperty().bindBidirectional(cur.currentMessageProperty());
-            cur.getMessages().addListener(messagesObserver);
-            onMessagesChange(null); // TODO
-        }
-    }
-
     private void onMessagesChange(ListChangeListener.Change<? extends Message> change) {
         StringBuilder str = new StringBuilder();
 
-        for (Message msg : app.getSession().getCurrentConversation().getMessages()) {
+        for (Message msg : change.getList()) {
             if (msg.isOutgoing()) {
                 str.append(app.getSession().getClient().getSettings().getUsername());
             } else {

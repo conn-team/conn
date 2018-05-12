@@ -15,7 +15,6 @@ import com.github.connteam.conn.client.app.model.Session;
 import com.github.connteam.conn.client.app.model.SessionManager;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.stage.Stage;

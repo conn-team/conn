@@ -102,12 +102,12 @@ public class ConnServerClient implements Closeable {
         }
 
         AuthStatus.Status status;
-		try {
-			status = attemptLogin((AuthResponse)msg);
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException | DatabaseException e) {
+        try {
+            status = attemptLogin((AuthResponse) msg);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException | DatabaseException e) {
             status = AuthStatus.Status.INTERNAL_ERROR;
-            LOG.info("Error while authenticating user: " + e.toString());
-		}
+            LOG.info("Error while authenticating user", e);
+        }
 
         channel.sendMessage(AuthStatus.newBuilder().setStatus(status).build());
 
@@ -116,7 +116,8 @@ public class ConnServerClient implements Closeable {
         }
     }
 
-    private AuthStatus.Status attemptLogin(AuthResponse msg) throws DatabaseException, NoSuchAlgorithmException, InvalidKeySpecException {
+    private AuthStatus.Status attemptLogin(AuthResponse msg)
+            throws DatabaseException, NoSuchAlgorithmException, InvalidKeySpecException {
         String username = msg.getUsername();
         byte[] receivedPublicKey = msg.getPublicKey().toByteArray();
         byte[] sign = msg.getSignature().toByteArray();
@@ -206,12 +207,12 @@ public class ConnServerClient implements Closeable {
             User user;
 
             try {
-				user = server.getDataProvider().getUserByUsername(username).orElse(null);
-			} catch (DatabaseException e) {
+                user = server.getDataProvider().getUserByUsername(username).orElse(null);
+            } catch (DatabaseException e) {
                 close(e);
                 return;
             }
-            
+
             UserInfo.Builder resp = UserInfo.newBuilder();
             resp.setRequestID(msg.getRequestID());
             resp.setExists(user != null);

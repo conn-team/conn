@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 public class StandardNetChannel extends NetChannel {
     private final static Logger LOG = LoggerFactory.getLogger(StandardNetChannel.class);
-    
+
     private final Socket socket;
     private final BufferedInputStream bufIn;
     private final BufferedOutputStream bufOut;
@@ -40,15 +40,15 @@ public class StandardNetChannel extends NetChannel {
             throws IOException {
 
         this.socket = socket;
-        
+
         try {
             bufIn = new BufferedInputStream(socket.getInputStream());
             bufOut = new BufferedOutputStream(socket.getOutputStream());
-		} catch (IOException e) {
+        } catch (IOException e) {
             socket.close();
             throw e;
         }
-        
+
         in = new MessageInputStream(bufIn, inRegistry);
         out = new MessageOutputStream(bufOut, outRegistry);
 
@@ -65,11 +65,8 @@ public class StandardNetChannel extends NetChannel {
             } catch (IOException e) {
                 close(e);
             } catch (Exception e) {
-                LOG.error("Unexpected error in reader thread: {}", e.toString());
+                LOG.error("Unexpected error in reader thread", e);
                 close(e);
-            } catch (Throwable e) {
-                LOG.error("Unexpected error in reader thread: {}", e.toString());
-                close(new Exception(e));
             }
         });
 
@@ -155,13 +152,13 @@ public class StandardNetChannel extends NetChannel {
                 try {
                     LOG.trace("Sending {} to {}:{}\n{}", msg.getClass().getSimpleName(), getAddress().getHostName(),
                             getPort(), JsonFormat.printer().print(msg));
-                    
+
                     out.writeMessage(msg);
                     bufOut.flush();
                 } catch (IOException e) {
                     close(e);
                 } catch (Exception e) {
-                    LOG.error("Unexpected error in writer thread: {}", e.toString());
+                    LOG.error("Unexpected error in writer thread", e);
                     close(e);
                 }
             });
@@ -178,10 +175,10 @@ public class StandardNetChannel extends NetChannel {
         writerExecutor.awaitTermination(timeout, unit);
     }
 
-	@Override
-	public InetAddress getAddress() {
-		return socket.getInetAddress();
-	}
+    @Override
+    public InetAddress getAddress() {
+        return socket.getInetAddress();
+    }
 
     @Override
     public int getPort() {

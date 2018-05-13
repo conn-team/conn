@@ -50,29 +50,36 @@
     -fx-padding: 0 -2137 0 0; /* if it works and it's stupid then it ain't stupid */
 }
 
- .friends-view .list-cell {
-    -fx-padding: 12 6 12 6;
+.friends-view .list-cell {
+    -fx-padding: 0;
     -fx-border-color: rgba(0, 0, 0, 0.04);
+    -fx-border-width: 0;
+    -fx-background-color: #ebebeb;
+    -fx-text-fill: #111;
+}
+
+.friends-view .list-cell:nonempty {
     -fx-border-width: 0 0 1 0;
 }
 
-.friends-view .list-cell {
-    -fx-background-color: #ebebeb;
+.friends-view .list-cell:hover:nonempty {
+    -fx-background-color: #e8e8e8;
 }
 
-.friends-view .list-cell:hover {
-    -fx-background-color: #e0e0e0;
-    -fx-text-fill: #111;
-}
-
-.friends-view .list-cell:selected {
+.friends-view .list-cell:selected:nonempty {
     -fx-background-color: #dddddd;
-    -fx-text-fill: #111;
 }
 
-.friends-view .list-cell:pressed {
+.friends-view .list-cell:pressed:nonempty {
     -fx-background-color: #d4d4d4;
-    -fx-text-fill: #111;
+}
+
+.conversationCell .usernameLabel {
+    -fx-text-fill: #000;
+}
+
+.conversationCell .lastMessageLabel, .conversationCell .timeLabel {
+    -fx-text-fill: rgba(0, 0, 0, 0.7);
 }
 
 .submitField .content {

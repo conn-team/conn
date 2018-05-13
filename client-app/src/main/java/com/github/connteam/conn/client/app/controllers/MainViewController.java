@@ -1,6 +1,7 @@
 package com.github.connteam.conn.client.app.controllers;
 
 import com.github.connteam.conn.client.app.App;
+import com.github.connteam.conn.client.app.controls.ConversationListCell;
 import com.github.connteam.conn.client.app.model.Conversation;
 import com.github.connteam.conn.client.app.util.DeepObserver;
 import com.github.connteam.conn.client.database.model.Message;
@@ -43,6 +44,8 @@ public class MainViewController {
 
     @FXML
     public void initialize() {
+        friendsListView.setCellFactory(x -> new ConversationListCell());
+
         DeepObserver.listen(app.getSessionManager().sessionProperty(), (ctx, old, cur) -> {
             if (cur != null) {
                 friendsListView.setItems(cur.getConversations());

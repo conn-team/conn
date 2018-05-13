@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="64.0" prefWidth="400.0" styleClass="conversationCell" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <FontAwesomeIconView fill="#00000026" glyphName="USER_CIRCLE" size="50" styleClass="avatarIcon" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0" />
+      <VBox alignment="CENTER_LEFT" layoutX="80.0" layoutY="-70.0" spacing="2.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="64.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Label fx:id="usernameField" styleClass="usernameLabel" text="Username">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <Label fx:id="lastMessageField" styleClass="lastMessageLabel" text="Last message" />
+         </children>
+      </VBox>
+      <Label fx:id="timeField" styleClass="timeLabel" text="10:33" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="0.0" />
+   </children>
+</AnchorPane>

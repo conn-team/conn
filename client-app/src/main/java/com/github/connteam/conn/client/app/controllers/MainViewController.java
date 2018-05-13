@@ -5,9 +5,10 @@ import com.github.connteam.conn.client.app.model.Conversation;
 import com.github.connteam.conn.client.app.util.DeepObserver;
 import com.github.connteam.conn.client.database.model.Message;
 
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.collections.ListChangeListener;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.TextArea;
@@ -15,6 +16,8 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 
 public class MainViewController {
     private final App app;
@@ -27,6 +30,12 @@ public class MainViewController {
     private TextArea messagesView;
     @FXML
     private MenuButton mainMenu;
+    @FXML
+    private GridPane conversationBox;
+    @FXML
+    private VBox welcomeBox;
+    @FXML
+    private Label welcomeLabel;
 
     public MainViewController(App app) {
         this.app = app;
@@ -45,6 +54,9 @@ public class MainViewController {
                         ctxConv.bindBidirectional(submitField.textProperty(), curConv.currentMessageProperty());
                         ctxConv.listen(curConv.getMessages(), x -> onMessagesChange(x));
                     }
+
+                    welcomeBox.setVisible(curConv == null);
+                    conversationBox.setVisible(curConv != null);
                 });
 
                 friendsListView.getSelectionModel().selectedItemProperty().addListener((prop, oldElem, curElem) -> {

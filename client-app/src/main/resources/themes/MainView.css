@@ -104,3 +104,7 @@
 .sendButton:pressed {
     -fx-background-color: #d4d4d4;
 }
+
+.welcomeLabel {
+    -fx-text-fill: rgba(0, 0, 0, 0.8);
+}

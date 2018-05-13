@@ -55,7 +55,7 @@ public class DeepObserver<T> {
 
         enabled = false;
         target.removeListener(mainListener);
-        unbind();
+        onChange(target, target.getValue(), null);
     }
 
     private void unbind() {

@@ -48,8 +48,19 @@
     </dependency>
     <dependency>
       <groupId>de.jensd</groupId>
-      <artifactId>fontawesomefx</artifactId>
-      <version>8.9</version>
+      <artifactId>fontawesomefx-fontawesome</artifactId>
+      <version>4.7.0-5</version>
     </dependency>
   </dependencies>
+
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>bintray-jerady-maven</id>
+      <name>bintray</name>
+      <url>http://dl.bintray.com/jerady/maven</url>
+    </repository>
+  </repositories>
 </project>

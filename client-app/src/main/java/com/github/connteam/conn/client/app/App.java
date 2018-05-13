@@ -114,8 +114,8 @@ public class App extends Application {
         }
     }
 
-    private Parent loadView(String resourceName, Object controller) throws IOException {
-        URL resourceUrl = getClass().getClassLoader().getResource(resourceName);
+    public static Parent loadView(String resourceName, Object controller) throws IOException {
+        URL resourceUrl = App.class.getClassLoader().getResource(resourceName);
         if (resourceUrl == null) {
             throw new MissingResourceException("Missing view", "", resourceName);
         }

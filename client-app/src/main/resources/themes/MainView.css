@@ -37,11 +37,14 @@
     -fx-border-width: 1 1 1 1;
 }
 
-.friends-view {
-    -fx-background-color: #dfdfdf;
+.list-view {
     -fx-background-insets: 0;
     -fx-padding: 0;
     -fx-border-color: rgba(0, 0, 0, 0.1);
+}
+
+.friends-view {
+    -fx-background-color: #dfdfdf;
     -fx-border-width: 1 1 0 0;
 }
 
@@ -91,13 +94,38 @@
     -fx-background-color: #eee;
 }
 
-.messagesView {
-    -fx-border-color: rgba(0, 0, 0, 0.1);
+.messages-view {
+    -fx-background-color: #eee;
     -fx-border-width: 0 0 1 0;
 }
 
-.messagesView .content {
+.messages-view .list-cell {
+    -fx-padding: 2 10 2 10;
     -fx-background-color: #eee;
+    -fx-text-fill: #111;
+}
+
+.message-cell .message-label {
+    -fx-text-fill: #000;
+}
+
+.message-cell .message-wrap {
+    -fx-background-color: #cccccc;
+    -fx-background-radius: 50;
+    -fx-alignment: center-left;
+}
+
+.list-cell:outgoing .message-cell {
+    -fx-alignment: center-right;
+}
+
+.list-cell:outgoing .message-cell .message-wrap {
+    -fx-background-color: #68a624;
+    -fx-alignment: center-right;
+}
+
+.list-cell:outgoing .message-cell .message-label {
+    -fx-text-fill: #f0f0f0;
 }
 
 .sendButton {

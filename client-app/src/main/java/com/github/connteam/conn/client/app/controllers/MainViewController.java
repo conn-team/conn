@@ -2,11 +2,11 @@ package com.github.connteam.conn.client.app.controllers;
 
 import com.github.connteam.conn.client.app.App;
 import com.github.connteam.conn.client.app.controls.ConversationListCell;
+import com.github.connteam.conn.client.app.controls.MessageListCell;
 import com.github.connteam.conn.client.app.model.Conversation;
 import com.github.connteam.conn.client.app.util.DeepObserver;
 import com.github.connteam.conn.client.database.model.Message;
 
-import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -28,7 +28,7 @@ public class MainViewController {
     @FXML
     private TextArea submitField;
     @FXML
-    private TextArea messagesView;
+    private ListView<Message> messagesView;
     @FXML
     private MenuButton mainMenu;
     @FXML
@@ -45,6 +45,7 @@ public class MainViewController {
     @FXML
     public void initialize() {
         friendsListView.setCellFactory(x -> new ConversationListCell());
+        messagesView.setCellFactory(x -> new MessageListCell());
 
         DeepObserver.listen(app.getSessionManager().sessionProperty(), (ctx, old, cur) -> {
             if (cur != null) {
@@ -55,7 +56,9 @@ public class MainViewController {
 
                     if (curConv != null) {
                         ctxConv.bindBidirectional(submitField.textProperty(), curConv.currentMessageProperty());
-                        ctxConv.listen(curConv.getMessages(), x -> onMessagesChange(x));
+                        messagesView.setItems(curConv.getMessages());
+                    } else {
+                        messagesView.setItems(null);
                     }
 
                     welcomeBox.setVisible(curConv == null);
@@ -75,27 +78,6 @@ public class MainViewController {
         app.getSessionManager().connectingProperty().addListener((prop, old, cur) -> {
             mainMenu.setText(cur ? "Łączenie..." : "Połączono!");
         });
-    }
-
-    private void onMessagesChange(ListChangeListener.Change<? extends Message> change) {
-        StringBuilder str = new StringBuilder();
-
-        for (Message msg : change.getList()) {
-            if (msg.isOutgoing()) {
-                str.append(app.getSession().getClient().getSettings().getUsername());
-            } else {
-                str.append(app.getSession().getCurrentConversation().getUser().getUsername());
-            }
-            str.append(": ");
-            str.append(msg.getMessage());
-            str.append("\n");
-        }
-
-        messagesView.setText(str.toString().trim());
-
-        // Hacky way to scroll to bottom (setScrollTop didn't work as expected)
-        messagesView.selectEnd();
-        messagesView.deselect();
     }
 
     @FXML
@@ -128,7 +110,12 @@ public class MainViewController {
     }
 
     void onSubmit() {
-        String msg = submitField.getText().trim();
+        String msg = submitField.getText();
+        if (msg == null) {
+            return;
+        }
+
+        msg = msg.trim();
         if (msg.length() == 0) {
             return;
         }

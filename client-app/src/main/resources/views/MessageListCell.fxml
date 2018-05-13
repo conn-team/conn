@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+
+
+<HBox prefWidth="400.0" styleClass="message-cell" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <HBox styleClass="message-wrap">
+         <children>
+            <Label fx:id="messageLabel" styleClass="message-label" text="Message" />
+         </children>
+         <padding>
+            <Insets bottom="6.0" left="12.0" right="12.0" top="6.0" />
+         </padding>
+         <HBox.margin>
+            <Insets />
+         </HBox.margin>
+      </HBox>
+   </children>
+</HBox>

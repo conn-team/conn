@@ -82,7 +82,15 @@ public class SQLQuery implements AutoCloseable {
 
     public int executeQueryCount() throws SQLException {
         try (ResultSet resultSet = pstmt.executeQuery()) {
-            return resultSet.getInt(1);
+            if (resultSet.next()) {
+                int n = resultSet.getInt(1);
+                if (resultSet.next()) {
+                    throw new SQLException("Unexpected ResultSet size");
+                }
+                return n;
+            } else {
+                throw new SQLException("Unexpected ResultSet");
+            }
         }
     }
 

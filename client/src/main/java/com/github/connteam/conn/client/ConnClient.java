@@ -4,7 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.ProtocolException;
 import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+import com.github.connteam.conn.client.database.model.EphemeralKey;
 import com.github.connteam.conn.client.database.model.Settings;
 import com.github.connteam.conn.client.database.model.User;
 import com.github.connteam.conn.client.database.provider.DataProvider;
@@ -35,7 +36,10 @@ import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthStatus;
 import com.github.connteam.conn.core.net.proto.NetProtos.KeepAlive;
+import com.github.connteam.conn.core.net.proto.NetProtos.SignedKey;
 import com.github.connteam.conn.core.net.proto.NetProtos.DeprecatedTextMessage;
+import com.github.connteam.conn.core.net.proto.NetProtos.EphemeralKeysDemand;
+import com.github.connteam.conn.core.net.proto.NetProtos.EphemeralKeysUpload;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserInfo;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserInfoRequest;
 import com.google.protobuf.ByteString;
@@ -183,7 +187,7 @@ public class ConnClient implements Closeable {
 
         try {
             login(payload);
-        } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {
+        } catch (InvalidKeyException | SignatureException e) {
             close(e);
         }
     }
@@ -208,8 +212,7 @@ public class ConnClient implements Closeable {
         }
     }
 
-    private synchronized void login(byte[] toSign)
-            throws InvalidKeyException, NoSuchAlgorithmException, SignatureException {
+    private synchronized void login(byte[] toSign) throws InvalidKeyException, SignatureException {
         String name = settings.getUsername();
         byte[] pubKey = publicKey.getEncoded();
 
@@ -264,6 +267,14 @@ public class ConnClient implements Closeable {
         channel.sendMessage(request.build());
     }
 
+    private EphemeralKey generateEphemeralKey() {
+        KeyPair pair = CryptoUtil.generateKeyPair();
+        EphemeralKey key = new EphemeralKey();
+        key.setPrivateKey(pair.getPrivate());
+        key.setPublicKey(pair.getPublic());
+        return key;
+    }
+
     public class MessageHandler extends MultiEventListener<Message> {
         @HandleEvent
         public void onTextMessage(DeprecatedTextMessage msg) {
@@ -295,6 +306,30 @@ public class ConnClient implements Closeable {
             }
 
             callback.accept(user);
+        }
+
+        @HandleEvent
+        public void onEphemeralKeysDemand(EphemeralKeysDemand msg) {
+            try {
+                EphemeralKeysUpload.Builder out = EphemeralKeysUpload.newBuilder();
+
+                for (int i = 0; i < msg.getCount(); i++) {
+                    EphemeralKey key = generateEphemeralKey();
+                    key.setId(database.insertEphemeralKey(key));
+
+                    Signature sign = CryptoUtil.newSignature(privateKey);
+                    sign.update(key.getRawPublicKey());
+
+                    SignedKey.Builder signed = SignedKey.newBuilder();
+                    signed.setPublicKey(ByteString.copyFrom(key.getRawPublicKey()));
+                    signed.setSignature(ByteString.copyFrom(sign.sign()));
+                    out.addKeys(signed);
+                }
+
+                channel.sendMessage(out.build());
+            } catch (DatabaseException | InvalidKeyException | SignatureException e) {
+                close(e);
+            }
         }
     }
 }

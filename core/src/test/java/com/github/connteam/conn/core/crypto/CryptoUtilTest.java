@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
@@ -26,7 +25,7 @@ public class CryptoUtilTest {
     }
 
     @Test
-    public void testSignatures() throws InvalidKeyException, NoSuchAlgorithmException, SignatureException {
+    public void testSignatures() throws InvalidKeyException, SignatureException {
         KeyPair pair1 = CryptoUtil.generateKeyPair();
         KeyPair pair2 = CryptoUtil.generateKeyPair();
 

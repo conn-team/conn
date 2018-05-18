@@ -4,7 +4,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.ProtocolException;
 import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
@@ -23,9 +22,13 @@ import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthStatus;
 import com.github.connteam.conn.core.net.proto.NetProtos.KeepAlive;
+import com.github.connteam.conn.core.net.proto.NetProtos.SignedKey;
 import com.github.connteam.conn.core.net.proto.NetProtos.DeprecatedTextMessage;
+import com.github.connteam.conn.core.net.proto.NetProtos.EphemeralKeysDemand;
+import com.github.connteam.conn.core.net.proto.NetProtos.EphemeralKeysUpload;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserInfo;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserInfoRequest;
+import com.github.connteam.conn.server.database.model.EphemeralKey;
 import com.github.connteam.conn.server.database.model.User;
 import com.github.connteam.conn.server.database.provider.DataProvider;
 import com.google.protobuf.ByteString;
@@ -36,6 +39,8 @@ import org.slf4j.LoggerFactory;
 
 public class ConnServerClient implements Closeable {
     private final static Logger LOG = LoggerFactory.getLogger(ConnServerClient.class);
+    public final static int MIN_EPHEMERAL_KEYS = 80;
+    public final static int MAX_EPHEMERAL_KEYS = 100;
 
     private final ConnServer server;
     private final NetChannel channel;
@@ -43,7 +48,9 @@ public class ConnServerClient implements Closeable {
 
     private volatile User user;
     private volatile PublicKey publicKey;
+
     private byte[] authPayload;
+    private int ephemeralKeysCount, requestedEphemeralKeys;
 
     private static enum State {
         CREATED, AUTHENTICATION, ESTABLISHED, CLOSED
@@ -77,6 +84,10 @@ public class ConnServerClient implements Closeable {
         return channel;
     }
 
+    public DataProvider getDataProvider() {
+        return server.getDataProvider();
+    }
+
     public synchronized void handle() {
         if (state != State.CREATED) {
             throw new IllegalStateException("Cannot reuse ConnServerClient");
@@ -92,7 +103,7 @@ public class ConnServerClient implements Closeable {
 
     private synchronized void onClose(Exception err) {
         state = State.CLOSED;
-        server.removeClient(this);
+        server.removeClient(this, err);
     }
 
     private synchronized void onAuthResponse(Message msg) {
@@ -104,7 +115,7 @@ public class ConnServerClient implements Closeable {
         AuthStatus.Status status;
         try {
             status = attemptLogin((AuthResponse) msg);
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException | DatabaseException e) {
+        } catch (InvalidKeySpecException | DatabaseException e) {
             status = AuthStatus.Status.INTERNAL_ERROR;
             LOG.info("Error while authenticating user", e);
         }
@@ -113,11 +124,12 @@ public class ConnServerClient implements Closeable {
 
         if (status != AuthStatus.Status.LOGGED_IN && status != AuthStatus.Status.REGISTERED) {
             close(new AuthenticationException(status));
+        } else {
+            checkEphemeralKeysCount();
         }
     }
 
-    private AuthStatus.Status attemptLogin(AuthResponse msg)
-            throws DatabaseException, NoSuchAlgorithmException, InvalidKeySpecException {
+    private AuthStatus.Status attemptLogin(AuthResponse msg) throws DatabaseException, InvalidKeySpecException {
         String username = msg.getUsername();
         byte[] receivedPublicKey = msg.getPublicKey().toByteArray();
         byte[] sign = msg.getSignature().toByteArray();
@@ -134,7 +146,7 @@ public class ConnServerClient implements Closeable {
 
         // Get user from database, if not present - register him
 
-        DataProvider db = server.getDataProvider();
+        DataProvider db = getDataProvider();
         User user = db.getUserByUsername(username).orElse(null);
         AuthStatus.Status mode = AuthStatus.Status.LOGGED_IN;
 
@@ -169,11 +181,12 @@ public class ConnServerClient implements Closeable {
 
         state = State.ESTABLISHED;
         channel.setMessageHandler(new MessageHandler());
+        ephemeralKeysCount = getDataProvider().countEphemeralKeysByUserId(user.getIdUser());
+        requestedEphemeralKeys = 0;
         return mode;
     }
 
-    private boolean verifyLoginSignature(String username, byte[] pubKey, byte[] toSign, byte[] signature)
-            throws NoSuchAlgorithmException {
+    private boolean verifyLoginSignature(String username, byte[] pubKey, byte[] toSign, byte[] signature) {
         try {
             Signature sign = CryptoUtil.newSignature(CryptoUtil.decodePublicKey(pubKey));
             sign.update(username.getBytes());
@@ -183,6 +196,61 @@ public class ConnServerClient implements Closeable {
         } catch (SignatureException | InvalidKeyException | InvalidKeySpecException e) {
             return false;
         }
+    }
+
+    private void checkEphemeralKeysCount() {
+        int current = ephemeralKeysCount + requestedEphemeralKeys;
+        if (current >= MIN_EPHEMERAL_KEYS) {
+            return;
+        }
+
+        // Ask client to refill ephemeral keys
+
+        int n = MAX_EPHEMERAL_KEYS - current;
+        requestedEphemeralKeys += n;
+        channel.sendMessage(EphemeralKeysDemand.newBuilder().setCount(n).build());
+    }
+
+    private boolean verifyEphemeralKey(SignedKey key) {
+        try {
+            // Verify if key is valid
+            CryptoUtil.decodePublicKey(key.getPublicKey().toByteArray());
+
+            // Verify signature
+            Signature sign = CryptoUtil.newSignature(publicKey);
+            sign.update(key.getPublicKey().toByteArray());
+            return sign.verify(key.getSignature().toByteArray());
+        } catch (SignatureException | InvalidKeyException | InvalidKeySpecException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean onEphemeralKeyReceived(SignedKey key) {
+        if (requestedEphemeralKeys <= 0) {
+            LOG.warn("Received more ephemeral keys than requested");
+            return false;
+        }
+        if (!verifyEphemeralKey(key)) {
+            close(new ProtocolException("Invalid ephemeral key"));
+            return false;
+        }
+
+        EphemeralKey entry = new EphemeralKey();
+        entry.setIdUser(user.getIdUser());
+        entry.setKey(key.getPublicKey().toByteArray());
+        entry.setSignature(key.getSignature().toByteArray());
+
+        try {
+            getDataProvider().insertEphemeralKey(entry);
+        } catch (DatabaseException e) {
+            close(e);
+            return false;
+        }
+
+        requestedEphemeralKeys--;
+        ephemeralKeysCount++;
+        return true;
     }
 
     public class MessageHandler extends MultiEventListener<Message> {
@@ -207,7 +275,7 @@ public class ConnServerClient implements Closeable {
             User user;
 
             try {
-                user = server.getDataProvider().getUserByUsername(username).orElse(null);
+                user = getDataProvider().getUserByUsername(username).orElse(null);
             } catch (DatabaseException e) {
                 close(e);
                 return;
@@ -223,6 +291,15 @@ public class ConnServerClient implements Closeable {
             }
 
             channel.sendMessage(resp.build());
+        }
+
+        @HandleEvent
+        public void onEphemeralKeysUpload(EphemeralKeysUpload msg) {
+            for (SignedKey key : msg.getKeysList()) {
+                if (!onEphemeralKeyReceived(key)) {
+                    return;
+                }
+            }
         }
     }
 }

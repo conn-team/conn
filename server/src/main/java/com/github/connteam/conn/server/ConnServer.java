@@ -28,7 +28,8 @@ public class ConnServer implements Closeable {
         private Transport transport;
         private DataProvider database;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         public Builder setPort(int port) {
             this.port = port;
@@ -102,11 +103,12 @@ public class ConnServer implements Closeable {
         return false;
     }
 
-    public boolean removeClient(ConnServerClient client) {
+    public boolean removeClient(ConnServerClient client, Exception err) {
         User user = client.getUser();
         if (user != null && clients.remove(user.getUsername(), client)) {
             NetChannel conn = client.getNetChannel();
-            LOG.info("{} disconnected from {}:{}", user.getUsername(), conn.getAddress().getHostName(), conn.getPort());
+            LOG.info("{} disconnected from {}:{}", user.getUsername(), conn.getAddress().getHostName(), conn.getPort(),
+                    err);
             return true;
         }
         return false;

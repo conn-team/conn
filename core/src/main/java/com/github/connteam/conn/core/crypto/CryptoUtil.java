@@ -22,7 +22,8 @@ public final class CryptoUtil {
     private static final KeyPairGenerator keyGen;
     private static final SecureRandom random;
 
-    private CryptoUtil() {}
+    private CryptoUtil() {
+    }
 
     static {
         try {
@@ -59,16 +60,24 @@ public final class CryptoUtil {
         return new KeyPair(decodePublicKey(publicKey), decodePrivateKey(privateKey));
     }
 
-    public static Signature newSignature(PublicKey key) throws NoSuchAlgorithmException, InvalidKeyException {
-        Signature sign = Signature.getInstance(SIGNATURE_ALGORITHM);
-        sign.initVerify(key);
-        return sign;
+    public static Signature newSignature(PublicKey key) throws InvalidKeyException {
+        try {
+            Signature sign = Signature.getInstance(SIGNATURE_ALGORITHM);
+            sign.initVerify(key);
+            return sign;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static Signature newSignature(PrivateKey key) throws NoSuchAlgorithmException, InvalidKeyException {
-        Signature sign = Signature.getInstance(SIGNATURE_ALGORITHM);
-        sign.initSign(key);
-        return sign;
+    public static Signature newSignature(PrivateKey key) throws InvalidKeyException {
+        try {
+            Signature sign = Signature.getInstance(SIGNATURE_ALGORITHM);
+            sign.initSign(key);
+            return sign;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static byte[] randomBytes(int len) {

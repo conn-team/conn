@@ -8,10 +8,10 @@ import java.io.DataInputStream;
 import com.google.protobuf.Message;
 
 public class MessageInputStream extends DataInputStream {
-    public static final int MAX_MESSAGE_LENGTH = 4096;
+    public static final int MAX_MESSAGE_LENGTH = 1 << 16;
 
     private final MessageRegistry registry;
-    
+
     public MessageInputStream(InputStream in, MessageRegistry registry) {
         super(in);
         this.registry = registry;
@@ -29,7 +29,7 @@ public class MessageInputStream extends DataInputStream {
         }
 
         int len = readInt();
-        
+
         if (len < 0 || len > MAX_MESSAGE_LENGTH) {
             throw new ProtocolException("Invalid message length");
         }

@@ -35,7 +35,7 @@ import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthStatus;
 import com.github.connteam.conn.core.net.proto.NetProtos.KeepAlive;
-import com.github.connteam.conn.core.net.proto.NetProtos.TextMessage;
+import com.github.connteam.conn.core.net.proto.NetProtos.DeprecatedTextMessage;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserInfo;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserInfoRequest;
 import com.google.protobuf.ByteString;
@@ -66,7 +66,8 @@ public class ConnClient implements Closeable {
         private Transport transport;
         private DataProvider database;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         public Builder setHost(String host) {
             this.host = host;
@@ -172,7 +173,7 @@ public class ConnClient implements Closeable {
             return;
         }
 
-        AuthRequest request = (AuthRequest)msg;
+        AuthRequest request = (AuthRequest) msg;
         byte[] payload = request.getPayload().toByteArray();
 
         if (payload.length == 0) {
@@ -193,7 +194,7 @@ public class ConnClient implements Closeable {
             return;
         }
 
-        AuthStatus resp = (AuthStatus)msg;
+        AuthStatus resp = (AuthStatus) msg;
 
         switch (resp.getStatus()) {
         case LOGGED_IN:
@@ -207,10 +208,11 @@ public class ConnClient implements Closeable {
         }
     }
 
-    private synchronized void login(byte[] toSign) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException {
+    private synchronized void login(byte[] toSign)
+            throws InvalidKeyException, NoSuchAlgorithmException, SignatureException {
         String name = settings.getUsername();
         byte[] pubKey = publicKey.getEncoded();
-        
+
         Signature sign = CryptoUtil.newSignature(privateKey);
         sign.update(name.getBytes());
         sign.update(pubKey);
@@ -242,7 +244,7 @@ public class ConnClient implements Closeable {
     }
 
     public void sendTextMessage(String to, String message) {
-        channel.sendMessage(TextMessage.newBuilder().setUsername(to).setMessage(message).build());
+        channel.sendMessage(DeprecatedTextMessage.newBuilder().setUsername(to).setMessage(message).build());
     }
 
     public void getUserInfo(String username, Consumer<User> callback) throws DatabaseException {
@@ -264,7 +266,7 @@ public class ConnClient implements Closeable {
 
     public class MessageHandler extends MultiEventListener<Message> {
         @HandleEvent
-        public void onTextMessage(TextMessage msg) {
+        public void onTextMessage(DeprecatedTextMessage msg) {
             listener.onTextMessage(msg.getUsername(), msg.getMessage());
         }
 
@@ -286,12 +288,12 @@ public class ConnClient implements Closeable {
             user.setPublicKey(msg.getPublicKey().toByteArray());
 
             try {
-				database.insertUser(user);
-			} catch (DatabaseException e) {
+                database.insertUser(user);
+            } catch (DatabaseException e) {
                 close(e);
                 return;
             }
-            
+
             callback.accept(user);
         }
     }

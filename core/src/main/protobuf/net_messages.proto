@@ -13,7 +13,7 @@ message AuthRequest {
 message AuthResponse {
     string username = 1;
     bytes publicKey = 2;
-    bytes signature = 3;
+    bytes signature = 3; // username + publicKey + payload
 }
 
 message AuthStatus {
@@ -44,7 +44,54 @@ message UserInfo {
     bytes publicKey = 4;
 }
 
-message TextMessage {
+message DeprecatedTextMessage {
     string username = 1;
     string message = 2;
+}
+
+message SignedKey {
+    bytes publicKey = 1;
+    bytes signature = 2;
+}
+
+message EphemeralKeysDemand {
+    int32 count = 1;
+}
+
+message EphemeralKeysUpload {
+    repeated SignedKey keys = 1;
+}
+
+message TransmissionRequest {
+    int32 transmissionID = 1;
+    string username = 2;
+}
+
+message TransmissionResponse {
+    int32 transmissionID = 1;
+    SignedKey partialKey1 = 2;
+}
+
+message PeerSend {
+    int32 transmissionID = 1;
+    bytes encryptedMessage = 2;
+    bytes partialKey2 = 3;
+    bytes signature = 4; // username + encryptedMessage + partialKey1 + partialKey2
+}
+
+message PeerSendAck {
+    int32 transmissionID = 1;
+}
+
+message PeerRecv {
+    int32 transmissionID = 1;
+    string username = 2;
+    bytes encryptedMessage = 3;
+    bytes partialKey1 = 4;
+    bytes partialKey2 = 5;
+    bytes signature = 6; // username + encryptedMessage + partialKey1 + partialKey2
+}
+
+message PeerRecvAck {
+    int32 transmissionID = 1;
 }

@@ -23,7 +23,7 @@ import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthStatus;
 import com.github.connteam.conn.core.net.proto.NetProtos.KeepAlive;
-import com.github.connteam.conn.core.net.proto.NetProtos.TextMessage;
+import com.github.connteam.conn.core.net.proto.NetProtos.DeprecatedTextMessage;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserInfo;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserInfoRequest;
 import com.github.connteam.conn.server.database.model.User;
@@ -192,12 +192,12 @@ public class ConnServerClient implements Closeable {
         }
 
         @HandleEvent
-        public void onTextMessage(TextMessage msg) {
+        public void onTextMessage(DeprecatedTextMessage msg) {
             ConnServerClient client = server.getClientByName(msg.getUsername());
 
             if (client != null) {
-                client.getNetChannel().sendMessage(TextMessage.newBuilder().setUsername(getUser().getUsername())
-                        .setMessage(msg.getMessage()).build());
+                client.getNetChannel().sendMessage(DeprecatedTextMessage.newBuilder()
+                        .setUsername(getUser().getUsername()).setMessage(msg.getMessage()).build());
             }
         }
 

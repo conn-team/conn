@@ -1,0 +1,16 @@
+/* End-to-End messages definitions */
+
+syntax = "proto3";
+package server;
+
+option java_package = "com.github.connteam.conn.core.net.proto";
+option java_outer_classname = "PeerProtos";
+
+message EncryptedMessage {
+    bytes padding = 1;
+    bytes message = 2;
+}
+
+message PeerTextMessage {
+    string message = 1;
+}

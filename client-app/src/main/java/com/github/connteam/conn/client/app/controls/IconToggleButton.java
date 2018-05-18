@@ -1,30 +1,34 @@
 package com.github.connteam.conn.client.app.controls;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import javafx.css.PseudoClass;
-import javafx.scene.input.MouseEvent;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+// TODO: fix it xD
 
-public class IconToggleButton extends FontAwesomeIconView {
-    private final static PseudoClass SELECTED_PSEUDOCLASS = PseudoClass.getPseudoClass("selected");
+// import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+// import javafx.css.PseudoClass;
+// import javafx.scene.input.MouseEvent;
+// import javafx.beans.property.BooleanProperty;
+// import javafx.beans.property.SimpleBooleanProperty;
 
-    private final BooleanProperty selected = new SimpleBooleanProperty();
+// public class IconToggleButton extends FontAwesomeIconView {
+// private final static PseudoClass SELECTED_PSEUDOCLASS =
+// PseudoClass.getPseudoClass("selected");
 
-    public IconToggleButton() {
-        selected.addListener((prop, old, cur) -> pseudoClassStateChanged(SELECTED_PSEUDOCLASS, cur));
-        addEventHandler(MouseEvent.MOUSE_CLICKED, e -> setSelected(!isSelected()));
-    }
+// private final BooleanProperty selected = new SimpleBooleanProperty();
 
-    public boolean isSelected() {
-        return selected.get();
-    }
+// public IconToggleButton() {
+// selected.addListener((prop, old, cur) ->
+// pseudoClassStateChanged(SELECTED_PSEUDOCLASS, cur));
+// addEventHandler(MouseEvent.MOUSE_CLICKED, e -> setSelected(!isSelected()));
+// }
 
-    public void setSelected(boolean x) {
-        selected.set(x);
-    }
+// public boolean isSelected() {
+// return selected.get();
+// }
 
-    public BooleanProperty selectedProperty() {
-        return selected;
-    }
-}
+// public void setSelected(boolean x) {
+// selected.set(x);
+// }
+
+// public BooleanProperty selectedProperty() {
+// return selected;
+// }
+// }

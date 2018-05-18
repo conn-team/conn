@@ -132,6 +132,16 @@ public class PostgresDataProvider implements DataProvider {
     }
 
     @Override
+    public int countEphemeralKeysByUserId(int userId) throws DatabaseException {
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(),
+                "SELECT COUNT(*) FROM ephemeral_keys WHERE id_user = ?;")) {
+            return q.push(userId).executeQueryCount();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
     public int insertEphemeralKey(@NotNull EphemeralKey key) throws DatabaseException {
         if (key == null) {
             throw new NullPointerException();
@@ -348,7 +358,8 @@ public class PostgresDataProvider implements DataProvider {
             throw new NullPointerException();
         }
 
-        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "UPDATE users SET public_key = ?, signup_time = ? WHERE username = ?;")) {
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(),
+                "UPDATE users SET public_key = ?, signup_time = ? WHERE username = ?;")) {
             return q.push(user.getRawPublicKey(), user.getSignupTime(), user.getUsername()).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);

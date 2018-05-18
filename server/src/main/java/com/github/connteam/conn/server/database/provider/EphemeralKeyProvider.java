@@ -13,6 +13,8 @@ public interface EphemeralKeyProvider {
 
     List<EphemeralKey> getEphemeralKeysByUserId(int userId) throws DatabaseException;
 
+    int countEphemeralKeysByUserId(int userId) throws DatabaseException;
+
     int insertEphemeralKey(@NotNull EphemeralKey key) throws DatabaseException;
 
     boolean updateEphemeralKey(@NotNull EphemeralKey key) throws DatabaseException;

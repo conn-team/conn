@@ -39,7 +39,7 @@ public class PostgresDataProviderTest {
             users.add(user);
         }
     }
-    
+
     @After
     public void closeDatabase() throws DatabaseException {
         db.close();
@@ -54,7 +54,7 @@ public class PostgresDataProviderTest {
         for (int i = 0; i < users.size(); i++) {
             for (int j = 0; j <= i; j++) {
                 EphemeralKey key = new EphemeralKey();
-                key.setIdUser(i+1);
+                key.setIdUser(i + 1);
                 key.setKey(("key" + j).getBytes());
                 key.setSignature(("sign" + j).getBytes());
                 key.setIdKey(db.insertEphemeralKey(key));
@@ -69,11 +69,18 @@ public class PostgresDataProviderTest {
             assertTrue(db.getEphemeralKeysByUserId(key.getIdUser()).contains(key));
         }
 
+        // countEphemeralKeysByUserId
+
+        for (User user : users) {
+            int n = db.countEphemeralKeysByUserId(user.getIdUser());
+            assertEquals(keys.stream().filter(x -> x.getIdUser() == user.getIdUser()).count(), n);
+        }
+
         // updateEphemeralKey
 
         for (int i = 0; i < keys.size(); i++) {
             EphemeralKey key = keys.get(i);
-            
+
             key.setKey(("update key" + i).getBytes());
             key.setSignature(("update sign" + i).getBytes());
 
@@ -115,12 +122,12 @@ public class PostgresDataProviderTest {
             for (int to = 0; to < users.size(); to++) {
                 for (int i = 0; i < to; i++) {
                     Message msg = new Message();
-                    msg.setIdFrom(from+1);
-                    msg.setIdTo(to+1);
+                    msg.setIdFrom(from + 1);
+                    msg.setIdTo(to + 1);
                     msg.setMessage(("msg" + messages.size()).getBytes());
                     msg.setKey(("key" + messages.size()).getBytes());
                     msg.setSignature(("sign" + messages.size()).getBytes());
-                    msg.setTime(new Timestamp(123 + i*100));
+                    msg.setTime(new Timestamp(123 + i * 100));
                     msg.setIdMessage(db.insertMessage(msg));
                     messages.add(msg);
                 }
@@ -192,10 +199,10 @@ public class PostgresDataProviderTest {
 
         for (int from = 0; from < users.size(); from++) {
             for (int to = 0; to < users.size(); to++) {
-                if (((from+to) % 2) == 0) {
+                if (((from + to) % 2) == 0) {
                     Observed obs = new Observed();
-                    obs.setIdObserver(from+1);
-                    obs.setIdObserved(to+1);
+                    obs.setIdObserver(from + 1);
+                    obs.setIdObserved(to + 1);
                     db.insertObserved(obs);
                     observed.add(obs);
                 }
@@ -219,7 +226,7 @@ public class PostgresDataProviderTest {
                     assertTrue(other.contains(x));
                 }
             }
-            
+
             other = db.getObservers(i);
             for (Observed x : observed) {
                 if (x.getIdObserved() == i) {

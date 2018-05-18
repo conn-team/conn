@@ -178,7 +178,7 @@ public class ConnServerClient implements Closeable {
             Signature sign = CryptoUtil.newSignature(CryptoUtil.decodePublicKey(pubKey));
             sign.update(username.getBytes());
             sign.update(pubKey);
-            sign.update(authPayload);
+            sign.update(toSign);
             return sign.verify(signature);
         } catch (SignatureException | InvalidKeyException | InvalidKeySpecException e) {
             return false;

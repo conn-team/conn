@@ -129,15 +129,16 @@
 }
 
 .sendButton {
+    -glyph-name: "PAPER_PLANE";
     -fx-fill: #287e13;
 }
 
 .sendButton:hover {
-    -fx-background-color: #d9d9d9;
+    -fx-fill: #267712;
 }
 
 .sendButton:pressed {
-    -fx-background-color: #d4d4d4;
+    -fx-fill: #236d10;
 }
 
 .welcomeLabel {

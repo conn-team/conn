@@ -80,17 +80,20 @@ public class SQLQuery implements AutoCloseable {
         return this;
     }
 
-    public ResultSet executeQuery() throws SQLException {
-        return pstmt.executeQuery();
+    public int executeQueryCount() throws SQLException {
+        try (ResultSet resultSet = pstmt.executeQuery()) {
+            return resultSet.getInt(1);
+        }
     }
 
     public <T> List<T> executeQuery(ResultSetConverter<T> converter) throws SQLException {
-        ResultSet resultSet = executeQuery();
-        ArrayList<T> resultList = new ArrayList<>();
-        while (resultSet.next()) {
-            resultList.add(converter.fromResultSet(resultSet));
+        try (ResultSet resultSet = pstmt.executeQuery()) {
+            ArrayList<T> resultList = new ArrayList<>();
+            while (resultSet.next()) {
+                resultList.add(converter.fromResultSet(resultSet));
+            }
+            return resultList;
         }
-        return resultList;
     }
 
     public <T> Optional<T> executeQueryFirst(ResultSetConverter<T> converter) throws SQLException {
@@ -100,9 +103,10 @@ public class SQLQuery implements AutoCloseable {
 
     public int executeInsert() throws DatabaseInsertException, SQLException {
         execute();
-        ResultSet keys = pstmt.getGeneratedKeys();
-        if (keys.next()) {
-            return keys.getInt(1);
+        try (ResultSet keys = pstmt.getGeneratedKeys()) {
+            if (keys.next()) {
+                return keys.getInt(1);
+            }
         }
 
         throw new DatabaseInsertException();

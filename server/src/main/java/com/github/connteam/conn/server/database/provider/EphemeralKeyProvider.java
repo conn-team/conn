@@ -11,6 +11,8 @@ import com.github.connteam.conn.server.database.model.EphemeralKey;
 public interface EphemeralKeyProvider {
     Optional<EphemeralKey> getEphemeralKey(int keyId) throws DatabaseException;
 
+    Optional<EphemeralKey> popEphemeralKeyByUserId(int userId) throws DatabaseException;
+
     List<EphemeralKey> getEphemeralKeysByUserId(int userId) throws DatabaseException;
 
     int countEphemeralKeysByUserId(int userId) throws DatabaseException;

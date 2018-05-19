@@ -132,6 +132,16 @@ public class PostgresDataProvider implements DataProvider {
     }
 
     @Override
+    public Optional<EphemeralKey> popEphemeralKeyByUserId(int userId) throws DatabaseException {
+        final String SQL = "DELETE FROM ephemeral_keys WHERE id_key IN (SELECT id_key FROM ephemeral_keys WHERE id_user = ? LIMIT 1) RETURNING *;";
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), SQL)) {
+            return q.push(userId).executeQueryFirst(PostgresModelFactory::ephemeralKeyFromResultSet);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
     public int countEphemeralKeysByUserId(int userId) throws DatabaseException {
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
                 "SELECT COUNT(*) FROM ephemeral_keys WHERE id_user = ?;")) {

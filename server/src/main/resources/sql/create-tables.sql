@@ -1,9 +1,11 @@
 CREATE TABLE IF NOT EXISTS users (
     id_user SERIAL PRIMARY KEY,
-    username VARCHAR(32) NOT NULL UNIQUE,
+    username VARCHAR(32) NOT NULL,
     public_key BYTEA NOT NULL,
     signup_time TIMESTAMP NOT NULL DEFAULT current_timestamp
 );
+
+CREATE UNIQUE INDEX ON users(LOWER(username));
 
 CREATE TABLE IF NOT EXISTS observed (
     id_observer INT NOT NULL REFERENCES users(id_user),

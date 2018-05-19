@@ -316,7 +316,7 @@ public class PostgresDataProvider implements DataProvider {
 
     @Override
     public Optional<User> getUserByUsername(String username) throws DatabaseException {
-        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "SELECT * FROM users WHERE username = ?;")) {
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "SELECT * FROM users WHERE LOWER(username) = LOWER(?);")) {
             return q.push(username).executeQueryFirst(PostgresModelFactory::userFromResultSet);
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -381,7 +381,7 @@ public class PostgresDataProvider implements DataProvider {
             throw new NullPointerException();
         }
 
-        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "DELETE FROM users WHERE username = ?;")) {
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "DELETE FROM users WHERE LOWER(username) = LOWER(?);")) {
             return q.push(username).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);

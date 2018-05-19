@@ -234,7 +234,7 @@ public class SqliteDataProvider implements DataProvider {
             throw new NullPointerException();
         }
 
-        try (SQLQuery q = query("SELECT * FROM users WHERE username = ?;")) {
+        try (SQLQuery q = query("SELECT * FROM users WHERE LOWER(username) = LOWER(?);")) {
             return q.push(username).executeQueryFirst(SqliteModelFactory::userFromResultSet);
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -289,7 +289,7 @@ public class SqliteDataProvider implements DataProvider {
             throw new DatabaseException();
         }
 
-        try (SQLQuery q = query("DELETE FROM users WHERE username = ?;")) {
+        try (SQLQuery q = query("DELETE FROM users WHERE LOWER(username) = LOWER(?);")) {
             return q.push(username).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);

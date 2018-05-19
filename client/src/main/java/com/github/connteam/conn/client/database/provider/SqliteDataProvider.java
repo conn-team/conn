@@ -48,9 +48,22 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public Optional<EphemeralKey> getEphemeralKey(int id) throws DatabaseException {
-        try (SQLQuery q = query("SELECT * FROM ephemeral_keys;")) {
+    public Optional<EphemeralKey> getEphemeralKeyByPublicKey(@NotNull byte[] publicKey) throws DatabaseException {
+        if (publicKey == null) {
+            throw new NullPointerException();
+        }
+
+        try (SQLQuery q = query("SELECT * FROM ephemeral_keys WHERE public_key = ?;")) {
             return q.executeQueryFirst(SqliteModelFactory::ephemeralKeyFromResultSet);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
+    synchronized public Optional<EphemeralKey> getEphemeralKey(int id) throws DatabaseException {
+        try (SQLQuery q = query("SELECT * FROM ephemeral_keys WHERE id_key = ?;")) {
+            return q.push(id).executeQueryFirst(SqliteModelFactory::ephemeralKeyFromResultSet);
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -338,4 +351,5 @@ public class SqliteDataProvider implements DataProvider {
             throw new DatabaseException(e);
         }
     }
+
 }

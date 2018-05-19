@@ -13,6 +13,8 @@ public interface EphemeralKeyProvider {
 
     Optional<EphemeralKey> getEphemeralKey(int id) throws DatabaseException;
 
+    Optional<EphemeralKey> getEphemeralKeyByPublicKey(@NotNull byte[] publicKey) throws DatabaseException;
+
     int insertEphemeralKey(@NotNull EphemeralKey key) throws DatabaseException;
 
     boolean deleteEphemeralKey(int id) throws DatabaseException;

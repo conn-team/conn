@@ -1,6 +1,5 @@
 package com.github.connteam.conn.client.database.model;
 
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 

@@ -10,7 +10,6 @@ import java.util.Optional;
 import javax.validation.constraints.NotNull;
 
 import com.github.connteam.conn.client.database.model.EphemeralKey;
-import com.github.connteam.conn.client.database.model.Friend;
 import com.github.connteam.conn.client.database.model.Message;
 import com.github.connteam.conn.client.database.model.Settings;
 import com.github.connteam.conn.client.database.model.SqliteModelFactory;
@@ -73,47 +72,6 @@ public class SqliteDataProvider implements DataProvider {
     @Override
     synchronized public boolean deleteEphemeralKey(int id) throws DatabaseException {
         try (SQLQuery q = query("DELETE FROM ephemeral_keys WHERE id_key = ?;")) {
-            return q.push(id).executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    synchronized public List<Friend> getFriends() throws DatabaseException {
-        try (SQLQuery q = query("SELECT * FROM friends;")) {
-            return q.executeQuery(SqliteModelFactory::friendFromResultSet);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    synchronized public Optional<Friend> getFriendById(int id) throws DatabaseException {
-        try (SQLQuery q = query("SELECT * FROM friends WHERE id_user = ?;")) {
-            return q.push(id).executeQueryFirst(SqliteModelFactory::friendFromResultSet);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    synchronized public Optional<Integer> insertFriend(@NotNull Friend friend) throws DatabaseException {
-        if (friend == null) {
-            throw new NullPointerException();
-        }
-
-        try (SQLQuery q = query("INSERT INTO friends (id_user) VALUES (?);")) {
-            q.push(friend.getId()).execute();
-            return Optional.of(friend.getId());
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    synchronized public boolean deleteFriend(int id) throws DatabaseException {
-        try (SQLQuery q = query("DELETE FROM friends WHERE id_user = ?;")) {
             return q.push(id).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -260,15 +218,24 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
+    synchronized public List<User> getFriends() throws DatabaseException {
+        try (SQLQuery q = query("SELECT * FROM users WHERE is_friend = 1;")) {
+            return q.executeQuery(SqliteModelFactory::userFromResultSet);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
     synchronized public int insertUser(@NotNull User user) throws DatabaseException {
         if (user == null) {
             throw new NullPointerException();
         }
 
-        String SQLString = "INSERT INTO users (username, public_key, is_verified, out_sequence, in_sequence) VALUES (?, ?, ?, ?, ?);";
+        String SQLString = "INSERT INTO users (username, public_key, is_verified, out_sequence, in_sequence, is_friend) VALUES (?, ?, ?, ?, ?, ?);";
         try (SQLQuery q = query(SQLString)) {
             return q.push(user.getUsername(), user.getRawPublicKey(), user.isVerified(), user.getOutSequence(),
-                    user.getInSequence()).executeInsert();
+                    user.getInSequence(), user.isFriend()).executeInsert();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

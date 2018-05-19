@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.github.connteam.conn.client.database.model.EphemeralKey;
-import com.github.connteam.conn.client.database.model.Friend;
 import com.github.connteam.conn.client.database.model.Message;
 import com.github.connteam.conn.client.database.model.Settings;
 import com.github.connteam.conn.client.database.model.User;
@@ -20,6 +19,7 @@ import com.github.connteam.conn.core.database.DatabaseException;
 import org.junit.Before;
 import org.junit.Test;
 
+// TODO: expand user test (friends)
 public class SqliteDataProviderTest {
     private DataProvider dp = null;
     private User[] users = new User[3];
@@ -52,18 +52,13 @@ public class SqliteDataProviderTest {
             u.setOutSequence(i);
             u.setPublicKey(new byte[] { (byte) i });
             u.setVerified(i % 2 == 0);
+            if (i != 2) {
+                u.isFriend(true);
+            }
 
             wrapper(() -> {
                 u.setId(dp.insertUser(u));
             });
-
-            if (i != 2) {
-                Friend f = new Friend();
-                f.setId(u.getId());
-                wrapper(() -> {
-                    dp.insertFriend(f);
-                });
-            }
 
             users[i] = u;
         }
@@ -113,30 +108,6 @@ public class SqliteDataProviderTest {
             Object[] localEkeys2 = Arrays.stream(new EphemeralKey[] { ek2, ek3 }).map(ekey -> ekey.getId()).sorted()
                     .toArray();
             assertTrue(Arrays.equals(dpEkeys2, localEkeys2));
-        });
-    }
-
-    @Test
-    public void friendTest() {
-        // getFriends()
-        wrapper(() -> {
-            Object[] dpFriends = dp.getFriends().stream().map(f -> f.getId()).sorted().toArray();
-            Object[] localFriends = Arrays.stream(new Object[] { users[0].getId(), users[1].getId() }).sorted()
-                    .toArray();
-            assertTrue(Arrays.equals(dpFriends, localFriends));
-        });
-
-        // getFriendById
-        wrapper(() -> {
-            assertTrue(dp.getFriendById(users[0].getId()).get().getId() == users[0].getId());
-        });
-
-        // deleteFriend
-        wrapper(() -> {
-            dp.deleteFriend(users[0].getId());
-            Object[] dpFriends2 = dp.getFriends().stream().map(f -> f.getId()).sorted().toArray();
-            Object[] localFriends2 = Arrays.stream(new Object[] { users[1].getId() }).sorted().toArray();
-            assertTrue(Arrays.equals(dpFriends2, localFriends2));
         });
     }
 

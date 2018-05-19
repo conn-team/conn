@@ -17,6 +17,8 @@ public interface UserProvider {
 
     List<User> getVerifiedUsers() throws DatabaseException;
 
+    List<User> getFriends() throws DatabaseException;
+
     int insertUser(@NotNull User user) throws DatabaseException;
 
     boolean deleteUser(int id) throws DatabaseException;

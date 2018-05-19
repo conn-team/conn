@@ -18,6 +18,7 @@ public class User {
     private boolean isVerified;
     private int outSequence;
     private int inSequence;
+    private boolean isFriend;
 
     @Override
     public boolean equals(Object obj) {
@@ -25,7 +26,7 @@ public class User {
             User x = (User)obj;
             return new EqualsBuilder().append(idUser, x.idUser).append(username, x.username)
                     .append(publicKey, x.publicKey).append(isVerified, x.isVerified).append(outSequence, x.outSequence)
-                    .append(inSequence, x.inSequence).isEquals();
+                    .append(inSequence, x.inSequence).append(isFriend, x.isFriend).isEquals();
         }
         return false;
     }
@@ -33,7 +34,7 @@ public class User {
     @Override
     public int hashCode() {
         return new HashCodeBuilder().append(idUser).append(username).append(publicKey).append(isVerified)
-                .append(outSequence).append(inSequence).toHashCode();
+                .append(outSequence).append(inSequence).append(isFriend).toHashCode();
     }
 
     @Override
@@ -63,6 +64,10 @@ public class User {
 
     public int getInSequence() {
         return inSequence;
+    }
+
+    public boolean isFriend() {
+        return isFriend;
     }
 
     public void setId(int idUser) {
@@ -101,5 +106,9 @@ public class User {
 
     public void setPublicKey(@NotNull PublicKey publicKey) {
         setPublicKey(publicKey.getEncoded());
+    }
+
+    public void isFriend(boolean isFriend) {
+        this.isFriend = isFriend;
     }
 }

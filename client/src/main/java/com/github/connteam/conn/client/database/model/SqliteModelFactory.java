@@ -12,12 +12,6 @@ public class SqliteModelFactory {
         return key;
     }
 
-    public static Friend friendFromResultSet(ResultSet rs) throws SQLException {
-        Friend friend = new Friend();
-        friend.setId(rs.getInt("id_user"));
-        return friend;
-    }
-
     public static Message messageFromResultSet(ResultSet rs) throws SQLException {
         Message message = new Message();
         message.setIdMessage(rs.getInt("id_message"));
@@ -44,6 +38,7 @@ public class SqliteModelFactory {
         user.setVerified(rs.getBoolean("is_verified"));
         user.setOutSequence(rs.getInt("out_sequence"));
         user.setInSequence(rs.getInt("in_sequence"));
+        user.isFriend(rs.getBoolean("is_friend"));
         return user;
     }
 }

@@ -1,5 +1,4 @@
 DROP TABLE IF EXISTS settings;
 DROP TABLE IF EXISTS ephemeral_keys;
 DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS friends;
 DROP TABLE IF EXISTS messages;

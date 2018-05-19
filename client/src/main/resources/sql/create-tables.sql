@@ -19,11 +19,8 @@ CREATE TABLE IF NOT EXISTS users (
     is_verified TINYINT(1) NOT NULL,
     out_sequence INTEGER NOT NULL,
     in_sequence INTEGER NOT NULL,
+    is_friend   TINYINT(1) NOT NULL,
     UNIQUE(username COLLATE NOCASE)
-);
-
-CREATE TABLE IF NOT EXISTS friends (
-    id_user INTEGER PRIMARY KEY REFERENCES users(id_user)
 );
 
 CREATE TABLE IF NOT EXISTS messages (

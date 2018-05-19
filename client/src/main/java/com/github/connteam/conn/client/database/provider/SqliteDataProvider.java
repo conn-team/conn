@@ -48,7 +48,8 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    public Optional<EphemeralKey> getEphemeralKeyByPublicKey(@NotNull byte[] publicKey) throws DatabaseException {
+    synchronized public Optional<EphemeralKey> getEphemeralKeyByPublicKey(@NotNull byte[] publicKey)
+            throws DatabaseException {
         if (publicKey == null) {
             throw new NullPointerException();
         }

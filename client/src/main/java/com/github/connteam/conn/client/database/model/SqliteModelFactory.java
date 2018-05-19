@@ -41,4 +41,10 @@ public class SqliteModelFactory {
         user.isFriend(rs.getBoolean("is_friend"));
         return user;
     }
+
+    public static UsedEphemeralKey usedEphemeralKeyFromResultSet(ResultSet rs) throws SQLException {
+        UsedEphemeralKey key = new UsedEphemeralKey();
+        key.setKey(rs.getBytes("key"));
+        return key;
+    }
 }

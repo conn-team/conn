@@ -8,8 +8,12 @@ CREATE TABLE IF NOT EXISTS settings (
 
 CREATE TABLE IF NOT EXISTS ephemeral_keys (
     id_key INTEGER PRIMARY KEY AUTOINCREMENT,
-    public_key BLOB(32) NOT NULL,
+    public_key BLOB(32) NOT NULL UNIQUE,
     private_key BLOB(32) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS used_ephemeral_keys (
+    key BLOB(32) PRIMARY KEY
 );
 
 CREATE TABLE IF NOT EXISTS users (

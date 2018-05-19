@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 // TODO: expand user test (friends)
+// TODO: add UsedEphemeralKey test
 public class SqliteDataProviderTest {
     private DataProvider dp = null;
     private User[] users = new User[3];

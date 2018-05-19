@@ -13,6 +13,7 @@ import com.github.connteam.conn.client.database.model.EphemeralKey;
 import com.github.connteam.conn.client.database.model.Message;
 import com.github.connteam.conn.client.database.model.Settings;
 import com.github.connteam.conn.client.database.model.SqliteModelFactory;
+import com.github.connteam.conn.client.database.model.UsedEphemeralKey;
 import com.github.connteam.conn.client.database.model.User;
 import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.database.DatabaseUtil;
@@ -286,6 +287,42 @@ public class SqliteDataProvider implements DataProvider {
         try {
             DatabaseUtil.executeScriptFromResource(connection, getClass(), "sql/drop-tables.sql");
         } catch (SQLException | IOException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
+    public List<UsedEphemeralKey> getUsedEphemeralKeys() throws DatabaseException {
+        try (SQLQuery q = query("SELECT * FROM used_ephemeral_keys;")) {
+            return q.executeQuery(SqliteModelFactory::usedEphemeralKeyFromResultSet);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
+    public boolean isUsedEphemeralKey(UsedEphemeralKey key) throws DatabaseException {
+        try (SQLQuery q = query("SELECT COUNT(*) FROM used_ephemeral_keys WHERE key = ?;")) {
+            return q.executeQueryCount() > 0;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
+    public void insertUsedEphemeralKey(UsedEphemeralKey key) throws DatabaseException {
+        try (SQLQuery q = query("INSERT OR REPLACE INTO used_ephemeral_keys (key) VALUES (?);")) {
+            q.push(key.getRawKey()).executeUpdate();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
+    public boolean deleteUsedEphemeralKey(UsedEphemeralKey key) throws DatabaseException {
+        try (SQLQuery q = query("DELETE FROM used_ephemeral_keys WHERE (key) = ?;")) {
+            return q.push(key.getRawKey()).executeUpdate() > 0;
+        } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }

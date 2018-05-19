@@ -133,11 +133,46 @@ public class PostgresDataProvider implements DataProvider {
 
     @Override
     public Optional<EphemeralKey> popEphemeralKeyByUserId(int userId) throws DatabaseException {
-        final String SQL = "DELETE FROM ephemeral_keys WHERE id_key IN (SELECT id_key FROM ephemeral_keys WHERE id_user = ? LIMIT 1) RETURNING *;";
-        try (SQLQuery q = new SQLQuery(cpds.getConnection(), SQL)) {
-            return q.push(userId).executeQueryFirst(PostgresModelFactory::ephemeralKeyFromResultSet);
+        Connection conn = null;
+        try {
+            conn = cpds.getConnection();
+            conn.setAutoCommit(false);
+
+            Optional<EphemeralKey> key = Optional.of(null);
+            try (SQLQuery q = new SQLQuery(conn, "SELECT * FROM ephemeral_keys WHERE id_user = ?;", false)) {
+                key = q.push(userId).executeQueryFirst(PostgresModelFactory::ephemeralKeyFromResultSet);
+            } catch (SQLException e) {
+                throw new DatabaseException(e);
+            }
+
+            if (!key.isPresent()) {
+                return key;
+            }
+
+            try (SQLQuery q = new SQLQuery(conn, "DELETE FROM ephemeral_keys WHERE id_key = ?;", false)) {
+                q.push(key.get().getIdKey());
+            } catch (SQLException e) {
+                throw new DatabaseException(e);
+            }
+
+            return key;
         } catch (SQLException e) {
             throw new DatabaseException(e);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.commit();
+                } catch (SQLException e) {
+                    throw new DatabaseException(e);
+                } finally {
+                    try {
+                        conn.close();
+                    } catch (SQLException e) {
+                        throw new DatabaseException(e);
+                    }
+                }
+            }
         }
     }
 

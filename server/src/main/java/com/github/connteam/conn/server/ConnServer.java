@@ -115,6 +115,7 @@ public class ConnServer implements Closeable {
     }
 
     public ConnServerClient getClientByName(String username) {
-        return clients.get(username);
+        ConnServerClient client = clients.get(username);
+        return (client != null && client.isEstablished() ? client : null);
     }
 }

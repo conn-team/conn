@@ -263,14 +263,6 @@ public class ConnClient implements Closeable {
         channel.sendMessage(request.build());
     }
 
-    private EphemeralKey generateEphemeralKey() {
-        KeyPair pair = CryptoUtil.generateKeyPair();
-        EphemeralKey key = new EphemeralKey();
-        key.setPrivateKey(pair.getPrivate());
-        key.setPublicKey(pair.getPublic());
-        return key;
-    }
-
     public class MessageHandler extends MultiEventListener<Message> {
         @HandleEvent
         public void onTextMessage(DeprecatedTextMessage msg) {
@@ -310,7 +302,7 @@ public class ConnClient implements Closeable {
                 EphemeralKeysUpload.Builder out = EphemeralKeysUpload.newBuilder();
 
                 for (int i = 0; i < msg.getCount(); i++) {
-                    EphemeralKey key = generateEphemeralKey();
+                    EphemeralKey key = ClientUtil.generateEphemeralKey();
                     key.setId(database.insertEphemeralKey(key));
 
                     Signature sign = CryptoUtil.newSignature(privateKey);

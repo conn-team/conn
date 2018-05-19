@@ -53,6 +53,7 @@ public class ConnClient implements Closeable {
     private final Settings settings;
     private final PublicKey publicKey;
     private final PrivateKey privateKey;
+    private final KeyPair keyPair;
 
     private volatile ConnClientListener listener;
     private volatile State state = State.CREATED;
@@ -114,6 +115,7 @@ public class ConnClient implements Closeable {
 
         publicKey = settings.getPublicKey();
         privateKey = settings.getPrivateKey();
+        keyPair = new KeyPair(publicKey, privateKey);
 
         switch (builder.transport) {
         case TCP:
@@ -214,17 +216,11 @@ public class ConnClient implements Closeable {
 
     private synchronized void login(byte[] toSign) throws InvalidKeyException, SignatureException {
         String name = settings.getUsername();
-        byte[] pubKey = publicKey.getEncoded();
-
-        Signature sign = CryptoUtil.newSignature(privateKey);
-        sign.update(name.getBytes());
-        sign.update(pubKey);
-        sign.update(toSign);
 
         AuthResponse.Builder response = AuthResponse.newBuilder();
         response.setUsername(name);
-        response.setSignature(ByteString.copyFrom(sign.sign()));
-        response.setPublicKey(ByteString.copyFrom(pubKey));
+        response.setSignature(ByteString.copyFrom(ClientUtil.makeLoginSignature(keyPair, name, toSign)));
+        response.setPublicKey(ByteString.copyFrom(publicKey.getEncoded()));
 
         channel.sendMessage(response.build());
 

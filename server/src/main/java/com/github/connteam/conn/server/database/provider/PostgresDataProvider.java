@@ -138,7 +138,7 @@ public class PostgresDataProvider implements DataProvider {
             conn = cpds.getConnection();
             conn.setAutoCommit(false);
 
-            Optional<EphemeralKey> key = Optional.of(null);
+            Optional<EphemeralKey> key = Optional.ofNullable(null);
             try (SQLQuery q = new SQLQuery(conn, "SELECT * FROM ephemeral_keys WHERE id_user = ?;", false)) {
                 key = q.push(userId).executeQueryFirst(PostgresModelFactory::ephemeralKeyFromResultSet);
             } catch (SQLException e) {
@@ -150,7 +150,7 @@ public class PostgresDataProvider implements DataProvider {
             }
 
             try (SQLQuery q = new SQLQuery(conn, "DELETE FROM ephemeral_keys WHERE id_key = ?;", false)) {
-                q.push(key.get().getIdKey());
+                q.push(key.get().getIdKey()).executeUpdate();
             } catch (SQLException e) {
                 throw new DatabaseException(e);
             }

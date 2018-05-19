@@ -161,8 +161,8 @@ public class PostgresDataProvider implements DataProvider {
         } finally {
             if (conn != null) {
                 try {
-                    conn.setAutoCommit(true);
                     conn.commit();
+                    conn.setAutoCommit(true);
                 } catch (SQLException e) {
                     throw new DatabaseException(e);
                 } finally {

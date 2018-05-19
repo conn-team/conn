@@ -301,7 +301,11 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    public boolean isUsedEphemeralKey(UsedEphemeralKey key) throws DatabaseException {
+    public boolean isUsedEphemeralKey(@NotNull UsedEphemeralKey key) throws DatabaseException {
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
         try (SQLQuery q = query("SELECT COUNT(*) FROM used_ephemeral_keys WHERE key = ?;")) {
             return q.executeQueryCount() > 0;
         } catch (SQLException e) {
@@ -310,7 +314,11 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    public void insertUsedEphemeralKey(UsedEphemeralKey key) throws DatabaseException {
+    public void insertUsedEphemeralKey(@NotNull UsedEphemeralKey key) throws DatabaseException {
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
         try (SQLQuery q = query("INSERT OR REPLACE INTO used_ephemeral_keys (key) VALUES (?);")) {
             q.push(key.getRawKey()).executeUpdate();
         } catch (SQLException e) {
@@ -319,7 +327,11 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    public boolean deleteUsedEphemeralKey(UsedEphemeralKey key) throws DatabaseException {
+    public boolean deleteUsedEphemeralKey(@NotNull UsedEphemeralKey key) throws DatabaseException {
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
         try (SQLQuery q = query("DELETE FROM used_ephemeral_keys WHERE (key) = ?;")) {
             return q.push(key.getRawKey()).executeUpdate() > 0;
         } catch (SQLException e) {

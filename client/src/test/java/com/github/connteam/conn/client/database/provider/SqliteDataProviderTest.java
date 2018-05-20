@@ -2,8 +2,11 @@ package com.github.connteam.conn.client.database.provider;
 
 import static org.junit.Assert.*;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -565,6 +568,16 @@ public class SqliteDataProviderTest {
         for (Integer key : messagesToKeySet) {
             assertEquals(deleteMessagesTo(key), dp.deleteMessagesTo(key));
             getMessagesToTest();
+        }
+    }
+
+    @Test
+    public void allDeclaredPublicMethodsAreSynchronizedTest() throws Exception {
+        String names = Arrays.stream(SqliteDataProvider.class.getDeclaredMethods())
+                .filter(x -> Modifier.isPublic(x.getModifiers()) && !Modifier.isSynchronized(x.getModifiers()))
+                .map(x -> x.getName()).collect(Collectors.joining(", "));
+        if (names.length() != 0) {
+            fail(names);
         }
     }
 }

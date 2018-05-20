@@ -5,6 +5,8 @@ import static org.junit.Assert.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.server.database.model.EphemeralKey;
@@ -16,7 +18,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-// TODO: expand ephemeralKey test(popEphemeralKey)
 public class PostgresDataProviderTest {
     DataProvider db;
     List<User> users;
@@ -104,13 +105,32 @@ public class PostgresDataProviderTest {
         // deleteEphemeralKey
 
         for (EphemeralKey key : keys) {
-            if (key.getIdUser() == 3) {
+            if (key.getIdUser() == 3 || key.getIdUser() == 4) {
                 continue;
             }
             assertTrue(db.deleteEphemeralKey(key.getIdKey()));
             assertFalse(db.deleteEphemeralKey(key.getIdKey()));
             assertFalse(db.getEphemeralKey(key.getIdKey()).isPresent());
         }
+
+        // popEphemeralKeys
+
+        List<EphemeralKey> user4Keys = keys.stream().filter(x -> x.getIdUser() == 4).collect(Collectors.toList());
+
+        while (!user4Keys.isEmpty()) {
+            Optional<EphemeralKey> key = db.popEphemeralKeyByUserId(4);
+            assertTrue(key.isPresent());
+
+            List<EphemeralKey> newUser4Keys = db.getEphemeralKeysByUserId(4);
+            Optional<EphemeralKey> popedKey = user4Keys.stream().filter(x -> !newUser4Keys.contains(x)).findFirst();
+            assertTrue(popedKey.isPresent());
+            assertTrue(popedKey.get().equals(key.get()));
+
+            user4Keys = newUser4Keys;
+        }
+
+        Optional<EphemeralKey> user4Key = db.popEphemeralKeyByUserId(4);
+        assertFalse(user4Key.isPresent());
     }
 
     @Test

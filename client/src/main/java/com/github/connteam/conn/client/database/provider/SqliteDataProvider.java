@@ -94,7 +94,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public List<Message> getMessageFrom(int idFrom) throws DatabaseException {
+    synchronized public List<Message> getMessagesFrom(int idFrom) throws DatabaseException {
         try (SQLQuery q = query("SELECT * FROM messages WHERE (id_user = ?) AND (is_outgoing = 0);")) {
             return q.push(idFrom).executeQuery(SqliteModelFactory::messageFromResultSet);
         } catch (SQLException e) {
@@ -103,7 +103,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public List<Message> getMessageTo(int idTo) throws DatabaseException {
+    synchronized public List<Message> getMessagesTo(int idTo) throws DatabaseException {
         try (SQLQuery q = query("SELECT * FROM messages WHERE (id_user = ?) AND (is_outgoing = 1);")) {
             return q.push(idTo).executeQuery(SqliteModelFactory::messageFromResultSet);
         } catch (SQLException e) {
@@ -136,6 +136,16 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
+    public boolean deleteMessage(int idMessage) throws DatabaseException {
+        String SQLString = "DELETE FROM messages WHERE id_message = ?;";
+        try (SQLQuery q = query(SQLString)) {
+            return q.push(idMessage).executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
     synchronized public boolean updateMessage(@NotNull Message message) throws DatabaseException {
         if (message == null) {
             throw new NullPointerException();
@@ -143,8 +153,8 @@ public class SqliteDataProvider implements DataProvider {
 
         String SQLString = "UPDATE messages SET id_user = ?, is_outgoing = ?, message = ?, time = ? WHERE id_message = ?;";
         try (SQLQuery q = query(SQLString)) {
-            return q.push(message.getIdUser(), message.isOutgoing(), message.getMessage(), message.getTime())
-                    .executeUpdate() > 0;
+            return q.push(message.getIdUser(), message.isOutgoing(), message.getMessage(), message.getTime(),
+                    message.getIdMessage()).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -268,7 +278,7 @@ public class SqliteDataProvider implements DataProvider {
     @Override
     synchronized public boolean deleteUserByUsername(@NotNull String username) throws DatabaseException {
         if (username == null) {
-            throw new DatabaseException();
+            throw new NullPointerException();
         }
 
         try (SQLQuery q = query("DELETE FROM users WHERE LOWER(username) = LOWER(?);")) {
@@ -352,5 +362,4 @@ public class SqliteDataProvider implements DataProvider {
             throw new DatabaseException(e);
         }
     }
-
 }

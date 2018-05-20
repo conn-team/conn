@@ -331,7 +331,7 @@ public class SqliteDataProvider implements DataProvider {
         }
 
         try (SQLQuery q = query("SELECT COUNT(*) FROM used_ephemeral_keys WHERE key = ?;")) {
-            return q.executeQueryCount() > 0;
+            return q.push(key.getRawKey()).executeQueryCount() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

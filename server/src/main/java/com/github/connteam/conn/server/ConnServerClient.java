@@ -6,6 +6,8 @@ import java.net.ProtocolException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.github.connteam.conn.core.Sanitization;
 import com.github.connteam.conn.core.crypto.CryptoUtil;
@@ -19,8 +21,11 @@ import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthStatus;
 import com.github.connteam.conn.core.net.proto.NetProtos.KeepAlive;
+import com.github.connteam.conn.core.net.proto.NetProtos.PeerRecv;
+import com.github.connteam.conn.core.net.proto.NetProtos.PeerSend;
 import com.github.connteam.conn.core.net.proto.NetProtos.SignedKey;
-import com.github.connteam.conn.core.net.proto.NetProtos.DeprecatedTextMessage;
+import com.github.connteam.conn.core.net.proto.NetProtos.TransmissionRequest;
+import com.github.connteam.conn.core.net.proto.NetProtos.TransmissionResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.EphemeralKeysDemand;
 import com.github.connteam.conn.core.net.proto.NetProtos.EphemeralKeysUpload;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserInfo;
@@ -47,10 +52,21 @@ public class ConnServerClient implements Closeable {
     private volatile User user;
     private volatile PublicKey publicKey;
 
-    private int ephemeralKeysCount, requestedEphemeralKeys;
+    private final Map<Integer, Transmission> transmissions = new ConcurrentHashMap<>();
+    private int ephemeralKeysCount, requestedEphemeralKeys; // Just estimated
 
     private static enum State {
         CREATED, AUTHENTICATION, ESTABLISHED, CLOSED
+    }
+
+    private static class Transmission {
+        final User user;
+        final SignedKey partialKey1;
+
+        public Transmission(User user, SignedKey partial) {
+            this.user = user;
+            partialKey1 = partial;
+        }
     }
 
     public ConnServerClient(ConnServer server, NetChannel.Provider channelProvider) throws IOException {
@@ -204,7 +220,7 @@ public class ConnServerClient implements Closeable {
             LOG.warn("Received more ephemeral keys than requested");
             return false;
         }
-        if (!ServerUtil.verifyEphemeralKey(key, publicKey)) {
+        if (CryptoUtil.verifyEphemeralKey(key, publicKey) == null) {
             close(new ProtocolException("Invalid ephemeral key"));
             return false;
         }
@@ -233,13 +249,72 @@ public class ConnServerClient implements Closeable {
         }
 
         @HandleEvent
-        public void onTextMessage(DeprecatedTextMessage msg) {
-            ConnServerClient client = server.getClientByName(msg.getUsername());
+        public void onTransmissionRequest(TransmissionRequest msg) {
+            int id = msg.getTransmissionID();
 
-            if (client != null) {
-                client.getNetChannel().sendMessage(DeprecatedTextMessage.newBuilder()
-                        .setUsername(getUser().getUsername()).setMessage(msg.getMessage()).build());
+            if (transmissions.containsKey(id)) {
+                close(new ProtocolException("Unexpected transmission ID"));
+                return;
             }
+
+            try {
+                User other = getDataProvider().getUserByUsername(msg.getUsername()).orElse(null);
+
+                TransmissionResponse.Builder resp = TransmissionResponse.newBuilder();
+                resp.setTransmissionID(msg.getTransmissionID());
+                resp.setSuccess(false);
+
+                if (other != null) {
+                    getDataProvider().popEphemeralKeyByUserId(other.getIdUser()).ifPresent(key -> {
+                        SignedKey.Builder elem = SignedKey.newBuilder();
+                        elem.setPublicKey(ByteString.copyFrom(key.getRawKey()));
+                        elem.setSignature(ByteString.copyFrom(key.getSignature()));
+
+                        SignedKey partial = elem.build();
+                        resp.setPartialKey1(partial);
+                        resp.setSuccess(true);
+
+                        transmissions.put(id, new Transmission(other, partial));
+                    });
+
+                    ConnServerClient otherClient = server.getClientByName(other.getUsername());
+                    if (otherClient != null) {
+                        otherClient.ephemeralKeysCount--;
+                        otherClient.checkEphemeralKeysCount();
+                    }
+                }
+
+                channel.sendMessage(resp.build());
+            } catch (DatabaseException e) {
+                close(e);
+            }
+        }
+
+        @HandleEvent
+        public void onPeerSend(PeerSend msg) {
+            Transmission trans = transmissions.remove(msg.getTransmissionID());
+
+            if (trans == null) {
+                close(new ProtocolException("Unexpected transmission ID"));
+                return;
+            }
+
+            ConnServerClient client = server.getClientByName(trans.user.getUsername());
+
+            if (client == null) {
+                return; // TODO: Offline messaging
+            }
+
+            PeerRecv.Builder out = PeerRecv.newBuilder();
+
+            out.setTransmissionID(0);
+            out.setUsername(user.getUsername());
+            out.setEncryptedMessage(msg.getEncryptedMessage());
+            out.setPartialKey1(trans.partialKey1.getPublicKey());
+            out.setPartialKey2(msg.getPartialKey2());
+            out.setSignature(msg.getSignature());
+
+            channel.sendMessage(out.build());
         }
 
         @HandleEvent

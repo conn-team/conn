@@ -54,7 +54,7 @@ public class Conversation {
         msg.setMessage(text);
         msg.setOutgoing(true);
 
-        session.getClient().sendTextMessage(user.getUsername(), text);
+        session.getClient().sendTextMessage(user, text);
         messages.add(msg);
     }
 }

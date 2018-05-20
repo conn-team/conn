@@ -6,11 +6,13 @@ package server;
 option java_package = "com.github.connteam.conn.core.net.proto";
 option java_outer_classname = "PeerProtos";
 
-message EncryptedMessage {
+message PeerMessage {
     bytes padding = 1;
-    bytes message = 2;
+    int32 id = 2;
+    int64 checksum = 3;
+    bytes message = 4;
 }
 
-message PeerTextMessage {
+message TextMessage {
     string message = 1;
 }

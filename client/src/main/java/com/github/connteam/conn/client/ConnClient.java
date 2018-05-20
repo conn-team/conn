@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+import javax.crypto.SecretKey;
+
 import com.github.connteam.conn.client.database.model.EphemeralKey;
 import com.github.connteam.conn.client.database.model.Settings;
 import com.github.connteam.conn.client.database.model.User;
@@ -36,16 +38,25 @@ import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthStatus;
 import com.github.connteam.conn.core.net.proto.NetProtos.KeepAlive;
+import com.github.connteam.conn.core.net.proto.NetProtos.PeerRecv;
+import com.github.connteam.conn.core.net.proto.NetProtos.PeerSend;
 import com.github.connteam.conn.core.net.proto.NetProtos.SignedKey;
-import com.github.connteam.conn.core.net.proto.NetProtos.DeprecatedTextMessage;
+import com.github.connteam.conn.core.net.proto.NetProtos.TransmissionRequest;
+import com.github.connteam.conn.core.net.proto.NetProtos.TransmissionResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.EphemeralKeysDemand;
 import com.github.connteam.conn.core.net.proto.NetProtos.EphemeralKeysUpload;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserInfo;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserInfoRequest;
+import com.github.connteam.conn.core.net.proto.PeerProtos.TextMessage;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ConnClient implements Closeable {
+    private final static Logger LOG = LoggerFactory.getLogger(ConnClient.class);
+
     private final NetChannel channel;
     private final DataProvider database;
     private ScheduledExecutorService scheduler;
@@ -60,9 +71,21 @@ public class ConnClient implements Closeable {
 
     private final AtomicInteger requestCounter = new AtomicInteger();
     private final Map<Integer, Consumer<User>> userInfoRequests = new ConcurrentHashMap<>();
+    private final Map<Integer, Transmission> transmissions = new ConcurrentHashMap<>();
 
     private static enum State {
         CREATED, AUTH_REQUEST, AUTH_RESPONSE, ESTABLISHED, CLOSED
+    }
+
+    private static class Transmission {
+        final User user;
+        final byte[] message;
+        boolean waitingForAck = false;
+
+        public Transmission(User user, byte[] msg) {
+            this.user = user;
+            message = msg;
+        }
     }
 
     public static class Builder {
@@ -242,8 +265,27 @@ public class ConnClient implements Closeable {
         }
     }
 
-    public void sendTextMessage(String to, String message) {
-        channel.sendMessage(DeprecatedTextMessage.newBuilder().setUsername(to).setMessage(message).build());
+    private void onPeerMessage(User from, Message msg) {
+        if (msg instanceof TextMessage) {
+            TextMessage txt = (TextMessage) msg;
+            listener.onTextMessage(from, txt.getMessage());
+        }
+    }
+
+    private void sendPeerMessage(User to, Message msg) {
+        Transmission trans = new Transmission(to, ClientUtil.encodePeerMessage(msg));
+        int id = requestCounter.incrementAndGet();
+
+        transmissions.put(id, trans);
+
+        TransmissionRequest.Builder req = TransmissionRequest.newBuilder();
+        req.setTransmissionID(id);
+        req.setUsername(to.getUsername());
+        channel.sendMessage(req.build());
+    }
+
+    public void sendTextMessage(User to, String message) {
+        sendPeerMessage(to, TextMessage.newBuilder().setMessage(message).build());
     }
 
     public void getUserInfo(String username, Consumer<User> callback) throws DatabaseException {
@@ -264,11 +306,6 @@ public class ConnClient implements Closeable {
     }
 
     public class MessageHandler extends MultiEventListener<Message> {
-        @HandleEvent
-        public void onTextMessage(DeprecatedTextMessage msg) {
-            listener.onTextMessage(msg.getUsername(), msg.getMessage());
-        }
-
         @HandleEvent
         public void onUserInfo(UserInfo msg) {
             Consumer<User> callback = userInfoRequests.remove(msg.getRequestID());
@@ -316,6 +353,118 @@ public class ConnClient implements Closeable {
 
                 channel.sendMessage(out.build());
             } catch (DatabaseException | InvalidKeyException | SignatureException e) {
+                close(e);
+            }
+        }
+
+        @HandleEvent
+        public void onTransmissionResponse(TransmissionResponse msg) {
+            int id = msg.getTransmissionID();
+            Transmission trans = transmissions.remove(id);
+
+            if (trans == null || trans.waitingForAck) {
+                close(new ProtocolException("TransmissionResponse received with invalid ID"));
+                return;
+            }
+
+            if (!msg.getSuccess()) {
+                // transmissions.remove(id);
+                return;
+            }
+
+            try {
+                // Verify prekey signature
+
+                PublicKey remoteKey = CryptoUtil.verifyEphemeralKey(msg.getPartialKey1(), trans.user.getPublicKey());
+                if (remoteKey == null) {
+                    close(new ProtocolException("Invalid ephemeral key received"));
+                    return;
+                }
+
+                // Generate local ECDH part
+
+                KeyPair localKey = CryptoUtil.generateKeyPair();
+                SecretKey sharedKey = CryptoUtil.getSharedSecret(localKey.getPrivate(), remoteKey);
+
+                // Encrypt and sign message
+
+                byte[] encrypted = CryptoUtil.encryptSymmetric(sharedKey, trans.message);
+                byte[] partialKey2 = localKey.getPublic().getEncoded();
+
+                Signature sign = CryptoUtil.newSignature(privateKey);
+                sign.update(encrypted);
+                sign.update(remoteKey.getEncoded());
+                sign.update(partialKey2);
+
+                // Send
+
+                PeerSend.Builder out = PeerSend.newBuilder();
+                out.setTransmissionID(id);
+                out.setEncryptedMessage(ByteString.copyFrom(encrypted));
+                out.setPartialKey2(ByteString.copyFrom(partialKey2));
+                out.setSignature(ByteString.copyFrom(sign.sign()));
+
+                channel.sendMessage(out.build());
+            } catch (InvalidKeySpecException | InvalidKeyException | SignatureException e) {
+                close(e);
+            }
+        }
+
+        @HandleEvent
+        public void onPeerRecv(PeerRecv msg) {
+            try {
+                getUserInfo(msg.getUsername(), other -> {
+                    if (other == null) {
+                        close(new ProtocolException("Received peer message from unknown user"));
+                        return;
+                    }
+
+                    byte[] encrypted = msg.getEncryptedMessage().toByteArray();
+                    byte[] partialKey1 = msg.getPartialKey1().toByteArray();
+                    byte[] partialKey2 = msg.getPartialKey2().toByteArray();
+                    byte[] signature = msg.getSignature().toByteArray();
+
+                    try {
+                        // Verify signature
+
+                        Signature sign = CryptoUtil.newSignature(other.getPublicKey());
+                        sign.update(encrypted);
+                        sign.update(partialKey1);
+                        sign.update(partialKey2);
+
+                        if (!sign.verify(signature)) {
+                            LOG.warn("Invalid peer message signature");
+                            return;
+                        }
+
+                        // Lookup for local part of ephemeral key
+
+                        EphemeralKey localKey = database.getEphemeralKeyByPublicKey(partialKey1).orElse(null);
+                        if (localKey == null) {
+                            LOG.warn("Peer message using unknown ephemeral key");
+                            return;
+                        }
+
+                        database.deleteEphemeralKey(localKey.getId());
+
+                        // Decrypt and handle message
+
+                        PublicKey remoteKey = CryptoUtil.decodePublicKey(partialKey2);
+                        SecretKey sharedKey = CryptoUtil.getSharedSecret(localKey.getPrivateKey(), remoteKey);
+
+                        byte[] data = CryptoUtil.decryptSymmetric(sharedKey, encrypted);
+                        Message decoded = ClientUtil.decodePeerMessage(data);
+
+                        if (decoded != null) {
+                            onPeerMessage(other, decoded);
+                        }
+                    } catch (SignatureException | InvalidKeyException | InvalidKeySpecException e) {
+                        LOG.warn("Invalid peer message", e);
+                    } catch (DatabaseException e) {
+                        close(e);
+                    }
+                });
+            } catch (DatabaseException e) {
                 close(e);
             }
         }

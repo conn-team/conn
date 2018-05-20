@@ -174,8 +174,8 @@ public class Session implements AutoCloseable {
         }
 
         @Override
-        public void onTextMessage(String from, String message) {
-            Platform.runLater(() -> openConversation(from, conv -> {
+        public void onTextMessage(User from, String message) {
+            Platform.runLater(() -> openConversation(from.getUsername(), conv -> {
                 Message msg = new Message();
                 msg.setMessage(message);
                 msg.setOutgoing(false);

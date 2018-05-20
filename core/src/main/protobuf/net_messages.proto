@@ -44,11 +44,6 @@ message UserInfo {
     bytes publicKey = 4;
 }
 
-message DeprecatedTextMessage {
-    string username = 1;
-    string message = 2;
-}
-
 message SignedKey {
     bytes publicKey = 1;
     bytes signature = 2;
@@ -69,14 +64,15 @@ message TransmissionRequest {
 
 message TransmissionResponse {
     int32 transmissionID = 1;
-    SignedKey partialKey1 = 2;
+    bool success = 2;
+    SignedKey partialKey1 = 3;
 }
 
 message PeerSend {
     int32 transmissionID = 1;
     bytes encryptedMessage = 2;
     bytes partialKey2 = 3;
-    bytes signature = 4; // username + encryptedMessage + partialKey1 + partialKey2
+    bytes signature = 4; // encryptedMessage + partialKey1 + partialKey2
 }
 
 message PeerSendAck {
@@ -89,7 +85,7 @@ message PeerRecv {
     bytes encryptedMessage = 3;
     bytes partialKey1 = 4;
     bytes partialKey2 = 5;
-    bytes signature = 6; // username + encryptedMessage + partialKey1 + partialKey2
+    bytes signature = 6; // encryptedMessage + partialKey1 + partialKey2
 }
 
 message PeerRecvAck {

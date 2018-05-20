@@ -55,7 +55,7 @@ public class SqliteDataProvider implements DataProvider {
         }
 
         try (SQLQuery q = query("SELECT * FROM ephemeral_keys WHERE public_key = ?;")) {
-            return q.executeQueryFirst(SqliteModelFactory::ephemeralKeyFromResultSet);
+            return q.push(publicKey).executeQueryFirst(SqliteModelFactory::ephemeralKeyFromResultSet);
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

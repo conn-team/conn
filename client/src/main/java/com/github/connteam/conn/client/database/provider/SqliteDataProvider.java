@@ -307,7 +307,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    public void dropTables() throws DatabaseException {
+    synchronized public void dropTables() throws DatabaseException {
         try {
             DatabaseUtil.executeScriptFromResource(connection, getClass(), "sql/drop-tables.sql");
         } catch (SQLException | IOException e) {
@@ -316,7 +316,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    public List<UsedEphemeralKey> getUsedEphemeralKeys() throws DatabaseException {
+    synchronized public List<UsedEphemeralKey> getUsedEphemeralKeys() throws DatabaseException {
         try (SQLQuery q = query("SELECT * FROM used_ephemeral_keys;")) {
             return q.executeQuery(SqliteModelFactory::usedEphemeralKeyFromResultSet);
         } catch (SQLException e) {
@@ -325,7 +325,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    public boolean isUsedEphemeralKey(@NotNull UsedEphemeralKey key) throws DatabaseException {
+    synchronized public boolean isUsedEphemeralKey(@NotNull UsedEphemeralKey key) throws DatabaseException {
         if (key == null) {
             throw new NullPointerException();
         }
@@ -338,7 +338,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    public void insertUsedEphemeralKey(@NotNull UsedEphemeralKey key) throws DatabaseException {
+    synchronized public void insertUsedEphemeralKey(@NotNull UsedEphemeralKey key) throws DatabaseException {
         if (key == null) {
             throw new NullPointerException();
         }
@@ -351,7 +351,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    public boolean deleteUsedEphemeralKey(@NotNull UsedEphemeralKey key) throws DatabaseException {
+    synchronized public boolean deleteUsedEphemeralKey(@NotNull UsedEphemeralKey key) throws DatabaseException {
         if (key == null) {
             throw new NullPointerException();
         }

@@ -136,7 +136,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    public boolean deleteMessage(int idMessage) throws DatabaseException {
+    synchronized public boolean deleteMessage(int idMessage) throws DatabaseException {
         String SQLString = "DELETE FROM messages WHERE id_message = ?;";
         try (SQLQuery q = query(SQLString)) {
             return q.push(idMessage).executeUpdate() > 0;

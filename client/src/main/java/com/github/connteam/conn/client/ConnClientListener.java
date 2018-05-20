@@ -1,6 +1,6 @@
 package com.github.connteam.conn.client;
 
-import com.github.connteam.conn.client.database.model.User;
+import com.github.connteam.conn.client.database.model.UserEntry;
 
 public interface ConnClientListener {
     default void onDisconnect(Exception err) {
@@ -9,6 +9,6 @@ public interface ConnClientListener {
     default void onLogin(boolean hasBeenRegistered) {
     }
 
-    default void onTextMessage(User from, String message) {
+    default void onTextMessage(UserEntry from, String message) {
     }
 }

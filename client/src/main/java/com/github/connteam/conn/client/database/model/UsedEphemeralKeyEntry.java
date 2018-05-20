@@ -11,13 +11,13 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-public class UsedEphemeralKey {
+public class UsedEphemeralKeyEntry {
     private byte[] key;
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof UsedEphemeralKey) {
-            UsedEphemeralKey x = (UsedEphemeralKey) obj;
+        if (obj instanceof UsedEphemeralKeyEntry) {
+            UsedEphemeralKeyEntry x = (UsedEphemeralKeyEntry) obj;
             return new EqualsBuilder().append(key, x.key).isEquals();
         }
         return false;

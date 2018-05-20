@@ -7,8 +7,8 @@ import java.util.function.Consumer;
 import com.github.connteam.conn.client.ConnClient;
 import com.github.connteam.conn.client.ConnClientListener;
 import com.github.connteam.conn.client.app.App;
-import com.github.connteam.conn.client.database.model.Message;
-import com.github.connteam.conn.client.database.model.User;
+import com.github.connteam.conn.client.database.model.MessageEntry;
+import com.github.connteam.conn.client.database.model.UserEntry;
 import com.github.connteam.conn.client.database.provider.DataProvider;
 import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.io.IOUtils;
@@ -159,7 +159,7 @@ public class Session implements AutoCloseable {
                 app.getSessionManager().setConnecting(false);
 
                 try {
-                    for (User user : database.getUsers()) {
+                    for (UserEntry user : database.getUsers()) {
                         openConversation(user.getUsername());
                     }
                 } catch (DatabaseException e) {
@@ -174,9 +174,9 @@ public class Session implements AutoCloseable {
         }
 
         @Override
-        public void onTextMessage(User from, String message) {
+        public void onTextMessage(UserEntry from, String message) {
             Platform.runLater(() -> openConversation(from.getUsername(), conv -> {
-                Message msg = new Message();
+                MessageEntry msg = new MessageEntry();
                 msg.setMessage(message);
                 msg.setOutgoing(false);
                 conv.getMessages().add(msg);

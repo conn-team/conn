@@ -20,9 +20,9 @@ import java.util.function.Consumer;
 
 import javax.crypto.SecretKey;
 
-import com.github.connteam.conn.client.database.model.EphemeralKey;
-import com.github.connteam.conn.client.database.model.Settings;
-import com.github.connteam.conn.client.database.model.User;
+import com.github.connteam.conn.client.database.model.EphemeralKeyEntry;
+import com.github.connteam.conn.client.database.model.SettingsEntry;
+import com.github.connteam.conn.client.database.model.UserEntry;
 import com.github.connteam.conn.client.database.provider.DataProvider;
 import com.github.connteam.conn.core.Sanitization;
 import com.github.connteam.conn.core.crypto.CryptoUtil;
@@ -61,7 +61,7 @@ public class ConnClient implements Closeable {
     private final DataProvider database;
     private ScheduledExecutorService scheduler;
 
-    private final Settings settings;
+    private final SettingsEntry settings;
     private final PublicKey publicKey;
     private final PrivateKey privateKey;
     private final KeyPair keyPair;
@@ -70,7 +70,7 @@ public class ConnClient implements Closeable {
     private volatile State state = State.CREATED;
 
     private final AtomicInteger requestCounter = new AtomicInteger();
-    private final Map<Integer, Consumer<User>> userInfoRequests = new ConcurrentHashMap<>();
+    private final Map<Integer, Consumer<UserEntry>> userInfoRequests = new ConcurrentHashMap<>();
     private final Map<Integer, Transmission> transmissions = new ConcurrentHashMap<>();
 
     private static enum State {
@@ -78,11 +78,11 @@ public class ConnClient implements Closeable {
     }
 
     private static class Transmission {
-        final User user;
+        final UserEntry user;
         final byte[] message;
         boolean waitingForAck = false;
 
-        public Transmission(User user, byte[] msg) {
+        public Transmission(UserEntry user, byte[] msg) {
             this.user = user;
             message = msg;
         }
@@ -164,7 +164,7 @@ public class ConnClient implements Closeable {
         this.listener = listener;
     }
 
-    public Settings getSettings() {
+    public SettingsEntry getSettings() {
         return settings;
     }
 
@@ -265,14 +265,14 @@ public class ConnClient implements Closeable {
         }
     }
 
-    private void onPeerMessage(User from, Message msg) {
+    private void onPeerMessage(UserEntry from, Message msg) {
         if (msg instanceof TextMessage) {
             TextMessage txt = (TextMessage) msg;
             listener.onTextMessage(from, txt.getMessage());
         }
     }
 
-    private void sendPeerMessage(User to, Message msg) {
+    private void sendPeerMessage(UserEntry to, Message msg) {
         Transmission trans = new Transmission(to, ClientUtil.encodePeerMessage(msg));
         int id = requestCounter.incrementAndGet();
 
@@ -284,12 +284,12 @@ public class ConnClient implements Closeable {
         channel.sendMessage(req.build());
     }
 
-    public void sendTextMessage(User to, String message) {
+    public void sendTextMessage(UserEntry to, String message) {
         sendPeerMessage(to, TextMessage.newBuilder().setMessage(message).build());
     }
 
-    public void getUserInfo(String username, Consumer<User> callback) throws DatabaseException {
-        User user = database.getUserByUsername(username).orElse(null);
+    public void getUserInfo(String username, Consumer<UserEntry> callback) throws DatabaseException {
+        UserEntry user = database.getUserByUsername(username).orElse(null);
 
         if (user != null || !Sanitization.isValidUsername(username)) {
             callback.accept(user);
@@ -308,7 +308,7 @@ public class ConnClient implements Closeable {
     public class MessageHandler extends MultiEventListener<Message> {
         @HandleEvent
         public void onUserInfo(UserInfo msg) {
-            Consumer<User> callback = userInfoRequests.remove(msg.getRequestID());
+            Consumer<UserEntry> callback = userInfoRequests.remove(msg.getRequestID());
             if (callback == null) {
                 close(new ProtocolException("UserInfo received with invalid requestID"));
                 return;
@@ -319,7 +319,7 @@ public class ConnClient implements Closeable {
                 return;
             }
 
-            User user = new User();
+            UserEntry user = new UserEntry();
             user.setUsername(msg.getUsername());
             user.setPublicKey(msg.getPublicKey().toByteArray());
 
@@ -339,7 +339,7 @@ public class ConnClient implements Closeable {
                 EphemeralKeysUpload.Builder out = EphemeralKeysUpload.newBuilder();
 
                 for (int i = 0; i < msg.getCount(); i++) {
-                    EphemeralKey key = ClientUtil.generateEphemeralKey();
+                    EphemeralKeyEntry key = ClientUtil.generateEphemeralKey();
                     key.setId(database.insertEphemeralKey(key));
 
                     Signature sign = CryptoUtil.newSignature(privateKey);
@@ -439,7 +439,7 @@ public class ConnClient implements Closeable {
 
                         // Lookup for local part of ephemeral key
 
-                        EphemeralKey localKey = database.getEphemeralKeyByPublicKey(partialKey1).orElse(null);
+                        EphemeralKeyEntry localKey = database.getEphemeralKeyByPublicKey(partialKey1).orElse(null);
                         if (localKey == null) {
                             LOG.warn("Peer message using unknown ephemeral key");
                             return;

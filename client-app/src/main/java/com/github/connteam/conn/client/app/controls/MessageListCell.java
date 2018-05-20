@@ -3,7 +3,7 @@ package com.github.connteam.conn.client.app.controls;
 import java.io.IOException;
 
 import com.github.connteam.conn.client.app.App;
-import com.github.connteam.conn.client.database.model.Message;
+import com.github.connteam.conn.client.database.model.MessageEntry;
 
 import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
@@ -11,7 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.Node;
 
-public class MessageListCell extends ListCell<Message> {
+public class MessageListCell extends ListCell<MessageEntry> {
     private final static PseudoClass OUTGOING_PSEUDOCLASS = PseudoClass.getPseudoClass("outgoing");
 
     private final Node view;
@@ -32,7 +32,7 @@ public class MessageListCell extends ListCell<Message> {
     }
 
     @Override
-    protected void updateItem(Message elem, boolean empty) {
+    protected void updateItem(MessageEntry elem, boolean empty) {
         super.updateItem(elem, empty);
 
         if (empty || elem == null) {

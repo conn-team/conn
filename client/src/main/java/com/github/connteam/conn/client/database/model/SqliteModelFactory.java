@@ -4,16 +4,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class SqliteModelFactory {
-    public static EphemeralKey ephemeralKeyFromResultSet(ResultSet rs) throws SQLException {
-        EphemeralKey key = new EphemeralKey();
+    public static EphemeralKeyEntry ephemeralKeyFromResultSet(ResultSet rs) throws SQLException {
+        EphemeralKeyEntry key = new EphemeralKeyEntry();
         key.setId(rs.getInt("id_key"));
         key.setPublicKey(rs.getBytes("public_key"));
         key.setPrivateKey(rs.getBytes("private_key"));
         return key;
     }
 
-    public static Message messageFromResultSet(ResultSet rs) throws SQLException {
-        Message message = new Message();
+    public static MessageEntry messageFromResultSet(ResultSet rs) throws SQLException {
+        MessageEntry message = new MessageEntry();
         message.setIdMessage(rs.getInt("id_message"));
         message.setIdUser(rs.getInt("id_user"));
         message.setMessage(rs.getString("message"));
@@ -22,16 +22,16 @@ public class SqliteModelFactory {
         return message;
     }
 
-    public static Settings settingsFromResultSet(ResultSet rs) throws SQLException {
-        Settings settings = new Settings();
+    public static SettingsEntry settingsFromResultSet(ResultSet rs) throws SQLException {
+        SettingsEntry settings = new SettingsEntry();
         settings.setUsername(rs.getString("username"));
         settings.setPrivateKey(rs.getBytes("private_key"));
         settings.setPublicKey(rs.getBytes("public_key"));
         return settings;
     }
 
-    public static User userFromResultSet(ResultSet rs) throws SQLException {
-        User user = new User();
+    public static UserEntry userFromResultSet(ResultSet rs) throws SQLException {
+        UserEntry user = new UserEntry();
         user.setId(rs.getInt("id_user"));
         user.setUsername(rs.getString("username"));
         user.setPublicKey(rs.getBytes("public_key"));
@@ -42,8 +42,8 @@ public class SqliteModelFactory {
         return user;
     }
 
-    public static UsedEphemeralKey usedEphemeralKeyFromResultSet(ResultSet rs) throws SQLException {
-        UsedEphemeralKey key = new UsedEphemeralKey();
+    public static UsedEphemeralKeyEntry usedEphemeralKeyFromResultSet(ResultSet rs) throws SQLException {
+        UsedEphemeralKeyEntry key = new UsedEphemeralKeyEntry();
         key.setKey(rs.getBytes("key"));
         return key;
     }

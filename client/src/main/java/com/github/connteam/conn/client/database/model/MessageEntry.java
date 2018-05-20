@@ -9,7 +9,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-public class Message {
+public class MessageEntry {
     private int idMessage;
     private int idUser;
     private boolean isOutgoing;
@@ -18,8 +18,8 @@ public class Message {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Message) {
-            Message x = (Message)obj;
+        if (obj instanceof MessageEntry) {
+            MessageEntry x = (MessageEntry) obj;
             return new EqualsBuilder().append(idMessage, x.idMessage).append(idUser, x.idUser)
                     .append(isOutgoing, x.isOutgoing).append(message, x.message).append(time, x.time).isEquals();
         }

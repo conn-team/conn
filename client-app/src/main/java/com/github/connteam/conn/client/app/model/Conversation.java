@@ -1,7 +1,7 @@
 package com.github.connteam.conn.client.app.model;
 
-import com.github.connteam.conn.client.database.model.Message;
-import com.github.connteam.conn.client.database.model.User;
+import com.github.connteam.conn.client.database.model.MessageEntry;
+import com.github.connteam.conn.client.database.model.UserEntry;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,21 +10,21 @@ import javafx.beans.property.StringProperty;
 
 public class Conversation {
     private final Session session;
-    private final User user;
+    private final UserEntry user;
 
-    private final ObservableList<Message> messages = FXCollections.observableArrayList();
+    private final ObservableList<MessageEntry> messages = FXCollections.observableArrayList();
     private final StringProperty currentMessage = new SimpleStringProperty();
 
-    public Conversation(Session session, User user) {
+    public Conversation(Session session, UserEntry user) {
         this.session = session;
         this.user = user;
     }
 
-    public User getUser() {
+    public UserEntry getUser() {
         return user;
     }
 
-    public ObservableList<Message> getMessages() {
+    public ObservableList<MessageEntry> getMessages() {
         return messages;
     }
 
@@ -50,7 +50,7 @@ public class Conversation {
             return;
         }
 
-        Message msg = new Message();
+        MessageEntry msg = new MessageEntry();
         msg.setMessage(text);
         msg.setOutgoing(true);
 

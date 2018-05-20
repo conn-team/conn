@@ -5,7 +5,7 @@ import com.github.connteam.conn.client.app.controls.ConversationListCell;
 import com.github.connteam.conn.client.app.controls.MessageListCell;
 import com.github.connteam.conn.client.app.model.Conversation;
 import com.github.connteam.conn.client.app.util.DeepObserver;
-import com.github.connteam.conn.client.database.model.Message;
+import com.github.connteam.conn.client.database.model.MessageEntry;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -28,7 +28,7 @@ public class MainViewController {
     @FXML
     private TextArea submitField;
     @FXML
-    private ListView<Message> messagesView;
+    private ListView<MessageEntry> messagesView;
     @FXML
     private MenuButton mainMenu;
     @FXML

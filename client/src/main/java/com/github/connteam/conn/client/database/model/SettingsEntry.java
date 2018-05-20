@@ -1,5 +1,6 @@
 package com.github.connteam.conn.client.database.model;
 
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 
@@ -11,39 +12,29 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-public class User {
-    private int idUser;
+public class SettingsEntry {
     private String username;
     private byte[] publicKey;
-    private boolean isVerified;
-    private int outSequence;
-    private int inSequence;
-    private boolean isFriend;
+    private byte[] privateKey;
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof User) {
-            User x = (User)obj;
-            return new EqualsBuilder().append(idUser, x.idUser).append(username, x.username)
-                    .append(publicKey, x.publicKey).append(isVerified, x.isVerified).append(outSequence, x.outSequence)
-                    .append(inSequence, x.inSequence).append(isFriend, x.isFriend).isEquals();
+        if (obj instanceof SettingsEntry) {
+            SettingsEntry x = (SettingsEntry) obj;
+            return new EqualsBuilder().append(username, x.username).append(publicKey, x.publicKey)
+                    .append(privateKey, x.privateKey).isEquals();
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(idUser).append(username).append(publicKey).append(isVerified)
-                .append(outSequence).append(inSequence).append(isFriend).toHashCode();
+        return new HashCodeBuilder().append(username).append(publicKey).append(privateKey).toHashCode();
     }
 
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
-    }
-
-    public int getId() {
-        return idUser;
     }
 
     public String getUsername() {
@@ -54,24 +45,8 @@ public class User {
         return publicKey;
     }
 
-    public boolean isVerified() {
-        return isVerified;
-    }
-
-    public int getOutSequence() {
-        return outSequence;
-    }
-
-    public int getInSequence() {
-        return inSequence;
-    }
-
-    public boolean isFriend() {
-        return isFriend;
-    }
-
-    public void setId(int idUser) {
-        this.idUser = idUser;
+    public byte[] getRawPrivateKey() {
+        return privateKey;
     }
 
     public void setUsername(@NotNull String username) {
@@ -88,27 +63,26 @@ public class User {
         this.publicKey = publicKey;
     }
 
-    public void setVerified(boolean isVerified) {
-        this.isVerified = isVerified;
-    }
-
-    public void setOutSequence(int outSequence) {
-        this.outSequence = outSequence;
-    }
-
-    public void setInSequence(int inSequence) {
-        this.inSequence = inSequence;
+    public void setPrivateKey(@NotNull byte[] privateKey) {
+        if (privateKey == null) {
+            throw new NullPointerException();
+        }
+        this.privateKey = privateKey;
     }
 
     public PublicKey getPublicKey() throws InvalidKeySpecException {
         return CryptoUtil.decodePublicKey(getRawPublicKey());
     }
 
+    public PrivateKey getPrivateKey() throws InvalidKeySpecException {
+        return CryptoUtil.decodePrivateKey(getRawPrivateKey());
+    }
+
     public void setPublicKey(@NotNull PublicKey publicKey) {
         setPublicKey(publicKey.getEncoded());
     }
 
-    public void isFriend(boolean isFriend) {
-        this.isFriend = isFriend;
+    public void setPrivateKey(@NotNull PrivateKey privateKey) {
+        setPrivateKey(privateKey.getEncoded());
     }
 }

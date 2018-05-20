@@ -9,12 +9,12 @@ import java.util.Optional;
 
 import javax.validation.constraints.NotNull;
 
-import com.github.connteam.conn.client.database.model.EphemeralKey;
-import com.github.connteam.conn.client.database.model.Message;
-import com.github.connteam.conn.client.database.model.Settings;
+import com.github.connteam.conn.client.database.model.EphemeralKeyEntry;
+import com.github.connteam.conn.client.database.model.MessageEntry;
+import com.github.connteam.conn.client.database.model.SettingsEntry;
 import com.github.connteam.conn.client.database.model.SqliteModelFactory;
-import com.github.connteam.conn.client.database.model.UsedEphemeralKey;
-import com.github.connteam.conn.client.database.model.User;
+import com.github.connteam.conn.client.database.model.UsedEphemeralKeyEntry;
+import com.github.connteam.conn.client.database.model.UserEntry;
 import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.database.DatabaseUtil;
 import com.github.connteam.conn.core.database.SQLQuery;
@@ -39,7 +39,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public List<EphemeralKey> getEphemeralKeys() throws DatabaseException {
+    synchronized public List<EphemeralKeyEntry> getEphemeralKeys() throws DatabaseException {
         try (SQLQuery q = query("SELECT * FROM ephemeral_keys;")) {
             return q.executeQuery(SqliteModelFactory::ephemeralKeyFromResultSet);
         } catch (SQLException e) {
@@ -48,7 +48,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public Optional<EphemeralKey> getEphemeralKeyByPublicKey(@NotNull byte[] publicKey)
+    synchronized public Optional<EphemeralKeyEntry> getEphemeralKeyByPublicKey(@NotNull byte[] publicKey)
             throws DatabaseException {
         if (publicKey == null) {
             throw new NullPointerException();
@@ -62,7 +62,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public Optional<EphemeralKey> getEphemeralKey(int id) throws DatabaseException {
+    synchronized public Optional<EphemeralKeyEntry> getEphemeralKey(int id) throws DatabaseException {
         try (SQLQuery q = query("SELECT * FROM ephemeral_keys WHERE id_key = ?;")) {
             return q.push(id).executeQueryFirst(SqliteModelFactory::ephemeralKeyFromResultSet);
         } catch (SQLException e) {
@@ -71,7 +71,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public int insertEphemeralKey(@NotNull EphemeralKey key) throws DatabaseException {
+    synchronized public int insertEphemeralKey(@NotNull EphemeralKeyEntry key) throws DatabaseException {
         if (key == null) {
             throw new NullPointerException();
         }
@@ -94,7 +94,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public List<Message> getMessageFrom(int idFrom) throws DatabaseException {
+    synchronized public List<MessageEntry> getMessageFrom(int idFrom) throws DatabaseException {
         try (SQLQuery q = query("SELECT * FROM messages WHERE (id_user = ?) AND (is_outgoing = 0);")) {
             return q.push(idFrom).executeQuery(SqliteModelFactory::messageFromResultSet);
         } catch (SQLException e) {
@@ -103,7 +103,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public List<Message> getMessageTo(int idTo) throws DatabaseException {
+    synchronized public List<MessageEntry> getMessageTo(int idTo) throws DatabaseException {
         try (SQLQuery q = query("SELECT * FROM messages WHERE (id_user = ?) AND (is_outgoing = 1);")) {
             return q.push(idTo).executeQuery(SqliteModelFactory::messageFromResultSet);
         } catch (SQLException e) {
@@ -112,7 +112,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public Optional<Message> getMessage(int idMessage) throws DatabaseException {
+    synchronized public Optional<MessageEntry> getMessage(int idMessage) throws DatabaseException {
         try (SQLQuery q = query("SELECT * FROM messages WHERE id_message = ?;")) {
             return q.push(idMessage).executeQueryFirst(SqliteModelFactory::messageFromResultSet);
         } catch (SQLException e) {
@@ -121,7 +121,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public int insertMessage(@NotNull Message message) throws DatabaseException {
+    synchronized public int insertMessage(@NotNull MessageEntry message) throws DatabaseException {
         if (message == null) {
             throw new NullPointerException();
         }
@@ -136,7 +136,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public boolean updateMessage(@NotNull Message message) throws DatabaseException {
+    synchronized public boolean updateMessage(@NotNull MessageEntry message) throws DatabaseException {
         if (message == null) {
             throw new NullPointerException();
         }
@@ -169,7 +169,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public Optional<Settings> getSettings() throws DatabaseException {
+    synchronized public Optional<SettingsEntry> getSettings() throws DatabaseException {
         try (SQLQuery q = query("SELECT * FROM settings;")) {
             return q.executeQueryFirst(SqliteModelFactory::settingsFromResultSet);
         } catch (SQLException e) {
@@ -178,7 +178,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public boolean setSettings(@NotNull Settings settings) throws DatabaseException {
+    synchronized public boolean setSettings(@NotNull SettingsEntry settings) throws DatabaseException {
         if (settings == null) {
             throw new NullPointerException();
         }
@@ -193,7 +193,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public Optional<User> getUser(int id) throws DatabaseException {
+    synchronized public Optional<UserEntry> getUser(int id) throws DatabaseException {
         try (SQLQuery q = query("SELECT * FROM users WHERE id_user = ?;")) {
             return q.push(id).executeQueryFirst(SqliteModelFactory::userFromResultSet);
         } catch (SQLException e) {
@@ -202,7 +202,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public Optional<User> getUserByUsername(@NotNull String username) throws DatabaseException {
+    synchronized public Optional<UserEntry> getUserByUsername(@NotNull String username) throws DatabaseException {
         if (username == null) {
             throw new NullPointerException();
         }
@@ -215,7 +215,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public List<User> getUsers() throws DatabaseException {
+    synchronized public List<UserEntry> getUsers() throws DatabaseException {
         try (SQLQuery q = query("SELECT * FROM users;")) {
             return q.executeQuery(SqliteModelFactory::userFromResultSet);
         } catch (SQLException e) {
@@ -224,7 +224,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public List<User> getVerifiedUsers() throws DatabaseException {
+    synchronized public List<UserEntry> getVerifiedUsers() throws DatabaseException {
         try (SQLQuery q = query("SELECT * FROM users WHERE is_verified = 1;")) {
             return q.executeQuery(SqliteModelFactory::userFromResultSet);
         } catch (SQLException e) {
@@ -233,7 +233,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public List<User> getFriends() throws DatabaseException {
+    synchronized public List<UserEntry> getFriends() throws DatabaseException {
         try (SQLQuery q = query("SELECT * FROM users WHERE is_friend = 1;")) {
             return q.executeQuery(SqliteModelFactory::userFromResultSet);
         } catch (SQLException e) {
@@ -242,7 +242,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    synchronized public int insertUser(@NotNull User user) throws DatabaseException {
+    synchronized public int insertUser(@NotNull UserEntry user) throws DatabaseException {
         if (user == null) {
             throw new NullPointerException();
         }
@@ -306,7 +306,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    public List<UsedEphemeralKey> getUsedEphemeralKeys() throws DatabaseException {
+    public List<UsedEphemeralKeyEntry> getUsedEphemeralKeys() throws DatabaseException {
         try (SQLQuery q = query("SELECT * FROM used_ephemeral_keys;")) {
             return q.executeQuery(SqliteModelFactory::usedEphemeralKeyFromResultSet);
         } catch (SQLException e) {
@@ -315,7 +315,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    public boolean isUsedEphemeralKey(@NotNull UsedEphemeralKey key) throws DatabaseException {
+    public boolean isUsedEphemeralKey(@NotNull UsedEphemeralKeyEntry key) throws DatabaseException {
         if (key == null) {
             throw new NullPointerException();
         }
@@ -328,7 +328,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    public void insertUsedEphemeralKey(@NotNull UsedEphemeralKey key) throws DatabaseException {
+    public void insertUsedEphemeralKey(@NotNull UsedEphemeralKeyEntry key) throws DatabaseException {
         if (key == null) {
             throw new NullPointerException();
         }
@@ -341,7 +341,7 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
-    public boolean deleteUsedEphemeralKey(@NotNull UsedEphemeralKey key) throws DatabaseException {
+    public boolean deleteUsedEphemeralKey(@NotNull UsedEphemeralKeyEntry key) throws DatabaseException {
         if (key == null) {
             throw new NullPointerException();
         }

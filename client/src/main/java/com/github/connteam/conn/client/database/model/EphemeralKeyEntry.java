@@ -12,16 +12,16 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-public class Settings {
-    private String username;
+public class EphemeralKeyEntry {
+    private int idKey;
     private byte[] publicKey;
     private byte[] privateKey;
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Settings) {
-            Settings x = (Settings)obj;
-            return new EqualsBuilder().append(username, x.username).append(publicKey, x.publicKey)
+        if (obj instanceof EphemeralKeyEntry) {
+            EphemeralKeyEntry x = (EphemeralKeyEntry) obj;
+            return new EqualsBuilder().append(idKey, x.idKey).append(publicKey, x.publicKey)
                     .append(privateKey, x.privateKey).isEquals();
         }
         return false;
@@ -29,7 +29,7 @@ public class Settings {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(username).append(publicKey).append(privateKey).toHashCode();
+        return new HashCodeBuilder().append(idKey).append(publicKey).append(privateKey).toHashCode();
     }
 
     @Override
@@ -37,8 +37,8 @@ public class Settings {
         return ToStringBuilder.reflectionToString(this);
     }
 
-    public String getUsername() {
-        return username;
+    public int getId() {
+        return idKey;
     }
 
     public byte[] getRawPublicKey() {
@@ -49,11 +49,8 @@ public class Settings {
         return privateKey;
     }
 
-    public void setUsername(@NotNull String username) {
-        if (username == null) {
-            throw new NullPointerException();
-        }
-        this.username = username;
+    public void setId(int idKey) {
+        this.idKey = idKey;
     }
 
     public void setPublicKey(@NotNull byte[] publicKey) {

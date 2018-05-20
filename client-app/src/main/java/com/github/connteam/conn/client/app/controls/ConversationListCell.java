@@ -7,7 +7,7 @@ import java.util.Date;
 import com.github.connteam.conn.client.app.App;
 import com.github.connteam.conn.client.app.model.Conversation;
 import com.github.connteam.conn.client.app.util.DeepObserver;
-import com.github.connteam.conn.client.database.model.Message;
+import com.github.connteam.conn.client.database.model.MessageEntry;
 
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
@@ -60,13 +60,13 @@ public class ConversationListCell extends ListCell<Conversation> {
             timeField.setText("");
 
             ctx.listen(cur.getMessages(), change -> {
-                ObservableList<? extends Message> list = change.getList();
+                ObservableList<? extends MessageEntry> list = change.getList();
 
                 if (list.isEmpty()) {
                     lastMessageField.setText("");
                     timeField.setText("");
                 } else {
-                    Message msg = list.get(list.size() - 1);
+                    MessageEntry msg = list.get(list.size() - 1);
 
                     String txt = (msg.isOutgoing() ? "Ty: " : "") + msg.getMessage();
                     if (txt.length() >= 15 + 3) {

@@ -6,7 +6,7 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.util.zip.CRC32;
 
-import com.github.connteam.conn.client.database.model.EphemeralKey;
+import com.github.connteam.conn.client.database.model.EphemeralKeyEntry;
 import com.github.connteam.conn.core.crypto.CryptoUtil;
 import com.github.connteam.conn.core.net.NetMessages;
 import com.github.connteam.conn.core.net.proto.PeerProtos.PeerMessage;
@@ -32,9 +32,9 @@ public final class ClientUtil {
         return sign.sign();
     }
 
-    public static EphemeralKey generateEphemeralKey() {
+    public static EphemeralKeyEntry generateEphemeralKey() {
         KeyPair pair = CryptoUtil.generateKeyPair();
-        EphemeralKey key = new EphemeralKey();
+        EphemeralKeyEntry key = new EphemeralKeyEntry();
         key.setPrivateKey(pair.getPrivate());
         key.setPublicKey(pair.getPublic());
         return key;

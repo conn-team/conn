@@ -5,21 +5,21 @@ import java.util.Optional;
 
 import javax.validation.constraints.NotNull;
 
-import com.github.connteam.conn.client.database.model.User;
+import com.github.connteam.conn.client.database.model.UserEntry;
 import com.github.connteam.conn.core.database.DatabaseException;
 
 public interface UserProvider {
-    Optional<User> getUser(int id) throws DatabaseException;
+    Optional<UserEntry> getUser(int id) throws DatabaseException;
 
-    Optional<User> getUserByUsername(@NotNull String username) throws DatabaseException;
+    Optional<UserEntry> getUserByUsername(@NotNull String username) throws DatabaseException;
 
-    List<User> getUsers() throws DatabaseException;
+    List<UserEntry> getUsers() throws DatabaseException;
 
-    List<User> getVerifiedUsers() throws DatabaseException;
+    List<UserEntry> getVerifiedUsers() throws DatabaseException;
 
-    List<User> getFriends() throws DatabaseException;
+    List<UserEntry> getFriends() throws DatabaseException;
 
-    int insertUser(@NotNull User user) throws DatabaseException;
+    int insertUser(@NotNull UserEntry user) throws DatabaseException;
 
     boolean deleteUser(int id) throws DatabaseException;
 

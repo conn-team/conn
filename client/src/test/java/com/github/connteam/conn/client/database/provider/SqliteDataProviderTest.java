@@ -8,10 +8,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import com.github.connteam.conn.client.database.model.EphemeralKey;
-import com.github.connteam.conn.client.database.model.Message;
-import com.github.connteam.conn.client.database.model.Settings;
-import com.github.connteam.conn.client.database.model.User;
+import com.github.connteam.conn.client.database.model.EphemeralKeyEntry;
+import com.github.connteam.conn.client.database.model.MessageEntry;
+import com.github.connteam.conn.client.database.model.SettingsEntry;
+import com.github.connteam.conn.client.database.model.UserEntry;
 import com.github.connteam.conn.client.database.provider.DataProvider;
 import com.github.connteam.conn.client.database.provider.SqliteDataProvider;
 import com.github.connteam.conn.core.database.DatabaseException;
@@ -24,7 +24,7 @@ import org.junit.Test;
 // TODO: better ephemeralKey test
 public class SqliteDataProviderTest {
     private DataProvider dp = null;
-    private User[] users = new User[3];
+    private UserEntry[] users = new UserEntry[3];
 
     @FunctionalInterface
     private static interface DatabaseExecutor {
@@ -48,7 +48,7 @@ public class SqliteDataProviderTest {
         });
 
         for (int i = 0; i < 3; ++i) {
-            User u = new User();
+            UserEntry u = new UserEntry();
             u.setUsername("u" + i);
             u.setInSequence(i);
             u.setOutSequence(i);
@@ -69,15 +69,15 @@ public class SqliteDataProviderTest {
     @Test
     public void ephemeralKeyTest() {
         // insertEphemeralKey
-        EphemeralKey ek = new EphemeralKey();
+        EphemeralKeyEntry ek = new EphemeralKeyEntry();
         ek.setPublicKey(new byte[] { 0 });
         ek.setPrivateKey(new byte[] { 1 });
 
-        EphemeralKey ek2 = new EphemeralKey();
+        EphemeralKeyEntry ek2 = new EphemeralKeyEntry();
         ek2.setPublicKey(new byte[] { 2 });
         ek2.setPrivateKey(new byte[] { 3 });
 
-        EphemeralKey ek3 = new EphemeralKey();
+        EphemeralKeyEntry ek3 = new EphemeralKeyEntry();
         ek3.setPublicKey(new byte[] { 4 });
         ek3.setPrivateKey(new byte[] { 5 });
 
@@ -90,14 +90,14 @@ public class SqliteDataProviderTest {
         /// getEphemeralKeys
         wrapper(() -> {
             Object[] dpEkeys = dp.getEphemeralKeys().stream().map(ekey -> ekey.getId()).sorted().toArray();
-            Object[] localEkeys = Arrays.stream(new EphemeralKey[] { ek, ek2, ek3 }).map(ekey -> ekey.getId()).sorted()
-                    .toArray();
+            Object[] localEkeys = Arrays.stream(new EphemeralKeyEntry[] { ek, ek2, ek3 }).map(ekey -> ekey.getId())
+                    .sorted().toArray();
             assertTrue(Arrays.equals(dpEkeys, localEkeys));
         });
 
         // getEphemeralKey
         wrapper(() -> {
-            EphemeralKey ekCpy = dp.getEphemeralKey(ek.getId()).get();
+            EphemeralKeyEntry ekCpy = dp.getEphemeralKey(ek.getId()).get();
             assertTrue(ekCpy.getId() == ek.getId());
             assertTrue(Arrays.equals(ekCpy.getRawPublicKey(), ek.getRawPublicKey()));
             assertTrue(Arrays.equals(ekCpy.getRawPrivateKey(), ek.getRawPrivateKey()));
@@ -107,15 +107,15 @@ public class SqliteDataProviderTest {
         wrapper(() -> {
             dp.deleteEphemeralKey(ek.getId());
             Object[] dpEkeys2 = dp.getEphemeralKeys().stream().map(ekey -> ekey.getId()).sorted().toArray();
-            Object[] localEkeys2 = Arrays.stream(new EphemeralKey[] { ek2, ek3 }).map(ekey -> ekey.getId()).sorted()
-                    .toArray();
+            Object[] localEkeys2 = Arrays.stream(new EphemeralKeyEntry[] { ek2, ek3 }).map(ekey -> ekey.getId())
+                    .sorted().toArray();
             assertTrue(Arrays.equals(dpEkeys2, localEkeys2));
         });
     }
 
     @Test
     public void messageTest() {
-        Message msgOut = new Message();
+        MessageEntry msgOut = new MessageEntry();
         ArrayList<Integer> msgOutIds = new ArrayList<>();
 
         msgOut.setIdUser(users[0].getId());
@@ -123,7 +123,7 @@ public class SqliteDataProviderTest {
         msgOut.setOutgoing(true);
         msgOut.setTime(new Timestamp(new Date().getTime()));
 
-        Message msgIn = new Message();
+        MessageEntry msgIn = new MessageEntry();
         ArrayList<Integer> msgInIds = new ArrayList<>();
 
         msgIn.setIdUser(users[1].getId());
@@ -141,7 +141,7 @@ public class SqliteDataProviderTest {
 
         // getMessage
         wrapper(() -> {
-            Message msgOut2 = dp.getMessage(msgOutIds.get(0)).get();
+            MessageEntry msgOut2 = dp.getMessage(msgOutIds.get(0)).get();
             assertTrue(msgOut2.getIdMessage() == msgOutIds.get(0));
             assertEquals(msgOut2.getIdUser(), users[0].getId());
             assertEquals(msgOut2.getMessage(), msgOut.getMessage());
@@ -150,32 +150,32 @@ public class SqliteDataProviderTest {
 
         // getMessageFrom
         wrapper(() -> {
-            List<Message> msgsFrom = dp.getMessageFrom(users[0].getId());
+            List<MessageEntry> msgsFrom = dp.getMessageFrom(users[0].getId());
             assertEquals(msgsFrom.size(), 0);
 
-            List<Message> msgsFrom2 = dp.getMessageFrom(users[1].getId());
+            List<MessageEntry> msgsFrom2 = dp.getMessageFrom(users[1].getId());
             assertEquals(msgsFrom2.size(), 10);
         });
 
         // getMessageTo
         wrapper(() -> {
-            List<Message> msgsFrom = dp.getMessageTo(users[0].getId());
+            List<MessageEntry> msgsFrom = dp.getMessageTo(users[0].getId());
             assertEquals(msgsFrom.size(), 10);
 
-            List<Message> msgsFrom2 = dp.getMessageTo(users[1].getId());
+            List<MessageEntry> msgsFrom2 = dp.getMessageTo(users[1].getId());
             assertEquals(msgsFrom2.size(), 0);
         });
 
         // deleteMessagesFrom
         wrapper(() -> {
             dp.deleteMessagesFrom(users[0].getId());
-            List<Message> msgsFrom = dp.getMessageTo(users[0].getId());
+            List<MessageEntry> msgsFrom = dp.getMessageTo(users[0].getId());
             assertEquals(msgsFrom.size(), 10);
         });
 
         wrapper(() -> {
             dp.deleteMessagesFrom(users[1].getId());
-            List<Message> msgsFrom2 = dp.getMessageFrom(users[1].getId());
+            List<MessageEntry> msgsFrom2 = dp.getMessageFrom(users[1].getId());
             assertEquals(msgsFrom2.size(), 0);
         });
 
@@ -188,11 +188,11 @@ public class SqliteDataProviderTest {
         // deleteMessagesTo
         wrapper(() -> {
             dp.deleteMessagesTo(users[1].getId());
-            List<Message> msgsFrom = dp.getMessageFrom(users[1].getId());
+            List<MessageEntry> msgsFrom = dp.getMessageFrom(users[1].getId());
             assertEquals(msgsFrom.size(), 10);
 
             dp.deleteMessagesTo(users[0].getId());
-            List<Message> msgsFrom2 = dp.getMessageFrom(users[0].getId());
+            List<MessageEntry> msgsFrom2 = dp.getMessageFrom(users[0].getId());
             assertEquals(msgsFrom2.size(), 0);
         });
     }
@@ -200,14 +200,14 @@ public class SqliteDataProviderTest {
     @Test
     public void settingsTest() {
         // setSettings, getSettings
-        Settings newSettings = new Settings();
+        SettingsEntry newSettings = new SettingsEntry();
         newSettings.setPrivateKey(new byte[] { 0 });
         newSettings.setPublicKey(new byte[] { 1 });
         newSettings.setUsername("krzys jest madry inaczej");
 
         wrapper(() -> {
             dp.setSettings(newSettings);
-            Settings settings2 = dp.getSettings().get();
+            SettingsEntry settings2 = dp.getSettings().get();
             assertEquals(newSettings.getUsername(), settings2.getUsername());
             assertTrue(Arrays.equals(newSettings.getRawPublicKey(), settings2.getRawPublicKey()));
             assertTrue(Arrays.equals(newSettings.getRawPrivateKey(), settings2.getRawPrivateKey()));
@@ -217,9 +217,9 @@ public class SqliteDataProviderTest {
     @Test
     public void userTest() {
         // getUser
-        User u = users[0];
+        UserEntry u = users[0];
         wrapper(() -> {
-            User u2 = dp.getUser(u.getId()).get();
+            UserEntry u2 = dp.getUser(u.getId()).get();
             assertTrue(u.getId() == u2.getId());
             assertTrue(u.getUsername().equals(u2.getUsername()));
             assertTrue(Arrays.equals(u.getRawPublicKey(), u2.getRawPublicKey()));
@@ -230,7 +230,7 @@ public class SqliteDataProviderTest {
 
         // getUserByUsername
         wrapper(() -> {
-            User u3 = dp.getUserByUsername(u.getUsername()).get();
+            UserEntry u3 = dp.getUserByUsername(u.getUsername()).get();
             assertTrue(u.getId() == u3.getId());
             assertTrue(u.getUsername().equals(u3.getUsername()));
             assertTrue(Arrays.equals(u.getRawPublicKey(), u3.getRawPublicKey()));
@@ -255,7 +255,7 @@ public class SqliteDataProviderTest {
         });
 
         // deleteUser
-        User u4 = new User();
+        UserEntry u4 = new UserEntry();
         wrapper(() -> {
             u4.setUsername("u4");
             u4.setInSequence(4);
@@ -266,13 +266,13 @@ public class SqliteDataProviderTest {
         });
 
         wrapper(() -> {
-            List<User> ul = dp.getUsers();
+            List<UserEntry> ul = dp.getUsers();
             assertTrue(ul.size() == 3);
             assertTrue(ul.stream().filter(usr -> usr.getUsername().equals("u4")).toArray().length == 0);
         });
 
         // deleteUserByUsername
-        User u5 = new User();
+        UserEntry u5 = new UserEntry();
         u5.setUsername("u5");
         u5.setInSequence(5);
         u5.setOutSequence(5);
@@ -281,7 +281,7 @@ public class SqliteDataProviderTest {
 
         wrapper(() -> {
             dp.deleteUser(dp.insertUser(u5));
-            List<User> ul2 = dp.getUsers();
+            List<UserEntry> ul2 = dp.getUsers();
             assertTrue(ul2.size() == 3);
             assertTrue(ul2.stream().filter(usr -> usr.getUsername().equals("u5")).toArray().length == 0);
         });

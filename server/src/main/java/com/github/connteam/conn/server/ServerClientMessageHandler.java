@@ -11,6 +11,7 @@ import com.github.connteam.conn.core.net.proto.NetProtos.EphemeralKeysUpload;
 import com.github.connteam.conn.core.net.proto.NetProtos.KeepAlive;
 import com.github.connteam.conn.core.net.proto.NetProtos.PeerRecv;
 import com.github.connteam.conn.core.net.proto.NetProtos.PeerSend;
+import com.github.connteam.conn.core.net.proto.NetProtos.PeerSendAck;
 import com.github.connteam.conn.core.net.proto.NetProtos.SignedKey;
 import com.github.connteam.conn.core.net.proto.NetProtos.TransmissionRequest;
 import com.github.connteam.conn.core.net.proto.NetProtos.TransmissionResponse;
@@ -139,11 +140,13 @@ public class ServerClientMessageHandler extends MultiEventListener<Message> {
             return;
         }
 
-        ConnServerClient client = getServer().getClientByName(trans.user.getUsername());
+        ConnServerClient other = getServer().getClientByName(trans.user.getUsername());
 
-        if (client == null) {
+        if (other == null) {
             return; // TODO: Offline messaging
         }
+
+        // Send message
 
         PeerRecv.Builder out = PeerRecv.newBuilder();
 
@@ -154,6 +157,12 @@ public class ServerClientMessageHandler extends MultiEventListener<Message> {
         out.setPartialKey2(msg.getPartialKey2());
         out.setSignature(msg.getSignature());
 
-        client.getNetChannel().sendMessage(out.build());
+        other.getNetChannel().sendMessage(out.build());
+
+        // Send acknowledge
+
+        PeerSendAck.Builder ack = PeerSendAck.newBuilder();
+        ack.setTransmissionID(msg.getTransmissionID());
+        getNetChannel().sendMessage(ack.build());
     }
 }

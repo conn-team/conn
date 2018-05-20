@@ -13,6 +13,7 @@ import javax.crypto.SecretKey;
 
 import com.github.connteam.conn.client.ConnClient.Transmission;
 import com.github.connteam.conn.client.database.model.EphemeralKeyEntry;
+import com.github.connteam.conn.client.database.model.UsedEphemeralKeyEntry;
 import com.github.connteam.conn.client.database.model.UserEntry;
 import com.github.connteam.conn.client.database.provider.DataProvider;
 import com.github.connteam.conn.core.crypto.CryptoUtil;
@@ -23,6 +24,7 @@ import com.github.connteam.conn.core.net.NetChannel;
 import com.github.connteam.conn.core.net.proto.NetProtos.EphemeralKeysDemand;
 import com.github.connteam.conn.core.net.proto.NetProtos.EphemeralKeysUpload;
 import com.github.connteam.conn.core.net.proto.NetProtos.PeerRecv;
+import com.github.connteam.conn.core.net.proto.NetProtos.PeerRecvAck;
 import com.github.connteam.conn.core.net.proto.NetProtos.PeerSend;
 import com.github.connteam.conn.core.net.proto.NetProtos.SignedKey;
 import com.github.connteam.conn.core.net.proto.NetProtos.TransmissionResponse;
@@ -134,6 +136,17 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
                 return;
             }
 
+            // Check if key wasn't used before
+
+            UsedEphemeralKeyEntry remoteKeyEntry = new UsedEphemeralKeyEntry(remoteKey);
+
+            if (getDataProvider().isUsedEphemeralKey(remoteKeyEntry)) {
+                LOG.warn("Received already used ephemeral key");
+                return;
+            }
+
+            getDataProvider().insertUsedEphemeralKey(remoteKeyEntry);
+
             // Generate local ECDH part
 
             KeyPair localKey = CryptoUtil.generateKeyPair();
@@ -158,7 +171,7 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
             out.setSignature(ByteString.copyFrom(sign.sign()));
 
             getNetChannel().sendMessage(out.build());
-        } catch (InvalidKeySpecException | InvalidKeyException | SignatureException e) {
+        } catch (InvalidKeySpecException | InvalidKeyException | SignatureException | DatabaseException e) {
             client.close(e);
         }
     }
@@ -208,9 +221,18 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
                     byte[] data = CryptoUtil.decryptSymmetric(sharedKey, encrypted);
                     Message decoded = ClientUtil.decodePeerMessage(data);
 
-                    if (decoded != null) {
-                        onPeerMessage(other, decoded);
+                    if (decoded == null) {
+                        LOG.warn("Failed to decode peer message");
+                        return;
                     }
+
+                    onPeerMessage(other, decoded);
+
+                    // Send acknowledge
+
+                    PeerRecvAck.Builder ack = PeerRecvAck.newBuilder();
+                    ack.setTransmissionID(msg.getTransmissionID());
+                    getNetChannel().sendMessage(ack.build());
                 } catch (SignatureException | InvalidKeyException | InvalidKeySpecException e) {
                     LOG.warn("Invalid peer message", e);
                 } catch (DatabaseException e) {

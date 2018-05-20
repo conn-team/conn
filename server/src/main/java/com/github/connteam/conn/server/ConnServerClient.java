@@ -314,7 +314,7 @@ public class ConnServerClient implements Closeable {
             out.setPartialKey2(msg.getPartialKey2());
             out.setSignature(msg.getSignature());
 
-            channel.sendMessage(out.build());
+            client.getNetChannel().sendMessage(out.build());
         }
 
         @HandleEvent

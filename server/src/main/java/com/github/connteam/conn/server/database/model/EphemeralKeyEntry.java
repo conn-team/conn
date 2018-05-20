@@ -11,7 +11,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-public class EphemeralKey {
+public class EphemeralKeyEntry {
     private int idKey;
     private int idUser;
     private byte[] key;
@@ -19,8 +19,8 @@ public class EphemeralKey {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof EphemeralKey) {
-            EphemeralKey x = (EphemeralKey)obj;
+        if (obj instanceof EphemeralKeyEntry) {
+            EphemeralKeyEntry x = (EphemeralKeyEntry) obj;
             return new EqualsBuilder().append(idKey, x.idKey).append(idUser, x.idUser).append(key, x.key)
                     .append(signature, x.signature).isEquals();
         }

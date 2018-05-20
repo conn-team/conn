@@ -30,8 +30,8 @@ import com.github.connteam.conn.core.net.proto.NetProtos.EphemeralKeysDemand;
 import com.github.connteam.conn.core.net.proto.NetProtos.EphemeralKeysUpload;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserInfo;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserInfoRequest;
-import com.github.connteam.conn.server.database.model.EphemeralKey;
-import com.github.connteam.conn.server.database.model.User;
+import com.github.connteam.conn.server.database.model.EphemeralKeyEntry;
+import com.github.connteam.conn.server.database.model.UserEntry;
 import com.github.connteam.conn.server.database.provider.DataProvider;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
@@ -49,7 +49,7 @@ public class ConnServerClient implements Closeable {
     private final byte[] authPayload = CryptoUtil.randomBytes(64);
 
     private volatile State state = State.CREATED;
-    private volatile User user;
+    private volatile UserEntry user;
     private volatile PublicKey publicKey;
 
     private final Map<Integer, Transmission> transmissions = new ConcurrentHashMap<>();
@@ -60,10 +60,10 @@ public class ConnServerClient implements Closeable {
     }
 
     private static class Transmission {
-        final User user;
+        final UserEntry user;
         final SignedKey partialKey1;
 
-        public Transmission(User user, SignedKey partial) {
+        public Transmission(UserEntry user, SignedKey partial) {
             this.user = user;
             partialKey1 = partial;
         }
@@ -89,7 +89,7 @@ public class ConnServerClient implements Closeable {
         return state == State.ESTABLISHED;
     }
 
-    public User getUser() {
+    public UserEntry getUser() {
         return user;
     }
 
@@ -163,11 +163,11 @@ public class ConnServerClient implements Closeable {
         // Get user from database, if not present - register him
 
         DataProvider db = getDataProvider();
-        User user = db.getUserByUsername(username).orElse(null);
+        UserEntry user = db.getUserByUsername(username).orElse(null);
         AuthStatus.Status mode = AuthStatus.Status.LOGGED_IN;
 
         if (user == null) {
-            user = new User();
+            user = new UserEntry();
             user.setUsername(username);
             user.setPublicKey(receivedPublicKey);
 
@@ -225,7 +225,7 @@ public class ConnServerClient implements Closeable {
             return false;
         }
 
-        EphemeralKey entry = new EphemeralKey();
+        EphemeralKeyEntry entry = new EphemeralKeyEntry();
         entry.setIdUser(user.getIdUser());
         entry.setKey(key.getPublicKey().toByteArray());
         entry.setSignature(key.getSignature().toByteArray());
@@ -258,7 +258,7 @@ public class ConnServerClient implements Closeable {
             }
 
             try {
-                User other = getDataProvider().getUserByUsername(msg.getUsername()).orElse(null);
+                UserEntry other = getDataProvider().getUserByUsername(msg.getUsername()).orElse(null);
 
                 TransmissionResponse.Builder resp = TransmissionResponse.newBuilder();
                 resp.setTransmissionID(msg.getTransmissionID());
@@ -320,7 +320,7 @@ public class ConnServerClient implements Closeable {
         @HandleEvent
         public void onUserInfoRequest(UserInfoRequest msg) {
             String username = msg.getUsername();
-            User user;
+            UserEntry user;
 
             try {
                 user = getDataProvider().getUserByUsername(username).orElse(null);

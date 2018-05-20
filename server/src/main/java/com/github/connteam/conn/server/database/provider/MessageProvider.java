@@ -6,18 +6,18 @@ import java.util.Optional;
 import javax.validation.constraints.NotNull;
 
 import com.github.connteam.conn.core.database.DatabaseException;
-import com.github.connteam.conn.server.database.model.Message;
+import com.github.connteam.conn.server.database.model.MessageEntry;
 
 public interface MessageProvider {
-    Optional<Message> getMessage(int idMessage) throws DatabaseException;
+    Optional<MessageEntry> getMessage(int idMessage) throws DatabaseException;
 
-    List<Message> getMessagesFrom(int idFrom) throws DatabaseException;
+    List<MessageEntry> getMessagesFrom(int idFrom) throws DatabaseException;
 
-    List<Message> getMessagesTo(int idTo) throws DatabaseException;
+    List<MessageEntry> getMessagesTo(int idTo) throws DatabaseException;
 
-    int insertMessage(@NotNull Message message) throws DatabaseException;
+    int insertMessage(@NotNull MessageEntry message) throws DatabaseException;
 
-    boolean updateMessage(@NotNull Message message) throws DatabaseException;
+    boolean updateMessage(@NotNull MessageEntry message) throws DatabaseException;
 
     boolean deleteMessage(int idMessage) throws DatabaseException;
 

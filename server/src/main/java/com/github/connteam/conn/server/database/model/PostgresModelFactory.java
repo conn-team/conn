@@ -4,8 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class PostgresModelFactory {
-    public static EphemeralKey ephemeralKeyFromResultSet(ResultSet rs) throws SQLException {
-        EphemeralKey ephemeralKey = new EphemeralKey();
+    public static EphemeralKeyEntry ephemeralKeyFromResultSet(ResultSet rs) throws SQLException {
+        EphemeralKeyEntry ephemeralKey = new EphemeralKeyEntry();
         ephemeralKey.setIdKey(rs.getInt("id_key"));
         ephemeralKey.setIdUser(rs.getInt("id_user"));
         ephemeralKey.setKey(rs.getBytes("key"));
@@ -13,8 +13,8 @@ public class PostgresModelFactory {
         return ephemeralKey;
     }
 
-    public static Message messageFromResultSet(ResultSet rs) throws SQLException {
-        Message message = new Message();
+    public static MessageEntry messageFromResultSet(ResultSet rs) throws SQLException {
+        MessageEntry message = new MessageEntry();
         message.setIdMessage(rs.getInt("id_message"));
         message.setIdFrom(rs.getInt("id_from"));
         message.setIdTo(rs.getInt("id_to"));
@@ -25,15 +25,15 @@ public class PostgresModelFactory {
         return message;
     }
 
-    public static Observed observedFromResultSet(ResultSet rs) throws SQLException {
-        Observed observed = new Observed();
+    public static ObservedEntry observedFromResultSet(ResultSet rs) throws SQLException {
+        ObservedEntry observed = new ObservedEntry();
         observed.setIdObserved(rs.getInt("id_observed"));
         observed.setIdObserver(rs.getInt("id_observer"));
         return observed;
     }
 
-    public static User userFromResultSet(ResultSet rs) throws SQLException {
-        User user = new User();
+    public static UserEntry userFromResultSet(ResultSet rs) throws SQLException {
+        UserEntry user = new UserEntry();
         user.setIdUser(rs.getInt("id_user"));
         user.setUsername(rs.getString("username"));
         user.setPublicKey(rs.getBytes("public_key"));

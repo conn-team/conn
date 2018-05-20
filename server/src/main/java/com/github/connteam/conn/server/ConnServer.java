@@ -10,7 +10,7 @@ import javax.net.ssl.SSLServerSocketFactory;
 import com.github.connteam.conn.core.net.NetChannel;
 import com.github.connteam.conn.core.net.StandardNetChannel;
 import com.github.connteam.conn.core.net.Transport;
-import com.github.connteam.conn.server.database.model.User;
+import com.github.connteam.conn.server.database.model.UserEntry;
 import com.github.connteam.conn.server.database.provider.DataProvider;
 
 import org.slf4j.Logger;
@@ -94,7 +94,7 @@ public class ConnServer implements Closeable {
     }
 
     public boolean addClient(ConnServerClient client) {
-        User user = client.getUser();
+        UserEntry user = client.getUser();
         if (user != null && clients.putIfAbsent(user.getUsername(), client) == null) {
             NetChannel conn = client.getNetChannel();
             LOG.info("{} connected from {}:{}", user.getUsername(), conn.getAddress().getHostName(), conn.getPort());
@@ -104,7 +104,7 @@ public class ConnServer implements Closeable {
     }
 
     public boolean removeClient(ConnServerClient client, Exception err) {
-        User user = client.getUser();
+        UserEntry user = client.getUser();
         if (user != null && clients.remove(user.getUsername(), client)) {
             NetChannel conn = client.getNetChannel();
             LOG.info("{} disconnected from {}:{}", user.getUsername(), conn.getAddress().getHostName(), conn.getPort(),

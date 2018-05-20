@@ -13,7 +13,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-public class Message {
+public class MessageEntry {
     private int idMessage;
     private int idFrom;
     private int idTo;
@@ -24,8 +24,8 @@ public class Message {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Message) {
-            Message x = (Message)obj;
+        if (obj instanceof MessageEntry) {
+            MessageEntry x = (MessageEntry) obj;
             return new EqualsBuilder().append(idMessage, x.idMessage).append(idFrom, x.idFrom).append(idTo, x.idTo)
                     .append(message, x.message).append(key, x.key).append(signature, x.signature).append(time, x.time)
                     .isEquals();

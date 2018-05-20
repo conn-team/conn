@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.connteam.conn.core.database.DatabaseException;
-import com.github.connteam.conn.server.database.model.EphemeralKey;
-import com.github.connteam.conn.server.database.model.Message;
-import com.github.connteam.conn.server.database.model.Observed;
-import com.github.connteam.conn.server.database.model.User;
+import com.github.connteam.conn.server.database.model.EphemeralKeyEntry;
+import com.github.connteam.conn.server.database.model.MessageEntry;
+import com.github.connteam.conn.server.database.model.ObservedEntry;
+import com.github.connteam.conn.server.database.model.UserEntry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -19,7 +19,7 @@ import org.junit.Test;
 // TODO: expand ephemeralKey test(popEphemeralKey)
 public class PostgresDataProviderTest {
     DataProvider db;
-    List<User> users;
+    List<UserEntry> users;
 
     @Before
     public void initDatabase() throws DatabaseException {
@@ -32,7 +32,7 @@ public class PostgresDataProviderTest {
         users = new ArrayList<>();
 
         for (int i = 0; i < 5; i++) {
-            User user = new User();
+            UserEntry user = new UserEntry();
             user.setPublicKey(("public" + i).getBytes());
             user.setUsername("admin" + i);
             user.setSignupTime(new Timestamp(987 + i * 1024));
@@ -48,13 +48,13 @@ public class PostgresDataProviderTest {
 
     @Test
     public void testEphemeralKeys() throws DatabaseException {
-        List<EphemeralKey> keys = new ArrayList<>();
+        List<EphemeralKeyEntry> keys = new ArrayList<>();
 
         // insertEphemeralKey
 
         for (int i = 0; i < users.size(); i++) {
             for (int j = 0; j <= i; j++) {
-                EphemeralKey key = new EphemeralKey();
+                EphemeralKeyEntry key = new EphemeralKeyEntry();
                 key.setIdUser(i + 1);
                 key.setKey(("key" + j).getBytes());
                 key.setSignature(("sign" + j).getBytes());
@@ -65,14 +65,14 @@ public class PostgresDataProviderTest {
 
         // getEphemeralKey, getEphemeralKeysByUserId
 
-        for (EphemeralKey key : keys) {
+        for (EphemeralKeyEntry key : keys) {
             assertEquals(key, db.getEphemeralKey(key.getIdKey()).get());
             assertTrue(db.getEphemeralKeysByUserId(key.getIdUser()).contains(key));
         }
 
         // countEphemeralKeysByUserId
 
-        for (User user : users) {
+        for (UserEntry user : users) {
             int n = db.countEphemeralKeysByUserId(user.getIdUser());
             assertEquals(keys.stream().filter(x -> x.getIdUser() == user.getIdUser()).count(), n);
         }
@@ -80,7 +80,7 @@ public class PostgresDataProviderTest {
         // updateEphemeralKey
 
         for (int i = 0; i < keys.size(); i++) {
-            EphemeralKey key = keys.get(i);
+            EphemeralKeyEntry key = keys.get(i);
 
             key.setKey(("update key" + i).getBytes());
             key.setSignature(("update sign" + i).getBytes());
@@ -94,7 +94,7 @@ public class PostgresDataProviderTest {
 
         db.deleteEphemeralKeysByUserId(3);
 
-        for (EphemeralKey key : keys) {
+        for (EphemeralKeyEntry key : keys) {
             if (key.getIdUser() == 3) {
                 assertFalse(db.deleteEphemeralKey(key.getIdKey()));
                 assertFalse(db.getEphemeralKey(key.getIdKey()).isPresent());
@@ -103,7 +103,7 @@ public class PostgresDataProviderTest {
 
         // deleteEphemeralKey
 
-        for (EphemeralKey key : keys) {
+        for (EphemeralKeyEntry key : keys) {
             if (key.getIdUser() == 3) {
                 continue;
             }
@@ -115,14 +115,14 @@ public class PostgresDataProviderTest {
 
     @Test
     public void testMessages() throws DatabaseException {
-        List<Message> messages = new ArrayList<>();
+        List<MessageEntry> messages = new ArrayList<>();
 
         // insertMessage
 
         for (int from = 0; from < users.size(); from++) {
             for (int to = 0; to < users.size(); to++) {
                 for (int i = 0; i < to; i++) {
-                    Message msg = new Message();
+                    MessageEntry msg = new MessageEntry();
                     msg.setIdFrom(from + 1);
                     msg.setIdTo(to + 1);
                     msg.setMessage(("msg" + messages.size()).getBytes());
@@ -137,7 +137,7 @@ public class PostgresDataProviderTest {
 
         // getMessage, getMessagesFrom, getMessagesTo
 
-        for (Message msg : messages) {
+        for (MessageEntry msg : messages) {
             assertEquals(msg, db.getMessage(msg.getIdMessage()).get());
             assertTrue(db.getMessagesFrom(msg.getIdFrom()).contains(msg));
             assertTrue(db.getMessagesTo(msg.getIdTo()).contains(msg));
@@ -146,7 +146,7 @@ public class PostgresDataProviderTest {
         // updateMessage
 
         for (int i = 0; i < messages.size(); i++) {
-            Message msg = messages.get(i);
+            MessageEntry msg = messages.get(i);
 
             msg.setMessage(("update msg" + messages.size()).getBytes());
             msg.setKey(("update key" + messages.size()).getBytes());
@@ -162,7 +162,7 @@ public class PostgresDataProviderTest {
 
         db.deleteMessagesFrom(3);
 
-        for (Message msg : messages) {
+        for (MessageEntry msg : messages) {
             if (msg.getIdFrom() == 3) {
                 assertFalse(db.deleteEphemeralKey(msg.getIdMessage()));
                 assertFalse(db.getEphemeralKey(msg.getIdMessage()).isPresent());
@@ -173,7 +173,7 @@ public class PostgresDataProviderTest {
 
         db.deleteMessagesTo(2);
 
-        for (Message msg : messages) {
+        for (MessageEntry msg : messages) {
             if (msg.getIdTo() == 2) {
                 assertFalse(db.deleteEphemeralKey(msg.getIdMessage()));
                 assertFalse(db.getEphemeralKey(msg.getIdMessage()).isPresent());
@@ -182,7 +182,7 @@ public class PostgresDataProviderTest {
 
         // deleteMessage
 
-        for (Message msg : messages) {
+        for (MessageEntry msg : messages) {
             if (msg.getIdFrom() == 3 || msg.getIdTo() == 2) {
                 continue;
             }
@@ -194,14 +194,14 @@ public class PostgresDataProviderTest {
 
     @Test
     public void testObserved() throws DatabaseException {
-        List<Observed> observed = new ArrayList<>();
+        List<ObservedEntry> observed = new ArrayList<>();
 
         // insertObserved
 
         for (int from = 0; from < users.size(); from++) {
             for (int to = 0; to < users.size(); to++) {
                 if (((from + to) % 2) == 0) {
-                    Observed obs = new Observed();
+                    ObservedEntry obs = new ObservedEntry();
                     obs.setIdObserver(from + 1);
                     obs.setIdObserved(to + 1);
                     db.insertObserved(obs);
@@ -221,15 +221,15 @@ public class PostgresDataProviderTest {
         // getObserved, getObservers
 
         for (int i = 0; i < users.size(); i++) {
-            List<Observed> other = db.getObserved(i);
-            for (Observed x : observed) {
+            List<ObservedEntry> other = db.getObserved(i);
+            for (ObservedEntry x : observed) {
                 if (x.getIdObserver() == i) {
                     assertTrue(other.contains(x));
                 }
             }
 
             other = db.getObservers(i);
-            for (Observed x : observed) {
+            for (ObservedEntry x : observed) {
                 if (x.getIdObserved() == i) {
                     assertTrue(other.contains(x));
                 }
@@ -238,7 +238,7 @@ public class PostgresDataProviderTest {
 
         // deleteObserved
 
-        for (Observed obs : observed) {
+        for (ObservedEntry obs : observed) {
             assertTrue(db.deleteObserved(obs));
             assertFalse(db.deleteObserved(obs));
         }
@@ -256,7 +256,7 @@ public class PostgresDataProviderTest {
 
         // getUser, getUserByUsername
 
-        for (User user : users) {
+        for (UserEntry user : users) {
             assertEquals(user, db.getUser(user.getIdUser()).get());
             assertEquals(user, db.getUserByUsername(user.getUsername()).get());
         }
@@ -264,7 +264,7 @@ public class PostgresDataProviderTest {
         // updateUser
 
         for (int i = 0; i < users.size(); i++) {
-            User user = users.get(i);
+            UserEntry user = users.get(i);
 
             user.setPublicKey(("update public" + i).getBytes());
             user.setUsername("update admin" + i);
@@ -278,7 +278,7 @@ public class PostgresDataProviderTest {
         // updateUserByUsername <- is this thing even necessary?
 
         for (int i = 0; i < users.size(); i++) {
-            User user = users.get(i);
+            UserEntry user = users.get(i);
 
             user.setPublicKey(("update2 public" + i).getBytes());
             user.setSignupTime(new Timestamp(789 + i * 90));
@@ -291,7 +291,7 @@ public class PostgresDataProviderTest {
         // deleteUser, deleteUserByUsername
 
         for (int i = 0; i < users.size(); i++) {
-            User user = users.get(i);
+            UserEntry user = users.get(i);
 
             if ((i % 2) == 0) {
                 assertTrue(db.getUserByUsername(user.getUsername()).isPresent());

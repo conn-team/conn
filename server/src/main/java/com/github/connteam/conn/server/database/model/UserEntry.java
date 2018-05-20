@@ -13,7 +13,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-public class User {
+public class UserEntry {
     private int idUser;
     private String username;
     private byte[] publicKey;
@@ -21,10 +21,10 @@ public class User {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof User) {
-            User x = (User)obj;
-            return new EqualsBuilder().append(idUser, x.idUser).append(username, x.username).append(publicKey, x.publicKey)
-                    .append(signupTime, x.signupTime).isEquals();
+        if (obj instanceof UserEntry) {
+            UserEntry x = (UserEntry) obj;
+            return new EqualsBuilder().append(idUser, x.idUser).append(username, x.username)
+                    .append(publicKey, x.publicKey).append(signupTime, x.signupTime).isEquals();
         }
         return false;
     }

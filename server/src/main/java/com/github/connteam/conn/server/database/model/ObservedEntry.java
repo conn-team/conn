@@ -4,14 +4,14 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-public class Observed {
+public class ObservedEntry {
     private int idObserver;
     private int idObserved;
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Observed) {
-            Observed x = (Observed)obj;
+        if (obj instanceof ObservedEntry) {
+            ObservedEntry x = (ObservedEntry) obj;
             return new EqualsBuilder().append(idObserver, x.idObserver).append(idObserved, x.idObserved).isEquals();
         }
         return false;

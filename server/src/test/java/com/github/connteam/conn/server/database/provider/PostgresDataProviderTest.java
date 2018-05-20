@@ -147,7 +147,8 @@ public class PostgresDataProviderTest {
                     msg.setIdFrom(from + 1);
                     msg.setIdTo(to + 1);
                     msg.setMessage(("msg" + messages.size()).getBytes());
-                    msg.setKey(("key" + messages.size()).getBytes());
+                    msg.setPartialKey1(("1key" + messages.size()).getBytes());
+                    msg.setPartialKey2(("2key" + messages.size()).getBytes());
                     msg.setSignature(("sign" + messages.size()).getBytes());
                     msg.setTime(new Timestamp(123 + i * 100));
                     msg.setIdMessage(db.insertMessage(msg));
@@ -170,7 +171,8 @@ public class PostgresDataProviderTest {
             MessageEntry msg = messages.get(i);
 
             msg.setMessage(("update msg" + messages.size()).getBytes());
-            msg.setKey(("update key" + messages.size()).getBytes());
+            msg.setPartialKey1(("update 1key" + messages.size()).getBytes());
+            msg.setPartialKey2(("update 2key" + messages.size()).getBytes());
             msg.setSignature(("update sign" + messages.size()).getBytes());
             msg.setTime(new Timestamp(345 + i * 50));
 

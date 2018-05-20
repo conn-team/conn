@@ -18,7 +18,8 @@ public class MessageEntry {
     private int idFrom;
     private int idTo;
     private byte[] message;
-    private byte[] key;
+    private byte[] partialKey1;
+    private byte[] partialKey2;
     private byte[] signature;
     private Timestamp time = new Timestamp(new Date().getTime());
 
@@ -27,16 +28,16 @@ public class MessageEntry {
         if (obj instanceof MessageEntry) {
             MessageEntry x = (MessageEntry) obj;
             return new EqualsBuilder().append(idMessage, x.idMessage).append(idFrom, x.idFrom).append(idTo, x.idTo)
-                    .append(message, x.message).append(key, x.key).append(signature, x.signature).append(time, x.time)
-                    .isEquals();
+                    .append(message, x.message).append(partialKey1, x.partialKey1).append(partialKey2, x.partialKey2)
+                    .append(signature, x.signature).append(time, x.time).isEquals();
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(idMessage).append(idFrom).append(idTo).append(message).append(key)
-                .append(signature).append(time).toHashCode();
+        return new HashCodeBuilder().append(idMessage).append(idFrom).append(idTo).append(message).append(partialKey1)
+                .append(partialKey2).append(signature).append(time).toHashCode();
     }
 
     @Override
@@ -60,8 +61,12 @@ public class MessageEntry {
         return message;
     }
 
-    public byte[] getRawKey() {
-        return key;
+    public byte[] getRawPartialKey1() {
+        return partialKey1;
+    }
+
+    public byte[] getRawPartialKey2() {
+        return partialKey2;
     }
 
     public byte[] getSignature() {
@@ -98,11 +103,18 @@ public class MessageEntry {
         this.message = message;
     }
 
-    public void setKey(@NotNull byte[] key) {
+    public void setPartialKey1(@NotNull byte[] key) {
         if (key == null) {
             throw new NullPointerException();
         }
-        this.key = key;
+        this.partialKey1 = key;
+    }
+
+    public void setPartialKey2(@NotNull byte[] key) {
+        if (key == null) {
+            throw new NullPointerException();
+        }
+        this.partialKey2 = key;
     }
 
     public void setSignature(@NotNull byte[] signature) {
@@ -112,11 +124,19 @@ public class MessageEntry {
         this.signature = signature;
     }
 
-    public PublicKey getKey() throws InvalidKeySpecException {
-        return CryptoUtil.decodePublicKey(getRawKey());
+    public PublicKey getPartialKey1() throws InvalidKeySpecException {
+        return CryptoUtil.decodePublicKey(getRawPartialKey1());
     }
 
-    public void setKey(@NotNull PublicKey publicKey) {
-        setKey(publicKey.getEncoded());
+    public PublicKey getPartialKey2() throws InvalidKeySpecException {
+        return CryptoUtil.decodePublicKey(getRawPartialKey2());
+    }
+
+    public void setPartialKey1(@NotNull PublicKey publicKey) {
+        setPartialKey1(publicKey.getEncoded());
+    }
+
+    public void setPartialKey2(@NotNull PublicKey publicKey) {
+        setPartialKey2(publicKey.getEncoded());
     }
 }

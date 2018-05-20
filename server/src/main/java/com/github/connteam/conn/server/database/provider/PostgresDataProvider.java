@@ -266,9 +266,9 @@ public class PostgresDataProvider implements DataProvider {
         }
 
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
-                "INSERT INTO messages (id_from, id_to, message, key, signature, time) VALUES (?, ?, ?, ?, ?, ?);")) {
-            return q.push(message.getIdFrom(), message.getIdTo(), message.getMessage(), message.getRawKey(),
-                    message.getSignature(), message.getTime()).executeInsert();
+                "INSERT INTO messages (id_from, id_to, message, partial_key1, partial_key2, signature, time) VALUES (?, ?, ?, ?, ?, ?, ?);")) {
+            return q.push(message.getIdFrom(), message.getIdTo(), message.getMessage(), message.getRawPartialKey1(),
+                    message.getRawPartialKey2(), message.getSignature(), message.getTime()).executeInsert();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -277,9 +277,10 @@ public class PostgresDataProvider implements DataProvider {
     @Override
     public boolean updateMessage(MessageEntry message) throws DatabaseException {
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
-                "UPDATE messages SET id_from = ?, id_to = ?, message = ?, key = ?, signature = ?, time = ? WHERE id_message = ?;")) {
-            return q.push(message.getIdFrom(), message.getIdTo(), message.getMessage(), message.getRawKey(),
-                    message.getSignature(), message.getTime(), message.getIdMessage()).executeUpdate() > 0;
+                "UPDATE messages SET id_from = ?, id_to = ?, message = ?, partial_key1 = ?, partial_key2 = ?, signature = ?, time = ? WHERE id_message = ?;")) {
+            return q.push(message.getIdFrom(), message.getIdTo(), message.getMessage(), message.getRawPartialKey1(),
+                    message.getRawPartialKey2(), message.getSignature(), message.getTime(), message.getIdMessage())
+                    .executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

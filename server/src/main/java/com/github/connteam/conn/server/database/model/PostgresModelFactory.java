@@ -19,7 +19,8 @@ public class PostgresModelFactory {
         message.setIdFrom(rs.getInt("id_from"));
         message.setIdTo(rs.getInt("id_to"));
         message.setMessage(rs.getBytes("message"));
-        message.setKey(rs.getBytes("key"));
+        message.setPartialKey1(rs.getBytes("partial_key1"));
+        message.setPartialKey2(rs.getBytes("partial_key2"));
         message.setSignature(rs.getBytes("signature"));
         message.setTime(rs.getTimestamp("time"));
         return message;

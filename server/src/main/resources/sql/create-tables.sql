@@ -24,8 +24,9 @@ CREATE TABLE IF NOT EXISTS messages (
     id_message SERIAL PRIMARY KEY,
     id_from INT NOT NULL REFERENCES users(id_user),
     id_to INT NOT NULL REFERENCES users(id_user),
-    message bytea NOT NULL,
-    key bytea NOT NULL,
+    message BYTEA NOT NULL,
+    partial_key1 BYTEA NOT NULL,
+    partial_key2 BYTEA NOT NULL,
     signature bytea NOT NULL,
     time TIMESTAMP NOT NULL DEFAULT current_timestamp
 );

@@ -14,6 +14,17 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class UsedEphemeralKeyEntry {
     private byte[] key;
 
+    public UsedEphemeralKeyEntry() {
+    }
+
+    public UsedEphemeralKeyEntry(byte[] key) {
+        setKey(key);
+    }
+
+    public UsedEphemeralKeyEntry(PublicKey key) {
+        setKey(key);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof UsedEphemeralKeyEntry) {
@@ -42,6 +53,10 @@ public class UsedEphemeralKeyEntry {
             throw new NullPointerException();
         }
         this.key = key;
+    }
+
+    public void setKey(@NotNull PublicKey key) {
+        this.key = key.getEncoded();
     }
 
     public PublicKey getKey() throws InvalidKeySpecException {

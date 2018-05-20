@@ -37,9 +37,9 @@ import org.slf4j.LoggerFactory;
 public class ClientMessageHandler extends MultiEventListener<Message> {
     private final static Logger LOG = LoggerFactory.getLogger(ClientMessageHandler.class);
 
-    private ConnClient client;
+    private final ConnClient client;
 
-    public ClientMessageHandler(ConnClient client) {
+    protected ClientMessageHandler(ConnClient client) {
         this.client = client;
     }
 

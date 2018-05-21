@@ -15,6 +15,8 @@ public interface MessageProvider {
 
     List<MessageEntry> getMessagesTo(int idTo) throws DatabaseException;
 
+    List<MessageEntry> getMessagesToSince(int idTo, int minIdMsg) throws DatabaseException;
+
     int insertMessage(@NotNull MessageEntry message) throws DatabaseException;
 
     boolean updateMessage(@NotNull MessageEntry message) throws DatabaseException;

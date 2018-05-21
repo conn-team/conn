@@ -260,6 +260,16 @@ public class PostgresDataProvider implements DataProvider {
     }
 
     @Override
+    public List<MessageEntry> getMessagesToSince(int idTo, int minIdMsg) throws DatabaseException {
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(),
+                "SELECT * FROM messages WHERE id_to = ? AND id_message >= ?;")) {
+            return q.push(idTo).push(minIdMsg).executeQuery(PostgresModelFactory::messageFromResultSet);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
     public int insertMessage(@NotNull MessageEntry message) throws DatabaseException {
         if (message == null) {
             throw new NullPointerException();

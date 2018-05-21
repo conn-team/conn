@@ -22,7 +22,7 @@ import javafx.collections.ObservableList;
 
 public class Session implements AutoCloseable {
     public static final String HOST = "localhost";
-    public static final int PORT = 9090;
+    public static final int PORT = 7312;
     public static final Transport TRANSPORT = Transport.SSL;
 
     private final App app;

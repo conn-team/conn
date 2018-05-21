@@ -85,7 +85,7 @@ public class StandardNetChannelTest {
             System.out.println(tag + " out: " + msg.getClass());
             channel.sendMessage(msg);
         }
-        
+
         public Message recvMessage() throws InterruptedException {
             return incoming.take().msg;
         }
@@ -95,15 +95,15 @@ public class StandardNetChannelTest {
         }
     }
 
-    @Test(timeout=3000)
+    @Test(timeout = 3000)
     public void test() throws UnknownHostException, IOException, InterruptedException {
         final AuthRequest req = AuthRequest.newBuilder().setPayload(ByteString.copyFromUtf8("hello")).build();
         final AuthResponse resp = AuthResponse.newBuilder().setUsername("name")
                 .setSignature(ByteString.copyFromUtf8("signature")).build();
-        
+
         Thread clientThread = new Thread(() -> {
             try {
-                try (SyncNetChan conn = new SyncNetChan("[C]", new Socket(InetAddress.getLocalHost(), 9090),
+                try (SyncNetChan conn = new SyncNetChan("[C]", new Socket(InetAddress.getLocalHost(), 7312),
                         NetMessages.CLIENTBOUND, NetMessages.SERVERBOUND)) {
                     conn.open();
                     assertEquals(req, conn.recvMessage());
@@ -116,11 +116,11 @@ public class StandardNetChannelTest {
             } catch (InterruptedException e) {
                 fail();
             }
-            
+
             System.out.println("[C] finished");
         });
 
-        try (ServerSocket server = new ServerSocket(9090, 1, InetAddress.getLocalHost())) {
+        try (ServerSocket server = new ServerSocket(7312, 1, InetAddress.getLocalHost())) {
             clientThread.start();
 
             try (SyncNetChan conn = new SyncNetChan("[S]", server.accept(), NetMessages.SERVERBOUND,

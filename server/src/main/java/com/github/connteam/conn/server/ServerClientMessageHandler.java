@@ -1,8 +1,13 @@
 package com.github.connteam.conn.server;
 
 import java.net.ProtocolException;
+import java.security.InvalidKeyException;
 import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
 
+import com.github.connteam.conn.core.crypto.CryptoUtil;
 import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.events.HandleEvent;
 import com.github.connteam.conn.core.events.MultiEventListener;
@@ -141,16 +146,38 @@ public class ServerClientMessageHandler extends MultiEventListener<Message> {
             return;
         }
 
+        byte[] encrypted = msg.getEncryptedMessage().toByteArray();
+        byte[] partialKey1 = trans.partialKey1.getPublicKey().toByteArray();
+        byte[] partialKey2 = msg.getPartialKey2().toByteArray();
+        byte[] signature = msg.getSignature().toByteArray();
+
+        // Verify signature
+
+        try {
+            Signature sign = CryptoUtil.newSignature(getUser().getPublicKey());
+            sign.update(encrypted);
+            sign.update(partialKey1);
+            sign.update(partialKey2);
+
+            if (!sign.verify(signature)) {
+                client.close(new ProtocolException("Invalid peer message signature"));
+                return;
+            }
+        } catch (InvalidKeyException | InvalidKeySpecException | SignatureException e) {
+            client.close(e);
+            return;
+        }
+
         // Save message to database
 
         MessageEntry entry = new MessageEntry();
 
         entry.setIdFrom(getUser().getIdUser());
         entry.setIdTo(trans.user.getIdUser());
-        entry.setMessage(msg.getEncryptedMessage().toByteArray());
-        entry.setPartialKey1(trans.partialKey1.getPublicKey().toByteArray());
-        entry.setPartialKey2(msg.getPartialKey2().toByteArray());
-        entry.setSignature(msg.getSignature().toByteArray());
+        entry.setMessage(encrypted);
+        entry.setPartialKey1(partialKey1);
+        entry.setPartialKey2(partialKey2);
+        entry.setSignature(signature);
 
         try {
             entry.setIdMessage(getDataProvider().insertMessage(entry));

@@ -122,11 +122,13 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
 
         try {
             if (trans == null || trans.waitingForAck) {
-                client.close(new ProtocolException("TransmissionResponse received with invalid ID"));
+                err = new ProtocolException("TransmissionResponse received with invalid ID");
+                client.close(err);
                 return;
             }
 
             if (!msg.getSuccess()) {
+                err = new ProtocolException("Prekeys exhausted");
                 return;
             }
 
@@ -134,7 +136,7 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
 
             PublicKey remoteKey = CryptoUtil.verifyEphemeralKey(msg.getPartialKey1(), trans.user.getPublicKey());
             if (remoteKey == null) {
-                LOG.warn("Invalid ephemeral key received");
+                err = new ProtocolException("Invalid ephemeral key received");
                 return;
             }
 
@@ -143,7 +145,7 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
             UsedEphemeralKeyEntry remoteKeyEntry = new UsedEphemeralKeyEntry(remoteKey);
 
             if (getDataProvider().isUsedEphemeralKey(remoteKeyEntry)) {
-                LOG.warn("Received already used ephemeral key");
+                err = new ProtocolException("Received already used ephemeral key");
                 return;
             }
 
@@ -177,8 +179,10 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
             trans.waitingForAck = true;
         } catch (InvalidKeySpecException | InvalidKeyException | SignatureException | DatabaseException e) {
             client.close(e);
+            err = e;
         } finally {
             if (err != null && trans != null) {
+                LOG.warn(err.getMessage());
                 client.getTransmissions().remove(id);
                 trans.callback.accept(err);
             }

@@ -5,6 +5,7 @@ import com.github.connteam.conn.client.database.model.UserEntry;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -54,11 +55,11 @@ public class Conversation {
         msg.setMessage(text);
         msg.setOutgoing(true);
 
-        session.getClient().sendTextMessage(user, text, err -> {
+        session.getClient().sendTextMessage(user, text, err -> Platform.runLater(() -> {
             if (err != null) {
                 session.getApp().reportError(err);
             }
-        });
+        }));
 
         messages.add(msg);
     }

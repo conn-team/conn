@@ -44,6 +44,10 @@ public class Session implements AutoCloseable {
         this.database = db;
     }
 
+    public App getApp() {
+        return app;
+    }
+
     public ConnClient getClient() {
         return client;
     }

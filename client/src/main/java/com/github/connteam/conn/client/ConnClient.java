@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+import com.github.connteam.conn.client.database.model.MessageEntry;
 import com.github.connteam.conn.client.database.model.SettingsEntry;
 import com.github.connteam.conn.client.database.model.UserEntry;
 import com.github.connteam.conn.client.database.provider.DataProvider;
@@ -62,10 +63,13 @@ public class ConnClient implements Closeable {
     protected static class Transmission {
         final UserEntry user;
         final byte[] message;
+        Consumer<Exception> callback;
         boolean waitingForAck = false;
 
-        public Transmission(UserEntry user, byte[] msg) {
+        public Transmission(UserEntry user, byte[] msg, Consumer<Exception> callback) {
             this.user = user;
+            this.callback = (callback != null ? callback : x -> {
+            });
             message = msg;
         }
     }
@@ -265,8 +269,8 @@ public class ConnClient implements Closeable {
         channel.setMessageHandler(this::onAuthStatus);
     }
 
-    private void sendPeerMessage(UserEntry to, Message msg) {
-        Transmission trans = new Transmission(to, ClientUtil.encodePeerMessage(msg));
+    protected void sendPeerMessage(UserEntry to, Message msg, Consumer<Exception> callback) {
+        Transmission trans = new Transmission(to, ClientUtil.encodePeerMessage(msg), callback);
         int id = requestCounter.incrementAndGet();
 
         transmissions.put(id, trans);
@@ -277,8 +281,26 @@ public class ConnClient implements Closeable {
         channel.sendMessage(req.build());
     }
 
-    public void sendTextMessage(UserEntry to, String message) {
-        sendPeerMessage(to, TextMessage.newBuilder().setMessage(message).build());
+    public void sendTextMessage(UserEntry to, String message, Consumer<Exception> callback) {
+        sendPeerMessage(to, TextMessage.newBuilder().setMessage(message).build(), err -> {
+            if (callback != null) {
+                callback.accept(err);
+            }
+
+            if (err == null) {
+                // Save message in archive
+                MessageEntry entry = new MessageEntry();
+                entry.setIdUser(to.getId());
+                entry.setOutgoing(true);
+                entry.setMessage(message);
+
+                try {
+                    database.insertMessage(entry);
+                } catch (DatabaseException e) {
+                    close(e);
+                }
+            }
+        });
     }
 
     public void getUserInfo(String username, Consumer<UserEntry> callback) throws DatabaseException {

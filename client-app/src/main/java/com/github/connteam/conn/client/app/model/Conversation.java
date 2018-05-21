@@ -54,7 +54,12 @@ public class Conversation {
         msg.setMessage(text);
         msg.setOutgoing(true);
 
-        session.getClient().sendTextMessage(user, text);
+        session.getClient().sendTextMessage(user, text, err -> {
+            if (err != null) {
+                session.getApp().reportError(err);
+            }
+        });
+
         messages.add(msg);
     }
 }

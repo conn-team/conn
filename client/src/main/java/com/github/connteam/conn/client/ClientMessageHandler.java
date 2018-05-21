@@ -13,6 +13,7 @@ import javax.crypto.SecretKey;
 
 import com.github.connteam.conn.client.ConnClient.Transmission;
 import com.github.connteam.conn.client.database.model.EphemeralKeyEntry;
+import com.github.connteam.conn.client.database.model.MessageEntry;
 import com.github.connteam.conn.client.database.model.UsedEphemeralKeyEntry;
 import com.github.connteam.conn.client.database.model.UserEntry;
 import com.github.connteam.conn.client.database.provider.DataProvider;
@@ -26,6 +27,7 @@ import com.github.connteam.conn.core.net.proto.NetProtos.EphemeralKeysUpload;
 import com.github.connteam.conn.core.net.proto.NetProtos.PeerRecv;
 import com.github.connteam.conn.core.net.proto.NetProtos.PeerRecvAck;
 import com.github.connteam.conn.core.net.proto.NetProtos.PeerSend;
+import com.github.connteam.conn.core.net.proto.NetProtos.PeerSendAck;
 import com.github.connteam.conn.core.net.proto.NetProtos.SignedKey;
 import com.github.connteam.conn.core.net.proto.NetProtos.TransmissionResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserInfo;
@@ -115,24 +117,24 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
     @HandleEvent
     public void onTransmissionResponse(TransmissionResponse msg) {
         int id = msg.getTransmissionID();
-        Transmission trans = client.getTransmissions().remove(id);
-
-        if (trans == null || trans.waitingForAck) {
-            client.close(new ProtocolException("TransmissionResponse received with invalid ID"));
-            return;
-        }
-
-        if (!msg.getSuccess()) {
-            // transmissions.remove(id);
-            return;
-        }
+        Transmission trans = client.getTransmissions().get(id);
+        Exception err = new ProtocolException("Unknown delivery error");
 
         try {
+            if (trans == null || trans.waitingForAck) {
+                client.close(new ProtocolException("TransmissionResponse received with invalid ID"));
+                return;
+            }
+
+            if (!msg.getSuccess()) {
+                return;
+            }
+
             // Verify prekey signature
 
             PublicKey remoteKey = CryptoUtil.verifyEphemeralKey(msg.getPartialKey1(), trans.user.getPublicKey());
             if (remoteKey == null) {
-                client.close(new ProtocolException("Invalid ephemeral key received"));
+                LOG.warn("Invalid ephemeral key received");
                 return;
             }
 
@@ -171,8 +173,26 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
             out.setSignature(ByteString.copyFrom(sign.sign()));
 
             getNetChannel().sendMessage(out.build());
+            err = null;
+            trans.waitingForAck = true;
         } catch (InvalidKeySpecException | InvalidKeyException | SignatureException | DatabaseException e) {
             client.close(e);
+        } finally {
+            if (err != null && trans != null) {
+                client.getTransmissions().remove(id);
+                trans.callback.accept(err);
+            }
+        }
+    }
+
+    @HandleEvent
+    public void onPeerSendAck(PeerSendAck msg) {
+        Transmission trans = client.getTransmissions().remove(msg.getTransmissionID());
+
+        if (trans == null) {
+            client.close(new ProtocolException("PeerSendAck received with invalid ID"));
+        } else {
+            trans.callback.accept(null);
         }
     }
 
@@ -245,9 +265,24 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
     }
 
     private void onPeerMessage(UserEntry from, Message msg) {
-        if (msg instanceof TextMessage) {
-            TextMessage txt = (TextMessage) msg;
-            getHandler().onTextMessage(from, txt.getMessage());
+        if (!(msg instanceof TextMessage)) {
+            return;
+        }
+
+        TextMessage txt = (TextMessage) msg;
+        getHandler().onTextMessage(from, txt.getMessage());
+
+        // Save message in archive
+
+        MessageEntry entry = new MessageEntry();
+        entry.setIdUser(from.getId());
+        entry.setOutgoing(false);
+        entry.setMessage(txt.getMessage());
+
+        try {
+            getDataProvider().insertMessage(entry);
+        } catch (DatabaseException e) {
+            client.close(e);
         }
     }
 }

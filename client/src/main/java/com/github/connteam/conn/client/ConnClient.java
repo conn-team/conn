@@ -36,12 +36,7 @@ import com.github.connteam.conn.core.net.proto.PeerProtos.TextMessage;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class ConnClient implements Closeable {
-    private final static Logger LOG = LoggerFactory.getLogger(ConnClient.class);
-
     private final NetChannel channel;
     private final DataProvider database;
     private ScheduledExecutorService scheduler;

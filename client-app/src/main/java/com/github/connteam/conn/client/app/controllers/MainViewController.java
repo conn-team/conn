@@ -8,6 +8,7 @@ import com.github.connteam.conn.client.app.util.DeepObserver;
 import com.github.connteam.conn.client.database.model.MessageEntry;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -19,6 +20,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.input.KeyCodeCombination;
 
 public class MainViewController {
     private final App app;
@@ -77,6 +79,12 @@ public class MainViewController {
 
         app.getSessionManager().connectingProperty().addListener((prop, old, cur) -> {
             mainMenu.setText(cur ? "Łączenie..." : "Połączono!");
+        });
+
+        submitField.setOnKeyPressed((event) -> {
+            if (event.getCode() == KeyCode.ENTER && event.isShiftDown()) {
+                submitField.appendText("\n");
+            }
         });
     }
 

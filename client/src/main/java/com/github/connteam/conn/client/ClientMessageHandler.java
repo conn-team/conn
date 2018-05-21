@@ -18,6 +18,7 @@ import com.github.connteam.conn.client.database.model.UsedEphemeralKeyEntry;
 import com.github.connteam.conn.client.database.model.UserEntry;
 import com.github.connteam.conn.client.database.provider.DataProvider;
 import com.github.connteam.conn.core.crypto.CryptoUtil;
+import com.github.connteam.conn.core.crypto.SharedSecretGenerator;
 import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.events.HandleEvent;
 import com.github.connteam.conn.core.events.MultiEventListener;
@@ -154,7 +155,8 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
             // Generate local ECDH part
 
             KeyPair localKey = CryptoUtil.generateKeyPair();
-            SecretKey sharedKey = CryptoUtil.getSharedSecret(localKey.getPrivate(), remoteKey);
+            SecretKey sharedKey = new SharedSecretGenerator().setPublic(remoteKey).setPrivate(localKey.getPrivate())
+                    .add(remoteKey.getEncoded()).add(localKey.getPublic().getEncoded()).build();
 
             // Encrypt and sign message
 
@@ -240,7 +242,8 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
                     // Decrypt and handle message
 
                     PublicKey remoteKey = CryptoUtil.decodePublicKey(partialKey2);
-                    SecretKey sharedKey = CryptoUtil.getSharedSecret(localKey.getPrivateKey(), remoteKey);
+                    SecretKey sharedKey = new SharedSecretGenerator().setPublic(remoteKey)
+                            .setPrivate(localKey.getPrivateKey()).add(partialKey1).add(partialKey2).build();
 
                     byte[] data = CryptoUtil.decryptSymmetric(sharedKey, encrypted);
                     Message decoded = ClientUtil.decodePeerMessage(data);

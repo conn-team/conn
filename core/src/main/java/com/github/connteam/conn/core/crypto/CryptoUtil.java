@@ -4,7 +4,6 @@ import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -14,15 +13,12 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyAgreement;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 import com.github.connteam.conn.core.net.proto.NetProtos.SignedKey;
 
@@ -120,20 +116,6 @@ public final class CryptoUtil {
 
     public static byte[] decryptSymmetric(SecretKey key, byte[] data) throws InvalidKeyException {
         return performCipher(key, data, Cipher.DECRYPT_MODE);
-    }
-
-    public static SecretKey getSharedSecret(PrivateKey privateKey, PublicKey publicKey) throws InvalidKeyException {
-        try {
-            KeyAgreement agreement = KeyAgreement.getInstance(KEYAGREEMENT_ALGORITHM);
-            agreement.init(privateKey);
-            agreement.doPhase(publicKey, true);
-
-            MessageDigest hash = MessageDigest.getInstance(CIPHER_DERIVE_HASH);
-            hash.update(agreement.generateSecret());
-            return new SecretKeySpec(Arrays.copyOf(hash.digest(), 16), CIPHER_ALGORITHM);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public static byte[] randomBytes(int len) {

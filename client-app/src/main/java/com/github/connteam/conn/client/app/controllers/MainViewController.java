@@ -78,6 +78,14 @@ public class MainViewController {
         app.getSessionManager().connectingProperty().addListener((prop, old, cur) -> {
             mainMenu.setText(cur ? "Łączenie..." : "Połączono!");
         });
+
+        submitField.setOnKeyPressed((event) -> {
+            if (event.getCode() == KeyCode.ENTER && event.isShiftDown()) {
+                submitField.deleteText(submitField.getSelection());
+                submitField.insertText(submitField.getSelection().getStart(), "\n");
+                event.consume();
+            }
+        });
     }
 
     @FXML

@@ -292,7 +292,7 @@ public class SqliteDataProviderTest {
             UsedEphemeralKeyEntry usedKey = new UsedEphemeralKeyEntry();
             usedKey.setKey(keys.get(i).getRawPublicKey());
 
-            assertEquals(i < 50, usedKeys.contains(usedKey));
+            assertEquals(i < 50, dp.isUsedEphemeralKey(usedKey));
         }
 
         try {

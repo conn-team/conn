@@ -9,7 +9,7 @@ import com.github.connteam.conn.core.events.MultiEventListener;
 import com.github.connteam.conn.core.net.NetChannel;
 import com.github.connteam.conn.core.net.proto.NetProtos.EphemeralKeysUpload;
 import com.github.connteam.conn.core.net.proto.NetProtos.KeepAlive;
-import com.github.connteam.conn.core.net.proto.NetProtos.PeerRecv;
+import com.github.connteam.conn.core.net.proto.NetProtos.PeerRecvAck;
 import com.github.connteam.conn.core.net.proto.NetProtos.PeerSend;
 import com.github.connteam.conn.core.net.proto.NetProtos.PeerSendAck;
 import com.github.connteam.conn.core.net.proto.NetProtos.SignedKey;
@@ -18,6 +18,7 @@ import com.github.connteam.conn.core.net.proto.NetProtos.TransmissionResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserInfo;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserInfoRequest;
 import com.github.connteam.conn.server.ConnServerClient.Transmission;
+import com.github.connteam.conn.server.database.model.MessageEntry;
 import com.github.connteam.conn.server.database.model.UserEntry;
 import com.github.connteam.conn.server.database.provider.DataProvider;
 import com.google.protobuf.ByteString;
@@ -140,29 +141,52 @@ public class ServerClientMessageHandler extends MultiEventListener<Message> {
             return;
         }
 
-        ConnServerClient other = getServer().getClientByName(trans.user.getUsername());
+        // Save message to database
 
-        if (other == null) {
-            return; // TODO: Offline messaging
+        MessageEntry entry = new MessageEntry();
+
+        entry.setIdFrom(getUser().getIdUser());
+        entry.setIdTo(trans.user.getIdUser());
+        entry.setMessage(msg.getEncryptedMessage().toByteArray());
+        entry.setPartialKey1(trans.partialKey1.getPublicKey().toByteArray());
+        entry.setPartialKey2(msg.getPartialKey2().toByteArray());
+        entry.setSignature(msg.getSignature().toByteArray());
+
+        try {
+            entry.setIdMessage(getDataProvider().insertMessage(entry));
+        } catch (DatabaseException e) {
+            client.close(e);
+            return;
         }
-
-        // Send message
-
-        PeerRecv.Builder out = PeerRecv.newBuilder();
-
-        out.setTransmissionID(0);
-        out.setUsername(getUser().getUsername());
-        out.setEncryptedMessage(msg.getEncryptedMessage());
-        out.setPartialKey1(trans.partialKey1.getPublicKey());
-        out.setPartialKey2(msg.getPartialKey2());
-        out.setSignature(msg.getSignature());
-
-        other.getNetChannel().sendMessage(out.build());
 
         // Send acknowledge
 
         PeerSendAck.Builder ack = PeerSendAck.newBuilder();
         ack.setTransmissionID(msg.getTransmissionID());
         getNetChannel().sendMessage(ack.build());
+
+        // Trigger inbox check
+
+        ConnServerClient other = getServer().getClientByName(trans.user.getUsername());
+
+        if (other != null) {
+            other.checkInbox();
+        }
+    }
+
+    @HandleEvent
+    public void onPeerRecvAck(PeerRecvAck msg) {
+        MessageEntry entry = client.getReceivedMessages().remove(msg.getTransmissionID());
+
+        if (entry == null) {
+            client.close(new ProtocolException("Unexpected transmission ID"));
+            return;
+        }
+
+        try {
+            getDataProvider().deleteMessage(entry.getIdMessage());
+        } catch (DatabaseException e) {
+            client.close(e);
+        }
     }
 }

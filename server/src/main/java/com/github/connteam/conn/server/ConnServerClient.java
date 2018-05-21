@@ -8,6 +8,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.github.connteam.conn.core.Sanitization;
 import com.github.connteam.conn.core.crypto.CryptoUtil;
@@ -20,7 +21,9 @@ import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthStatus;
 import com.github.connteam.conn.core.net.proto.NetProtos.SignedKey;
 import com.github.connteam.conn.core.net.proto.NetProtos.EphemeralKeysDemand;
+import com.github.connteam.conn.core.net.proto.NetProtos.PeerRecv;
 import com.github.connteam.conn.server.database.model.EphemeralKeyEntry;
+import com.github.connteam.conn.server.database.model.MessageEntry;
 import com.github.connteam.conn.server.database.model.UserEntry;
 import com.github.connteam.conn.server.database.provider.DataProvider;
 import com.google.protobuf.ByteString;
@@ -42,8 +45,11 @@ public class ConnServerClient implements Closeable {
     private volatile UserEntry user;
     private volatile PublicKey publicKey;
 
+    private final AtomicInteger requestCounter = new AtomicInteger();
     private final Map<Integer, Transmission> transmissions = new ConcurrentHashMap<>();
+    private final Map<Integer, MessageEntry> receivedMessages = new ConcurrentHashMap<>();
     private int ephemeralKeysCount, requestedEphemeralKeys; // Just estimated
+    private int lastInMessage = -1;
 
     private static enum State {
         CREATED, AUTHENTICATION, ESTABLISHED, CLOSED
@@ -103,6 +109,10 @@ public class ConnServerClient implements Closeable {
         return transmissions;
     }
 
+    protected Map<Integer, MessageEntry> getReceivedMessages() {
+        return receivedMessages;
+    }
+
     public synchronized void handle() {
         if (state != State.CREATED) {
             throw new IllegalStateException("Cannot reuse ConnServerClient");
@@ -139,6 +149,7 @@ public class ConnServerClient implements Closeable {
             close(new AuthenticationException(status));
         } else {
             checkEphemeralKeysCount();
+            checkInbox();
         }
     }
 
@@ -243,5 +254,37 @@ public class ConnServerClient implements Closeable {
         requestedEphemeralKeys--;
         ephemeralKeysCount++;
         return true;
+    }
+
+    public synchronized void checkInbox() {
+        try {
+            for (MessageEntry msg : getDataProvider().getMessagesToSince(user.getIdUser(), lastInMessage)) {
+                receiveMessage(msg);
+
+                if (msg.getIdMessage() > lastInMessage) {
+                    lastInMessage = msg.getIdMessage();
+                }
+            }
+        } catch (DatabaseException e) {
+            close(e);
+        }
+    }
+
+    private void receiveMessage(MessageEntry msg) throws DatabaseException {
+        getDataProvider().getUser(msg.getIdFrom()).ifPresent(from -> {
+            int id = requestCounter.incrementAndGet();
+            receivedMessages.put(id, msg);
+
+            PeerRecv.Builder out = PeerRecv.newBuilder();
+
+            out.setTransmissionID(id);
+            out.setUsername(from.getUsername());
+            out.setEncryptedMessage(ByteString.copyFrom(msg.getMessage()));
+            out.setPartialKey1(ByteString.copyFrom(msg.getRawPartialKey1()));
+            out.setPartialKey2(ByteString.copyFrom(msg.getRawPartialKey2()));
+            out.setSignature(ByteString.copyFrom(msg.getSignature()));
+
+            channel.sendMessage(out.build());
+        });
     }
 }

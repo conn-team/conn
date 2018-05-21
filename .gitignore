@@ -6,3 +6,5 @@ target/
 .classpath
 dependency-reduced-pom.xml
 conn_keystore
+conn_keystore_online
+start-client-online.sh

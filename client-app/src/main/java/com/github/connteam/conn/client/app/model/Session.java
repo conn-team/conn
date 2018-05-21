@@ -21,9 +21,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class Session implements AutoCloseable {
-    public static final String HOST = "localhost";
-    public static final int PORT = 7312;
-    public static final Transport TRANSPORT = Transport.SSL;
+    private static final Transport TRANSPORT = Transport.SSL;
+    private static String host = "localhost";
+    private static int port = 7312;
 
     private final App app;
     private final DataProvider database;
@@ -36,7 +36,15 @@ public class Session implements AutoCloseable {
 
     public static ConnClient createClient(DataProvider db)
             throws IOException, DatabaseException, InvalidKeySpecException {
-        return ConnClient.builder().setHost(HOST).setPort(PORT).setTransport(TRANSPORT).setIdentity(db).build();
+        return ConnClient.builder().setHost(host).setPort(port).setTransport(TRANSPORT).setIdentity(db).build();
+    }
+
+    public static void setHost(String h) {
+        host = h;
+    }
+
+    public static void setPort(int p) {
+        port = p;
     }
 
     public Session(App app, DataProvider db) {

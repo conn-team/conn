@@ -78,14 +78,6 @@ public class MainViewController {
         app.getSessionManager().connectingProperty().addListener((prop, old, cur) -> {
             mainMenu.setText(cur ? "Łączenie..." : "Połączono!");
         });
-
-        submitField.setOnKeyPressed((event) -> {
-            if (event.getCode() == KeyCode.ENTER && event.isShiftDown()) {
-                submitField.deleteText(submitField.getSelection());
-                submitField.insertText(submitField.getSelection().getStart(), "\n");
-                event.consume();
-            }
-        });
     }
 
     @FXML
@@ -106,9 +98,18 @@ public class MainViewController {
 
     @FXML
     void onSubmitFieldKeyPress(KeyEvent event) {
-        if (event.getCode() == KeyCode.ENTER) {
+        switch (event.getCode()) {
+        case ENTER:
+            if (event.isShiftDown()) {
+                insertNewLine();
+            } else {
+                onSubmit();
+            }
             event.consume();
-            onSubmit();
+            break;
+
+        default:
+            break;
         }
     }
 
@@ -117,7 +118,7 @@ public class MainViewController {
         onSubmit();
     }
 
-    void onSubmit() {
+    private void onSubmit() {
         String msg = submitField.getText();
         if (msg == null) {
             return;
@@ -134,5 +135,10 @@ public class MainViewController {
         if (conv != null) {
             conv.sendMessage(msg);
         }
+    }
+
+    private void insertNewLine() {
+        submitField.deleteText(submitField.getSelection());
+        submitField.insertText(submitField.getSelection().getStart(), "\n");
     }
 }

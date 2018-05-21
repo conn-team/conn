@@ -43,5 +43,6 @@ public class MessageListCell extends ListCell<MessageEntry> {
         setGraphic(view);
         pseudoClassStateChanged(OUTGOING_PSEUDOCLASS, elem.isOutgoing());
         messageLabel.setText(elem.getMessage());
+        messageLabel.setWrapText(true);
     }
 }

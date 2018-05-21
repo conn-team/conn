@@ -22,6 +22,11 @@ public class App {
         try (DataProvider provider = new PostgresDataProvider.Builder().setName(DB_NAME).setUser(DB_USER_NAME)
                 .setPassword(DB_PASSWORD).build()) {
 
+            if (args.length > 0 && args[0].equalsIgnoreCase("--drop-tables")) {
+                LOG.info("Dropping tables");
+                provider.dropTables();
+            }
+
             LOG.info("Creating tables");
             provider.createTables();
 

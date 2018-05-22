@@ -2,6 +2,7 @@ package com.github.connteam.conn.client.app.model;
 
 import java.io.IOException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.List;
 import java.util.function.Consumer;
 
 import com.github.connteam.conn.client.ConnClient;
@@ -82,7 +83,23 @@ public class Session implements AutoCloseable {
 
     public void start() {
         app.getSessionManager().setConnecting(true);
-        app.asyncTask(() -> connect());
+
+        app.asyncTask(() -> {
+            try {
+                List<UserEntry> users = database.getUsers();
+                Platform.runLater(() -> {
+                    conversations.clear();
+                    for (UserEntry user : users) {
+                        conversations.add(new Conversation(this, user));
+                    }
+                });
+            } catch (DatabaseException e) {
+                app.reportError(e);
+                return;
+            }
+
+            connect();
+        });
     }
 
     private void connect() {
@@ -136,8 +153,7 @@ public class Session implements AutoCloseable {
         }
 
         for (Conversation conv : conversations) {
-            if (conv.getUser().getUsername().equals(username)) {
-                setCurrentConversation(conv);
+            if (conv.getUser().getUsername().equalsIgnoreCase(username)) {
                 callback.accept(conv);
                 return;
             }
@@ -148,7 +164,6 @@ public class Session implements AutoCloseable {
                 if (info != null) {
                     Conversation conv = new Conversation(this, info);
                     conversations.add(conv);
-                    setCurrentConversation(conv);
                     callback.accept(conv);
                 } else {
                     app.reportError("Nie ma takiego użytkownika!");
@@ -167,17 +182,7 @@ public class Session implements AutoCloseable {
     private class SessionHandler implements ConnClientListener {
         @Override
         public void onLogin(boolean hasBeenRegistered) {
-            Platform.runLater(() -> {
-                app.getSessionManager().setConnecting(false);
-
-                try {
-                    for (UserEntry user : database.getUsers()) {
-                        openConversation(user.getUsername());
-                    }
-                } catch (DatabaseException e) {
-                    app.reportError(e);
-                }
-            });
+            Platform.runLater(() -> app.getSessionManager().setConnecting(false));
         }
 
         @Override

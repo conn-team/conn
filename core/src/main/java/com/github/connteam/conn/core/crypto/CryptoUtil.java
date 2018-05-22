@@ -4,6 +4,7 @@ import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -31,7 +32,7 @@ public final class CryptoUtil {
     public static final String KEYPAIR_ALGORITHM = "EC";
     public static final String KEYAGREEMENT_ALGORITHM = "ECDH";
     public static final String SIGNATURE_ALGORITHM = "SHA512withECDSA";
-    public static final String CIPHER_DERIVE_HASH = "SHA-256";
+    public static final String HASH_ALGORITHM = "SHA-256";
     public static final String CIPHER_ALGORITHM = "AES";
     public static final int KEY_SIZE = 256;
 
@@ -77,6 +78,27 @@ public final class CryptoUtil {
 
     public static KeyPair decodeKeyPair(byte[] publicKey, byte[] privateKey) throws InvalidKeySpecException {
         return new KeyPair(decodePublicKey(publicKey), decodePrivateKey(privateKey));
+    }
+
+    public static String getFingerprint(byte[] data) {
+        try {
+            MessageDigest hash = MessageDigest.getInstance(CryptoUtil.HASH_ALGORITHM);
+            hash.update(data);
+
+            StringBuilder str = new StringBuilder();
+            byte[] digest = hash.digest();
+
+            for (int i = 0; i < 12; i++) {
+                if (str.length() > 0) {
+                    str.append(":");
+                }
+                str.append(String.format("%02X", digest[i]));
+            }
+
+            return str.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static Signature newSignature(PublicKey key) throws InvalidKeyException {

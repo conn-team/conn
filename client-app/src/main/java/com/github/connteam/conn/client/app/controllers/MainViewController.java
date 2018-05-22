@@ -6,6 +6,7 @@ import com.github.connteam.conn.client.app.controls.MessageListCell;
 import com.github.connteam.conn.client.app.model.Conversation;
 import com.github.connteam.conn.client.app.util.DeepObserver;
 import com.github.connteam.conn.client.database.model.MessageEntry;
+import com.github.connteam.conn.core.crypto.CryptoUtil;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -36,6 +37,10 @@ public class MainViewController {
     private VBox welcomeBox;
     @FXML
     private Label welcomeLabel;
+    @FXML
+    private Label conversationUsernameLabel;
+    @FXML
+    private Label conversationFingerprintLabel;
 
     public MainViewController(App app) {
         this.app = app;
@@ -44,6 +49,12 @@ public class MainViewController {
     @FXML
     public void initialize() {
         messagesView.setCellFactory(x -> new MessageListCell());
+
+        conversationUsernameLabel.setText("");
+        conversationFingerprintLabel.setText("");
+
+        welcomeBox.setVisible(true);
+        conversationBox.setVisible(false);
 
         DeepObserver.listen(app.getSessionManager().sessionProperty(), (ctx, old, cur) -> {
             if (cur != null) {
@@ -54,8 +65,13 @@ public class MainViewController {
                     if (curConv != null) {
                         ctxConv.bindBidirectional(submitField.textProperty(), curConv.currentMessageProperty());
                         messagesView.setItems(curConv.getMessages());
+                        conversationUsernameLabel.setText(curConv.getUser().getUsername());
+                        conversationFingerprintLabel
+                                .setText(CryptoUtil.getFingerprint(curConv.getUser().getRawPublicKey()));
                     } else {
                         messagesView.setItems(null);
+                        conversationUsernameLabel.setText("");
+                        conversationFingerprintLabel.setText("");
                     }
 
                     welcomeBox.setVisible(curConv == null);

@@ -100,9 +100,14 @@
     -fx-background-color: #eee;
 }
 
+.friend-fingerprint-label {
+    -fx-padding: 2 0 0 0;
+    -fx-text-fill: rgba(0, 0, 0, 0.7);
+}
+
 .messages-view {
     -fx-background-color: #eee;
-    -fx-border-width: 0 0 1 0;
+    -fx-border-width: 1 0 1 0;
 }
 
 .messages-view .list-cell {

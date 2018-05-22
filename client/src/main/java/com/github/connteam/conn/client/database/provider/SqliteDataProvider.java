@@ -94,6 +94,25 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
+    synchronized public List<MessageEntry> getMessages(int idFrom) throws DatabaseException {
+        try (SQLQuery q = query("SELECT * FROM messages WHERE id_user = ?;")) {
+            return q.push(idFrom).executeQuery(SqliteModelFactory::messageFromResultSet);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
+    synchronized public List<MessageEntry> getMessagesPage(int idFrom, int count, int maxID) throws DatabaseException {
+        try (SQLQuery q = query(
+                "SELECT * FROM messages WHERE id_user = ? AND id_message <= ? ORDER BY id_message DESC LIMIT ?;")) {
+            return q.push(idFrom).push(maxID).push(count).executeQuery(SqliteModelFactory::messageFromResultSet);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
     synchronized public List<MessageEntry> getMessagesFrom(int idFrom) throws DatabaseException {
         try (SQLQuery q = query("SELECT * FROM messages WHERE (id_user = ?) AND (is_outgoing = 0);")) {
             return q.push(idFrom).executeQuery(SqliteModelFactory::messageFromResultSet);

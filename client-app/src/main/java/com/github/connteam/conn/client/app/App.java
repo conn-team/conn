@@ -114,7 +114,7 @@ public class App extends Application {
         }
     }
 
-    public static Parent loadView(String resourceName, Object controller) throws IOException {
+    public static Parent loadView(String resourceName, Object controller, Object root) throws IOException {
         URL resourceUrl = App.class.getClassLoader().getResource(resourceName);
         if (resourceUrl == null) {
             throw new MissingResourceException("Missing view", "", resourceName);
@@ -122,7 +122,14 @@ public class App extends Application {
 
         FXMLLoader loader = new FXMLLoader(resourceUrl);
         loader.setController(controller);
+        if (root != null) {
+            loader.setRoot(root);
+        }
         return loader.load();
+    }
+
+    public static Parent loadView(String resourceName, Object controller) throws IOException {
+        return loadView(resourceName, controller, null);
     }
 
     private void initModel() throws IOException {

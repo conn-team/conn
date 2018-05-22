@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.github.connteam.conn.client.app.controls.ConversationsListView?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Label?>
@@ -37,7 +38,7 @@
                 <MenuItem mnemonicParsing="false" onAction="#onLogout" text="Wyloguj się" />
               </items>
             </MenuButton>
-            <ListView fx:id="friendsListView" prefHeight="200.0" prefWidth="200.0" styleClass="friends-view" GridPane.rowIndex="1" />
+            <ConversationsListView fx:id="friendsListView" styleClass="conversations-list" GridPane.rowIndex="1" />
          </children>
       </GridPane>
       <GridPane fx:id="conversationBox" GridPane.columnIndex="1">

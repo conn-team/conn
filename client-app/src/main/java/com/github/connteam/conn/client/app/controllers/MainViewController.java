@@ -1,7 +1,7 @@
 package com.github.connteam.conn.client.app.controllers;
 
 import com.github.connteam.conn.client.app.App;
-import com.github.connteam.conn.client.app.controls.ConversationListCell;
+import com.github.connteam.conn.client.app.controls.ConversationsListView;
 import com.github.connteam.conn.client.app.controls.MessageListCell;
 import com.github.connteam.conn.client.app.model.Conversation;
 import com.github.connteam.conn.client.app.util.DeepObserver;
@@ -14,7 +14,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -24,7 +23,7 @@ public class MainViewController {
     private final App app;
 
     @FXML
-    private ListView<Conversation> friendsListView;
+    private ConversationsListView friendsListView;
     @FXML
     private TextArea submitField;
     @FXML
@@ -44,16 +43,14 @@ public class MainViewController {
 
     @FXML
     public void initialize() {
-        friendsListView.setCellFactory(x -> new ConversationListCell());
         messagesView.setCellFactory(x -> new MessageListCell());
 
         DeepObserver.listen(app.getSessionManager().sessionProperty(), (ctx, old, cur) -> {
             if (cur != null) {
                 friendsListView.setItems(cur.getConversations());
+                ctx.bindBidirectional(friendsListView.currentItemProperty(), cur.currentConversationProperty());
 
                 ctx.deepListen(cur.currentConversationProperty(), (ctxConv, oldConv, curConv) -> {
-                    friendsListView.getSelectionModel().select(curConv);
-
                     if (curConv != null) {
                         ctxConv.bindBidirectional(submitField.textProperty(), curConv.currentMessageProperty());
                         messagesView.setItems(curConv.getMessages());
@@ -63,12 +60,6 @@ public class MainViewController {
 
                     welcomeBox.setVisible(curConv == null);
                     conversationBox.setVisible(curConv != null);
-                });
-
-                friendsListView.getSelectionModel().selectedItemProperty().addListener((prop, oldElem, curElem) -> {
-                    if (oldElem != curElem) {
-                        cur.setCurrentConversation(curElem);
-                    }
                 });
             } else {
                 friendsListView.setItems(null);

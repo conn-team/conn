@@ -2,7 +2,7 @@
     -fx-background-color: #eee;
 }
 
-.list-view, .text-area {
+.list-view, .text-area, .text-field {
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
     -fx-text-box-border: transparent;
@@ -43,9 +43,15 @@
     -fx-border-color: rgba(0, 0, 0, 0.1);
 }
 
+.conversations-list {
+    -fx-background-color: #dfdfdf;
+    -fx-border-color: rgba(0, 0, 0, 0.1);
+    -fx-border-width: 1 1 0 0;
+}
+
 .friends-view {
     -fx-background-color: #dfdfdf;
-    -fx-border-width: 1 1 0 0;
+    -fx-border-width: 0;
 }
 
 .friends-view .scroll-bar:vertical {
@@ -85,7 +91,7 @@
     -fx-text-fill: rgba(0, 0, 0, 0.7);
 }
 
-.submitField .content {
+.submitField .content, .friends-search {
     -fx-background-color: #eee;
     -fx-border-style: none;
 }

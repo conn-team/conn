@@ -87,6 +87,21 @@ public class Session implements AutoCloseable {
         return currentConversation;
     }
 
+    public void sortConversations() {
+        FXCollections.sort(getConversations(), (l, r) -> {
+            MessageEntry m1 = l.getLastMessage(), m2 = r.getLastMessage();
+
+            if (m1 == null || m2 == null) {
+                if (m1 == null && m2 == null) {
+                    return 0;
+                }
+                return (m1 == null ? 1 : -1);
+            }
+
+            return m2.getTime().compareTo(m1.getTime());
+        });
+    }
+
     public void start() {
         app.getSessionManager().setConnecting(true);
 

@@ -9,6 +9,7 @@ import com.github.connteam.conn.core.database.DatabaseException;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.beans.InvalidationListener;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -30,6 +31,8 @@ public class Conversation {
     private final Property<Runnable> onFetch = new SimpleObjectProperty<>();
 
     public Conversation(Session session, UserEntry user) {
+        messages.addListener((InvalidationListener) x -> session.sortConversations());
+
         this.session = session;
         this.user = user;
         loadMoreMessages();
@@ -65,6 +68,10 @@ public class Conversation {
 
     public Property<Runnable> onFetchProperty() {
         return onFetch;
+    }
+
+    public MessageEntry getLastMessage() {
+        return messages.isEmpty() ? null : messages.get(messages.size() - 1);
     }
 
     @Override

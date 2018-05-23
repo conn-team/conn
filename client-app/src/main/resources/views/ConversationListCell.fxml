@@ -30,6 +30,6 @@
             <Label fx:id="lastMessageField" styleClass="lastMessageLabel" text="Last message" />
          </children>
       </VBox>
-      <Label fx:id="timeField" styleClass="timeLabel" text="10:33" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="363.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="0.0" />
+      <Label fx:id="timeField" styleClass="timeLabel" text="10:33" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="0.0" />
    </children>
 </AnchorPane>

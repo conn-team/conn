@@ -9,7 +9,6 @@ import com.github.connteam.conn.client.database.model.MessageEntry;
 import com.github.connteam.conn.core.crypto.CryptoUtil;
 
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -22,12 +21,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
-<<<<<<< HEAD
-import javafx.scene.input.KeyCodeCombination;
-=======
 import javafx.scene.Node;
 import javafx.scene.text.Text;
->>>>>>> gui
 
 public class MainViewController {
     private final App app;

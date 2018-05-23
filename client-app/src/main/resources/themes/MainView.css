@@ -111,23 +111,19 @@
     -fx-background-color: #d4d4d4;
 }
 
-.friends-view .list-cell:unread {
-    -fx-border-width: 0 0 1 0;
+.friends-view .list-cell:unread .label {
     -fx-font-weight: bold;
 }
 
-.friends-view .list-cell:hover:unread {
-    -fx-background-color: #e8e8e8;
+.friends-view .list-cell:hover:unread .label {
     -fx-font-weight: bold;
 }
 
-.friends-view .list-cell:selected:unread {
-    -fx-background-color: #dddddd;
+.friends-view .list-cell:selected:unread .label {
     -fx-font-weight: bold;
 }
 
-.friends-view .list-cell:pressed:unread {
-    -fx-background-color: #d4d4d4;
+.friends-view .list-cell:pressed:unread .label {
     -fx-font-weight: bold;
 }
 

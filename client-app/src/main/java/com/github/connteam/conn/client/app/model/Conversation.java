@@ -65,8 +65,17 @@ public class Conversation {
                         nextFetchMaxID);
 
                 Platform.runLater(() -> {
-                    messages.addAll(fetched);
-                    nextFetchMaxID = (fetched.isEmpty() ? -1 : fetched.get(fetched.size() - 1).getIdMessage() - 1);
+                    if (fetched.isEmpty()) {
+                        nextFetchMaxID = -1;
+                        return;
+                    }
+
+                    for (MessageEntry msg : fetched) {
+                        messages.add(msg);
+                        nextFetchMaxID = Integer.min(nextFetchMaxID, msg.getIdMessage() - 1);
+                    }
+
+                    FXCollections.sort(messages, (l, r) -> l.getTime().compareTo(r.getTime()));
                 });
             } catch (DatabaseException e) {
                 Platform.runLater(() -> session.getApp().reportError(e));

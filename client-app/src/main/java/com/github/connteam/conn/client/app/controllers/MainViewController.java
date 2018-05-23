@@ -126,11 +126,13 @@ public class MainViewController {
     void onAddFriend(ActionEvent event) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Conn");
-        dialog.setHeaderText("Dodaj znajomego");
+        dialog.setHeaderText("Nowa rozmowa");
         dialog.getDialogPane().setContentText("Nazwa użytkownika:");
         dialog.initOwner(app.getStage().getScene().getWindow());
 
-        dialog.showAndWait().ifPresent(name -> app.getSession().openConversation(name));
+        dialog.showAndWait().ifPresent(name -> app.getSession().openConversation(name, conv -> {
+            app.getSession().setCurrentConversation(conv);
+        }));
     }
 
     @FXML

@@ -3,6 +3,7 @@ package com.github.connteam.conn.client.app.model;
 import java.io.IOException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import com.github.connteam.conn.client.ConnClient;
@@ -15,6 +16,9 @@ import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.io.IOUtils;
 import com.github.connteam.conn.core.net.Transport;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
@@ -22,6 +26,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class Session implements AutoCloseable {
+    private final static Logger LOG = LoggerFactory.getLogger(App.class);
+
     private static final Transport TRANSPORT = Transport.SSL;
     private static String host = "localhost";
     private static int port = 7312;
@@ -120,15 +126,17 @@ public class Session implements AutoCloseable {
     }
 
     private void onConnectionClose(Exception err) {
-        app.getSessionManager().setConnecting(false);
+        app.getSessionManager().setConnecting(!closed);
         client = null;
 
         if (closed) {
             IOUtils.closeQuietly(database);
+        } else {
+            app.asyncTaskLater(this::connect, 3, TimeUnit.SECONDS);
         }
 
         if (err != null) {
-            app.reportError(err);
+            LOG.error("Connection error", err);
         }
     }
 
@@ -148,15 +156,15 @@ public class Session implements AutoCloseable {
     }
 
     public void openConversation(String username, Consumer<Conversation> callback) {
-        if (client == null) {
-            return;
-        }
-
         for (Conversation conv : conversations) {
             if (conv.getUser().getUsername().equalsIgnoreCase(username)) {
                 callback.accept(conv);
                 return;
             }
+        }
+
+        if (client == null) {
+            return;
         }
 
         try {

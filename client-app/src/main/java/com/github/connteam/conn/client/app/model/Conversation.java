@@ -87,15 +87,17 @@ public class Conversation {
     }
 
     public void sendMessage(String text) {
-        if (session.getClient() == null) {
-            return;
-        }
-
         MessageEntry msg = new MessageEntry();
         msg.setIdMessage(SENDING_MESSAGE);
         msg.setIdUser(user.getId());
         msg.setOutgoing(true);
         msg.setMessage(text);
+
+        if (session.getClient() == null) {
+            msg.setIdMessage(SENDING_ERROR);
+            messages.add(msg);
+            return;
+        }
 
         session.getClient().sendTextMessage(user, text, (saved, err) -> Platform.runLater(() -> {
             MessageEntry updated = msg;

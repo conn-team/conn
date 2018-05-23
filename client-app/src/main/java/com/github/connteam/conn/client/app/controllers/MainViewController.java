@@ -58,33 +58,30 @@ public class MainViewController {
 
         DeepObserver.listen(app.getSessionManager().sessionProperty(), (ctx, old, cur) -> {
             if (cur != null) {
-                friendsListView.setItems(cur.getConversations());
+                ctx.set(friendsListView.itemsProperty(), cur.getConversations(), null);
                 ctx.bindBidirectional(friendsListView.currentItemProperty(), cur.currentConversationProperty());
-
-                ctx.deepListen(cur.currentConversationProperty(), (ctxConv, oldConv, curConv) -> {
-                    if (curConv != null) {
-                        ctxConv.bindBidirectional(submitField.textProperty(), curConv.currentMessageProperty());
-                        messagesView.setItems(curConv.getMessages());
-                        conversationUsernameLabel.setText(curConv.getUser().getUsername());
-                        conversationFingerprintLabel
-                                .setText(CryptoUtil.getFingerprint(curConv.getUser().getRawPublicKey()));
-                    } else {
-                        messagesView.setItems(null);
-                        conversationUsernameLabel.setText("");
-                        conversationFingerprintLabel.setText("");
-                    }
-
-                    welcomeBox.setVisible(curConv == null);
-                    conversationBox.setVisible(curConv != null);
-                });
-            } else {
-                friendsListView.setItems(null);
+                ctx.deepListen(cur.currentConversationProperty(), (a, b, c) -> onConversationChange(a, b, c)); // hmm
             }
         });
 
         app.getSessionManager().connectingProperty().addListener((prop, old, cur) -> {
             mainMenu.setText(cur ? "Łączenie..." : "Połączono!");
         });
+    }
+
+    private void onConversationChange(DeepObserver<? extends Conversation>.ObserverContext ctx, Conversation old,
+            Conversation cur) {
+
+        if (cur != null) {
+            ctx.bindBidirectional(submitField.textProperty(), cur.currentMessageProperty());
+            ctx.set(messagesView.itemsProperty(), cur.getMessages(), null);
+            ctx.set(conversationUsernameLabel.textProperty(), cur.getUser().getUsername(), "");
+            ctx.set(conversationFingerprintLabel.textProperty(),
+                    CryptoUtil.getFingerprint(cur.getUser().getRawPublicKey()), "");
+        }
+
+        welcomeBox.setVisible(cur == null);
+        conversationBox.setVisible(cur != null);
     }
 
     @FXML

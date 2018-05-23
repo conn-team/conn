@@ -68,7 +68,7 @@ public class ConversationListCell extends ListCell<Conversation> {
                 } else {
                     MessageEntry msg = list.get(list.size() - 1);
 
-                    String txt = (msg.isOutgoing() ? "Ty: " : "") + msg.getMessage();
+                    String txt = (msg.isOutgoing() ? "Ty: " : "") + msg.getMessage().replace('\n', ' ');
                     if (txt.length() >= 15 + 3) {
                         txt = txt.substring(0, 15) + "...";
                     }

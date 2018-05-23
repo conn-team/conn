@@ -50,22 +50,23 @@
 }
 
 .conversations-list .tab-pane .headers-region {
-  -fx-effect: null;
+    -fx-effect: null;
 }
 
 .conversations-list .tab-pane .tab-header-area .headers-region .tab .tab-container .tab-close-button {
-  -fx-effect: null;
+    -fx-effect: null;
 }
 
 .conversations-list .tab-pane .tab {
-  -fx-background-radius: 0;
-  -fx-background-insets: 0;
-  -fx-background-color: #c9c9c9;
-  -fx-focus-color: transparent;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-background-color: #c9c9c9;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
 }
 
 .conversations-list .tab-pane .tab:selected {
-  -fx-background-color: #f9f9f9;
+    -fx-background-color: #f9f9f9;
 }
 
 .friends-view {

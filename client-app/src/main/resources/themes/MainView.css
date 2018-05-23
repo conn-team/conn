@@ -111,6 +111,26 @@
     -fx-background-color: #d4d4d4;
 }
 
+.friends-view .list-cell:unread {
+    -fx-border-width: 0 0 1 0;
+    -fx-font-weight: bold;
+}
+
+.friends-view .list-cell:hover:unread {
+    -fx-background-color: #e8e8e8;
+    -fx-font-weight: bold;
+}
+
+.friends-view .list-cell:selected:unread {
+    -fx-background-color: #dddddd;
+    -fx-font-weight: bold;
+}
+
+.friends-view .list-cell:pressed:unread {
+    -fx-background-color: #d4d4d4;
+    -fx-font-weight: bold;
+}
+
 .conversationCell .usernameLabel {
     -fx-text-fill: #000;
 }

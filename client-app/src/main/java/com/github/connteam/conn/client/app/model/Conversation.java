@@ -129,7 +129,6 @@ public class Conversation {
             if (err == null) {
                 updated = saved;
             } else {
-                session.getApp().reportError(err);
                 msg.setIdMessage(SENDING_ERROR);
             }
 

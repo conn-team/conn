@@ -127,6 +127,10 @@
     -fx-font-weight: bold;
 }
 
+.friends-view .list-cell:friend .friend-star {
+    -fx-opacity: 1;
+}
+
 .conversationCell .usernameLabel {
     -fx-text-fill: #000;
 }

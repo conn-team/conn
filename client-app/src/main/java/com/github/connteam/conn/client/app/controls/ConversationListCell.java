@@ -14,13 +14,16 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ListCell;
 import javafx.scene.Node;
 
 public class ConversationListCell extends ListCell<Conversation> {
     private final static PseudoClass NONEMPTY_PSEUDOCLASS = PseudoClass.getPseudoClass("nonempty");
     private final static PseudoClass UNREAD_PSEUDOCLASS = PseudoClass.getPseudoClass("unread");
+    private final static PseudoClass FRIEND_PSEUDOCLASS = PseudoClass.getPseudoClass("friend");
 
     private final Node view;
     private final Property<Conversation> conversation = new SimpleObjectProperty<>();
@@ -31,6 +34,9 @@ public class ConversationListCell extends ListCell<Conversation> {
     private Label lastMessageField;
     @FXML
     private Label timeField;
+
+    private ContextMenu menu;
+    private MenuItem toggleFriendMenuItem;
 
     public ConversationListCell() {
         try {
@@ -48,17 +54,35 @@ public class ConversationListCell extends ListCell<Conversation> {
 
     @FXML
     private void initialize() {
+        setPrefWidth(0);
+
+        menu = new ContextMenu();
+        toggleFriendMenuItem = new MenuItem();
+        menu.getItems().add(toggleFriendMenuItem);
+
+        toggleFriendMenuItem.setOnAction(event -> {
+            if (getItem() != null) {
+                getItem().toggleFriend();
+            }
+        });
+
         DeepObserver.listen(conversation, (ctx, old, cur) -> {
             pseudoClassStateChanged(NONEMPTY_PSEUDOCLASS, cur != null);
             if (cur == null) {
                 setGraphic(null);
+                setContextMenu(null);
                 return;
             }
 
             setGraphic(view);
+            setContextMenu(menu);
+
             usernameField.setText(cur.getUser().getUsername());
             lastMessageField.setText("");
             timeField.setText("");
+
+            pseudoClassStateChanged(FRIEND_PSEUDOCLASS, cur.getUser().isFriend());
+            toggleFriendMenuItem.setText(cur.getUser().isFriend() ? "Usuń z ulubionych" : "Dodaj do ulubionych");
 
             ctx.listen(cur.getMessages(), change -> {
                 ObservableList<? extends MessageEntry> list = change.getList();
@@ -83,8 +107,6 @@ public class ConversationListCell extends ListCell<Conversation> {
                 pseudoClassStateChanged(UNREAD_PSEUDOCLASS, curVal != null && curVal);
             });
         });
-
-        setPrefWidth(0);
     }
 
     private String formatTime(Date time) {

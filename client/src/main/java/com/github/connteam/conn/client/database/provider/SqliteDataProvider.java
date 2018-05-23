@@ -286,6 +286,22 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
+    synchronized public boolean updateUser(@NotNull UserEntry user) throws DatabaseException {
+        if (user == null) {
+            throw new NullPointerException();
+        }
+
+        String SQLString = "UPDATE users SET username = ?, public_key = ?, is_verified = ?, out_sequence = ?, in_sequence = ?, is_friend = ? WHERE id_user = ?;";
+        try (SQLQuery q = query(SQLString)) {
+            return q.push(user.getUsername()).push(user.getRawPublicKey()).push(user.isVerified())
+                    .push(user.getOutSequence()).push(user.getInSequence()).push(user.isFriend()).push(user.getId())
+                    .executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
     synchronized public boolean deleteUser(int id) throws DatabaseException {
         try (SQLQuery q = query("DELETE FROM users WHERE id_user = ?;")) {
             return q.push(id).executeUpdate() > 0;

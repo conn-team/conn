@@ -157,4 +157,22 @@ public class Conversation {
 
         messages.add(msg);
     }
+
+    public void toggleFriend() {
+        user.isFriend(!user.isFriend());
+
+        session.getApp().asyncTask(() -> {
+            try {
+                session.getDataProvider().updateUser(user);
+            } catch (DatabaseException e) {
+                Platform.runLater(() -> session.getApp().reportError(e));
+            }
+        });
+
+        if (session.getConversations().remove(this)) {
+            session.getConversations().add(this);
+            session.sortConversations();
+            session.setCurrentConversation(this);
+        }
+    }
 }

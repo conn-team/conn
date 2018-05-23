@@ -21,6 +21,8 @@ public interface UserProvider {
 
     int insertUser(@NotNull UserEntry user) throws DatabaseException;
 
+    boolean updateUser(@NotNull UserEntry message) throws DatabaseException;
+
     boolean deleteUser(int id) throws DatabaseException;
 
     boolean deleteUserByUsername(@NotNull String username) throws DatabaseException;

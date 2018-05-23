@@ -18,7 +18,9 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 public class MainViewController {
     private final App app;
@@ -41,6 +43,8 @@ public class MainViewController {
     private Label conversationUsernameLabel;
     @FXML
     private Label conversationFingerprintLabel;
+    @FXML
+    private RowConstraints submitFieldRow;
 
     public MainViewController(App app) {
         this.app = app;
@@ -66,6 +70,16 @@ public class MainViewController {
 
         app.getSessionManager().connectingProperty().addListener((prop, old, cur) -> {
             mainMenu.setText(cur ? "Łączenie..." : "Połączono!");
+        });
+
+        submitField.textProperty().addListener((prop, old, cur) -> {
+            Text text = new Text();
+            text.setWrappingWidth(submitField.getWidth() - 20);
+            text.setFont(submitField.getFont());
+            text.setText(cur);
+
+            int rows = (int) (text.getLayoutBounds().getHeight() / 15);
+            submitFieldRow.setPrefHeight(Double.max(Double.min(10 + rows * 17, 200), 40));
         });
     }
 

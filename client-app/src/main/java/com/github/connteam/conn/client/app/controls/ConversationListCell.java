@@ -85,6 +85,10 @@ public class ConversationListCell extends ListCell<Conversation> {
             toggleFriendMenuItem.setText(cur.getUser().isFriend() ? "Usuń z ulubionych" : "Dodaj do ulubionych");
 
             ctx.listen(cur.getMessages(), change -> {
+                if (cur != getItem()) {
+                    return; // TODO: temporary fix for weird bug in observing
+                }
+
                 ObservableList<? extends MessageEntry> list = change.getList();
 
                 if (list.isEmpty()) {

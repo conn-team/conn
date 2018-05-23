@@ -9,11 +9,13 @@ import com.github.connteam.conn.core.database.DatabaseException;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class Conversation {
-    private static final int MESSAGES_PER_FETCH = 100;
+    private static final int MESSAGES_PER_FETCH = 50;
     // Special message IDs
     public static final int SENDING_MESSAGE = -1;
     public static final int SENDING_ERROR = -2;
@@ -25,6 +27,7 @@ public class Conversation {
     private final StringProperty currentMessage = new SimpleStringProperty();
 
     private int nextFetchMaxID = Integer.MAX_VALUE;
+    private final Property<Runnable> onFetch = new SimpleObjectProperty<>();
 
     public Conversation(Session session, UserEntry user) {
         this.session = session;
@@ -52,6 +55,18 @@ public class Conversation {
         return currentMessage;
     }
 
+    public Runnable getOnFetch() {
+        return onFetch.getValue();
+    }
+
+    public void setOnFetch(Runnable run) {
+        onFetch.setValue(run);
+    }
+
+    public Property<Runnable> onFetchProperty() {
+        return onFetch;
+    }
+
     @Override
     public String toString() {
         return user.getUsername();
@@ -74,11 +89,13 @@ public class Conversation {
                     }
 
                     for (MessageEntry msg : fetched) {
-                        messages.add(msg);
+                        messages.add(0, msg);
                         nextFetchMaxID = Integer.min(nextFetchMaxID, msg.getIdMessage() - 1);
                     }
 
-                    FXCollections.sort(messages, (l, r) -> l.getTime().compareTo(r.getTime()));
+                    if (onFetch != null && getOnFetch() != null) {
+                        getOnFetch().run();
+                    }
                 });
             } catch (DatabaseException e) {
                 Platform.runLater(() -> session.getApp().reportError(e));

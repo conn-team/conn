@@ -14,6 +14,9 @@ import javafx.beans.property.StringProperty;
 
 public class Conversation {
     private static final int MESSAGES_PER_FETCH = 100;
+    // Special message IDs
+    public static final int SENDING_MESSAGE = -1;
+    public static final int SENDING_ERROR = -2;
 
     private final Session session;
     private final UserEntry user;
@@ -89,12 +92,26 @@ public class Conversation {
         }
 
         MessageEntry msg = new MessageEntry();
-        msg.setMessage(text);
+        msg.setIdMessage(SENDING_MESSAGE);
+        msg.setIdUser(user.getId());
         msg.setOutgoing(true);
+        msg.setMessage(text);
 
-        session.getClient().sendTextMessage(user, text, err -> Platform.runLater(() -> {
-            if (err != null) {
+        session.getClient().sendTextMessage(user, text, (saved, err) -> Platform.runLater(() -> {
+            MessageEntry updated = msg;
+
+            if (err == null) {
+                updated = saved;
+            } else {
                 session.getApp().reportError(err);
+                msg.setIdMessage(SENDING_ERROR);
+            }
+
+            for (int i = messages.size() - 1; i >= 0; i--) {
+                if (messages.get(i) == msg) {
+                    messages.set(i, updated);
+                    break;
+                }
             }
         }));
 

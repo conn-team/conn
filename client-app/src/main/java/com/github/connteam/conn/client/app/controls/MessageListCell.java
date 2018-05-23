@@ -3,6 +3,7 @@ package com.github.connteam.conn.client.app.controls;
 import java.io.IOException;
 
 import com.github.connteam.conn.client.app.App;
+import com.github.connteam.conn.client.app.model.Conversation;
 import com.github.connteam.conn.client.database.model.MessageEntry;
 
 import javafx.css.PseudoClass;
@@ -13,6 +14,8 @@ import javafx.scene.Node;
 
 public class MessageListCell extends ListCell<MessageEntry> {
     private final static PseudoClass OUTGOING_PSEUDOCLASS = PseudoClass.getPseudoClass("outgoing");
+    private final static PseudoClass ERROR_PSEUDO_CLASS = PseudoClass.getPseudoClass("error");
+    private final static PseudoClass SENDING_PSEUDO_CLASS = PseudoClass.getPseudoClass("sending");
 
     private final Node view;
     @FXML
@@ -41,7 +44,11 @@ public class MessageListCell extends ListCell<MessageEntry> {
         }
 
         setGraphic(view);
+
         pseudoClassStateChanged(OUTGOING_PSEUDOCLASS, elem.isOutgoing());
+        pseudoClassStateChanged(ERROR_PSEUDO_CLASS, elem.getIdMessage() == Conversation.SENDING_ERROR);
+        pseudoClassStateChanged(SENDING_PSEUDO_CLASS, elem.getIdMessage() == Conversation.SENDING_MESSAGE);
+
         messageLabel.setText(elem.getMessage());
         messageLabel.setWrapText(true);
     }

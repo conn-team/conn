@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import com.github.connteam.conn.client.database.model.MessageEntry;
@@ -276,24 +277,26 @@ public class ConnClient implements Closeable {
         channel.sendMessage(req.build());
     }
 
-    public void sendTextMessage(UserEntry to, String message, Consumer<Exception> callback) {
+    public void sendTextMessage(UserEntry to, String message, BiConsumer<MessageEntry, Exception> callback) {
         sendPeerMessage(to, TextMessage.newBuilder().setMessage(message).build(), err -> {
-            if (callback != null) {
-                callback.accept(err);
-            }
+            MessageEntry entry = null;
 
             if (err == null) {
                 // Save message in archive
-                MessageEntry entry = new MessageEntry();
+                entry = new MessageEntry();
                 entry.setIdUser(to.getId());
                 entry.setOutgoing(true);
                 entry.setMessage(message);
 
                 try {
-                    database.insertMessage(entry);
+                    entry.setIdMessage(database.insertMessage(entry));
                 } catch (DatabaseException e) {
                     close(e);
                 }
+            }
+
+            if (callback != null) {
+                callback.accept(entry, err);
             }
         });
     }

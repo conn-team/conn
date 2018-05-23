@@ -122,7 +122,7 @@
 
 .message-cell .message-wrap {
     -fx-background-color: #cccccc;
-    -fx-background-radius: 50;
+    -fx-background-radius: 15;
     -fx-alignment: center-left;
 }
 
@@ -137,6 +137,16 @@
 
 .list-cell:outgoing .message-cell .message-label {
     -fx-text-fill: #f0f0f0;
+}
+
+.list-cell:sending, .list-cell:error {
+    -fx-opacity: 0.5;
+}
+
+.list-cell:error .message-cell .message-wrap {
+    -fx-border-color: #FF0000;
+    -fx-border-width: 1;
+    -fx-border-radius: 15;
 }
 
 .sendButton {

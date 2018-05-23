@@ -8,6 +8,7 @@ import com.github.connteam.conn.client.app.model.Conversation;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.beans.property.Property;
@@ -19,6 +20,8 @@ import javafx.collections.transformation.FilteredList;
 public class ConversationsListView extends VBox {
     @FXML
     private TextField conversationsSearch;
+    @FXML
+    private TabPane tabPane;
     @FXML
     private ListView<Conversation> allConversationsListView;
     @FXML
@@ -63,6 +66,7 @@ public class ConversationsListView extends VBox {
 
     @FXML
     public void initialize() {
+        tabPane.tabMinWidthProperty().bind(tabPane.widthProperty().divide(tabPane.getTabs().size()).subtract(22.5));
         allFilter.setValue(x -> true);
 
         allConversationsListView.setCellFactory(x -> new ConversationListCell());

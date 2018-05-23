@@ -20,6 +20,7 @@ import javafx.scene.Node;
 
 public class ConversationListCell extends ListCell<Conversation> {
     private final static PseudoClass NONEMPTY_PSEUDOCLASS = PseudoClass.getPseudoClass("nonempty");
+    private final static PseudoClass UNREAD_PSEUDOCLASS = PseudoClass.getPseudoClass("unread");
 
     private final Node view;
     private final Property<Conversation> conversation = new SimpleObjectProperty<>();
@@ -76,6 +77,10 @@ public class ConversationListCell extends ListCell<Conversation> {
                     lastMessageField.setText(txt);
                     timeField.setText(formatTime(msg.getTime()));
                 }
+            });
+
+            ctx.listen(cur.unreadProperty(), (prop, oldVal, curVal) -> {
+                pseudoClassStateChanged(UNREAD_PSEUDOCLASS, curVal != null && curVal);
             });
         });
 

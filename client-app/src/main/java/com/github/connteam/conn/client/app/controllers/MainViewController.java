@@ -110,6 +110,12 @@ public class MainViewController {
             ctx.set(cur.onFetchProperty(), () -> {
                 messagesView.scrollTo(100);
             }, null);
+
+            ctx.listen(cur.unreadProperty(), (prop, oldVal, curVal) -> {
+                if (curVal != null && curVal) {
+                    cur.setUnread(false);
+                }
+            });
         }
 
         welcomeBox.setVisible(cur == null);

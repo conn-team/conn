@@ -11,6 +11,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.Property;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -26,6 +28,7 @@ public class Conversation {
 
     private final ObservableList<MessageEntry> messages = FXCollections.observableArrayList();
     private final StringProperty currentMessage = new SimpleStringProperty();
+    private final BooleanProperty unread = new SimpleBooleanProperty();
 
     private int nextFetchMaxID = Integer.MAX_VALUE;
     private final Property<Runnable> onFetch = new SimpleObjectProperty<>();
@@ -68,6 +71,18 @@ public class Conversation {
 
     public Property<Runnable> onFetchProperty() {
         return onFetch;
+    }
+
+    public boolean isUnread() {
+        return unread.get();
+    }
+
+    public void setUnread(boolean state) {
+        unread.set(state);
+    }
+
+    public BooleanProperty unreadProperty() {
+        return unread;
     }
 
     public MessageEntry getLastMessage() {

@@ -220,6 +220,7 @@ public class Session implements AutoCloseable {
                 msg.setMessage(message);
                 msg.setOutgoing(false);
                 conv.getMessages().add(msg);
+                conv.setUnread(true);
             }));
         }
     }

@@ -73,6 +73,11 @@ public class DeepObserver<T> {
     }
 
     public class ObserverContext {
+        public <S> void set(Property<S> prop, S value, S defaultValue) {
+            prop.setValue(value);
+            unbinders.add(() -> prop.setValue(defaultValue));
+        }
+
         public <S> void bind(Property<S> left, ObservableValue<? extends S> right) {
             left.bind(right);
             unbinders.add(() -> left.unbind());

@@ -2,7 +2,7 @@
     -fx-background-color: #eee;
 }
 
-.list-view, .text-area {
+.list-view, .text-area, .text-field {
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
     -fx-text-box-border: transparent;
@@ -43,9 +43,43 @@
     -fx-border-color: rgba(0, 0, 0, 0.1);
 }
 
+.conversations-list {
+    -fx-background-color: #dfdfdf;
+    -fx-border-color: rgba(0, 0, 0, 0.1);
+    -fx-border-width: 1 1 0 0;
+}
+
+.conversations-list .tab-pane .headers-region {
+    -fx-effect: null;
+}
+
+.conversations-list .tab-pane .tab-header-area .headers-region .tab .tab-container .tab-close-button {
+    -fx-effect: null;
+}
+
+.conversations-list .tab-pane .tab {
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-background-color: #c9c9c9;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.conversations-list .tab-pane .tab:selected {
+    -fx-background-color: #f9f9f9;
+}
+
+.conversations-list .tab-pane .tab-down-button {
+    -fx-padding: 0;
+}
+
+.conversations-list .tab-pane .tab-down-button .arrow {
+    -fx-padding: 0;
+}
+
 .friends-view {
     -fx-background-color: #dfdfdf;
-    -fx-border-width: 1 1 0 0;
+    -fx-border-width: 0;
 }
 
 .friends-view .scroll-bar:vertical {
@@ -77,6 +111,28 @@
     -fx-background-color: #d4d4d4;
 }
 
+/* fix it later
+
+.friends-view .list-cell:unread .label {
+    -fx-font-weight: bold;
+}
+
+.friends-view .list-cell:hover:unread .label {
+    -fx-font-weight: bold;
+}
+
+.friends-view .list-cell:selected:unread .label {
+    -fx-font-weight: bold;
+}
+
+.friends-view .list-cell:pressed:unread .label {
+    -fx-font-weight: bold;
+} */
+
+.friends-view .list-cell:friend .friend-star {
+    -fx-opacity: 1;
+} 
+
 .conversationCell .usernameLabel {
     -fx-text-fill: #000;
 }
@@ -85,7 +141,7 @@
     -fx-text-fill: rgba(0, 0, 0, 0.7);
 }
 
-.submitField .content {
+.submitField .content, .friends-search {
     -fx-background-color: #eee;
     -fx-border-style: none;
 }
@@ -94,9 +150,14 @@
     -fx-background-color: #eee;
 }
 
+.friend-fingerprint-label {
+    -fx-padding: 2 0 0 0;
+    -fx-text-fill: rgba(0, 0, 0, 0.7);
+}
+
 .messages-view {
     -fx-background-color: #eee;
-    -fx-border-width: 0 0 1 0;
+    -fx-border-width: 1 0 1 0;
 }
 
 .messages-view .list-cell {
@@ -111,7 +172,7 @@
 
 .message-cell .message-wrap {
     -fx-background-color: #cccccc;
-    -fx-background-radius: 50;
+    -fx-background-radius: 15;
     -fx-alignment: center-left;
 }
 
@@ -126,6 +187,16 @@
 
 .list-cell:outgoing .message-cell .message-label {
     -fx-text-fill: #f0f0f0;
+}
+
+.list-cell:sending, .list-cell:error {
+    -fx-opacity: 0.5;
+}
+
+.list-cell:error .message-cell .message-wrap {
+    -fx-border-color: #FF0000;
+    -fx-border-width: 1;
+    -fx-border-radius: 15;
 }
 
 .sendButton {

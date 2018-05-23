@@ -2,6 +2,8 @@ package com.github.connteam.conn.client.app.model;
 
 import java.io.IOException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import com.github.connteam.conn.client.ConnClient;
@@ -14,6 +16,9 @@ import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.io.IOUtils;
 import com.github.connteam.conn.core.net.Transport;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
@@ -21,6 +26,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class Session implements AutoCloseable {
+    private final static Logger LOG = LoggerFactory.getLogger(App.class);
+
     private static final Transport TRANSPORT = Transport.SSL;
     private static String host = "localhost";
     private static int port = 7312;
@@ -80,9 +87,40 @@ public class Session implements AutoCloseable {
         return currentConversation;
     }
 
+    public void sortConversations() {
+        FXCollections.sort(getConversations(), (l, r) -> {
+            MessageEntry m1 = l.getLastMessage(), m2 = r.getLastMessage();
+
+            if (m1 == null || m2 == null) {
+                if (m1 == null && m2 == null) {
+                    return 0;
+                }
+                return (m1 == null ? 1 : -1);
+            }
+
+            return m2.getTime().compareTo(m1.getTime());
+        });
+    }
+
     public void start() {
         app.getSessionManager().setConnecting(true);
-        app.asyncTask(() -> connect());
+
+        app.asyncTask(() -> {
+            try {
+                List<UserEntry> users = database.getUsers();
+                Platform.runLater(() -> {
+                    conversations.clear();
+                    for (UserEntry user : users) {
+                        conversations.add(new Conversation(this, user));
+                    }
+                });
+            } catch (DatabaseException e) {
+                app.reportError(e);
+                return;
+            }
+
+            connect();
+        });
     }
 
     private void connect() {
@@ -103,15 +141,17 @@ public class Session implements AutoCloseable {
     }
 
     private void onConnectionClose(Exception err) {
-        app.getSessionManager().setConnecting(false);
+        app.getSessionManager().setConnecting(!closed);
         client = null;
 
         if (closed) {
             IOUtils.closeQuietly(database);
+        } else {
+            app.asyncTaskLater(this::connect, 3, TimeUnit.SECONDS);
         }
 
         if (err != null) {
-            app.reportError(err);
+            LOG.error("Connection error", err);
         }
     }
 
@@ -131,16 +171,15 @@ public class Session implements AutoCloseable {
     }
 
     public void openConversation(String username, Consumer<Conversation> callback) {
-        if (client == null) {
-            return;
-        }
-
         for (Conversation conv : conversations) {
-            if (conv.getUser().getUsername().equals(username)) {
-                setCurrentConversation(conv);
+            if (conv.getUser().getUsername().equalsIgnoreCase(username)) {
                 callback.accept(conv);
                 return;
             }
+        }
+
+        if (client == null) {
+            return;
         }
 
         try {
@@ -148,7 +187,6 @@ public class Session implements AutoCloseable {
                 if (info != null) {
                     Conversation conv = new Conversation(this, info);
                     conversations.add(conv);
-                    setCurrentConversation(conv);
                     callback.accept(conv);
                 } else {
                     app.reportError("Nie ma takiego użytkownika!");
@@ -167,17 +205,7 @@ public class Session implements AutoCloseable {
     private class SessionHandler implements ConnClientListener {
         @Override
         public void onLogin(boolean hasBeenRegistered) {
-            Platform.runLater(() -> {
-                app.getSessionManager().setConnecting(false);
-
-                try {
-                    for (UserEntry user : database.getUsers()) {
-                        openConversation(user.getUsername());
-                    }
-                } catch (DatabaseException e) {
-                    app.reportError(e);
-                }
-            });
+            Platform.runLater(() -> app.getSessionManager().setConnecting(false));
         }
 
         @Override
@@ -192,6 +220,7 @@ public class Session implements AutoCloseable {
                 msg.setMessage(message);
                 msg.setOutgoing(false);
                 conv.getMessages().add(msg);
+                conv.setUnread(true);
             }));
         }
     }

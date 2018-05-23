@@ -94,6 +94,25 @@ public class SqliteDataProvider implements DataProvider {
     }
 
     @Override
+    synchronized public List<MessageEntry> getMessages(int idFrom) throws DatabaseException {
+        try (SQLQuery q = query("SELECT * FROM messages WHERE id_user = ?;")) {
+            return q.push(idFrom).executeQuery(SqliteModelFactory::messageFromResultSet);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
+    synchronized public List<MessageEntry> getMessagesPage(int idFrom, int count, int maxID) throws DatabaseException {
+        try (SQLQuery q = query(
+                "SELECT * FROM messages WHERE id_user = ? AND id_message <= ? ORDER BY id_message DESC LIMIT ?;")) {
+            return q.push(idFrom).push(maxID).push(count).executeQuery(SqliteModelFactory::messageFromResultSet);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
     synchronized public List<MessageEntry> getMessagesFrom(int idFrom) throws DatabaseException {
         try (SQLQuery q = query("SELECT * FROM messages WHERE (id_user = ?) AND (is_outgoing = 0);")) {
             return q.push(idFrom).executeQuery(SqliteModelFactory::messageFromResultSet);
@@ -261,6 +280,22 @@ public class SqliteDataProvider implements DataProvider {
         try (SQLQuery q = query(SQLString)) {
             return q.push(user.getUsername(), user.getRawPublicKey(), user.isVerified(), user.getOutSequence(),
                     user.getInSequence(), user.isFriend()).executeInsert();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
+    synchronized public boolean updateUser(@NotNull UserEntry user) throws DatabaseException {
+        if (user == null) {
+            throw new NullPointerException();
+        }
+
+        String SQLString = "UPDATE users SET username = ?, public_key = ?, is_verified = ?, out_sequence = ?, in_sequence = ?, is_friend = ? WHERE id_user = ?;";
+        try (SQLQuery q = query(SQLString)) {
+            return q.push(user.getUsername()).push(user.getRawPublicKey()).push(user.isVerified())
+                    .push(user.getOutSequence()).push(user.getInSequence()).push(user.isFriend()).push(user.getId())
+                    .executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

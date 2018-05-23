@@ -9,6 +9,10 @@ import com.github.connteam.conn.client.database.model.MessageEntry;
 import com.github.connteam.conn.core.database.DatabaseException;
 
 public interface MessageProvider {
+    List<MessageEntry> getMessages(int idFrom) throws DatabaseException;
+
+    List<MessageEntry> getMessagesPage(int idFrom, int count, int maxID) throws DatabaseException;
+
     List<MessageEntry> getMessagesFrom(int idFrom) throws DatabaseException;
 
     List<MessageEntry> getMessagesTo(int idFrom) throws DatabaseException;

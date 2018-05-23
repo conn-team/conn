@@ -41,7 +41,7 @@ public class SharedSecretGenerator {
             agreement.init(privateKey);
             agreement.doPhase(publicKey, true);
 
-            MessageDigest hash = MessageDigest.getInstance(CryptoUtil.CIPHER_DERIVE_HASH);
+            MessageDigest hash = MessageDigest.getInstance(CryptoUtil.HASH_ALGORITHM);
             hash.update(agreement.generateSecret());
 
             elems.sort(new ByteArrayComparator());

@@ -50,6 +50,5 @@ public class MessageListCell extends ListCell<MessageEntry> {
         pseudoClassStateChanged(SENDING_PSEUDO_CLASS, elem.getIdMessage() == Conversation.SENDING_MESSAGE);
 
         messageLabel.setText(elem.getMessage());
-        messageLabel.setWrapText(true);
     }
 }

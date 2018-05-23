@@ -18,7 +18,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
@@ -192,7 +191,9 @@ public class MainViewController {
 
                 scrollBar.valueProperty().addListener((prop, old, cur) -> {
                     if ((double) cur < 0.01) {
-                        app.getSession().getCurrentConversation().loadMoreMessages();
+                        if (app.getSession() != null && app.getSession().getCurrentConversation() != null) {
+                            app.getSession().getCurrentConversation().loadMoreMessages();
+                        }
                     }
                 });
 

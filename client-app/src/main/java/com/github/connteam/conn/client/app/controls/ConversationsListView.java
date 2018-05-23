@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 
 import com.github.connteam.conn.client.app.App;
 import com.github.connteam.conn.client.app.model.Conversation;
+import com.github.connteam.conn.client.database.model.UserEntry;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
@@ -13,7 +14,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 
@@ -23,14 +23,12 @@ public class ConversationsListView extends VBox {
     @FXML
     private TabPane tabPane;
     @FXML
-    private ListView<Conversation> allConversationsListView;
-    @FXML
-    private ListView<Conversation> friendsListView;
+    private ListView<Conversation> conversationsListView;
 
     private final Property<ObservableList<Conversation>> conversations = new SimpleObjectProperty<>();
     private final Property<Conversation> currentConversation = new SimpleObjectProperty<>();
 
-    private final Property<Predicate<Conversation>> allFilter = new SimpleObjectProperty<>();
+    private final Property<Predicate<Conversation>> filter = new SimpleObjectProperty<>();
 
     public ConversationsListView() {
         try {
@@ -67,45 +65,46 @@ public class ConversationsListView extends VBox {
     @FXML
     public void initialize() {
         tabPane.tabMinWidthProperty().bind(tabPane.widthProperty().divide(tabPane.getTabs().size()).subtract(20));
-        allFilter.setValue(x -> true);
+        filter.setValue(x -> true);
 
-        allConversationsListView.setCellFactory(x -> new ConversationListCell());
-        friendsListView.setCellFactory(x -> new ConversationListCell());
+        conversationsListView.setCellFactory(x -> new ConversationListCell());
 
         conversations.addListener((prop, old, cur) -> {
             if (cur != null) {
                 FilteredList<Conversation> all = new FilteredList<Conversation>(cur);
-                all.predicateProperty().bind(allFilter);
+                all.predicateProperty().bind(filter);
 
-                allConversationsListView.setItems(all);
-                friendsListView.setItems(new FilteredList<Conversation>(all, x -> x.getUser().isFriend()));
+                conversationsListView.setItems(all);
             } else {
-                allConversationsListView.setItems(null);
-                friendsListView.setItems(null);
+                conversationsListView.setItems(null);
             }
         });
 
         currentConversation.addListener((prop, old, cur) -> {
-            allConversationsListView.getSelectionModel().select(cur);
-            friendsListView.getSelectionModel().select(cur);
+            conversationsListView.getSelectionModel().select(cur);
         });
 
-        ChangeListener<Conversation> selectedListener = (prop, old, cur) -> {
+        conversationsListView.getSelectionModel().selectedItemProperty().addListener((prop, old, cur) -> {
             if (old != cur) {
                 if (cur != null) {
                     setCurrentItem(cur);
                 } else {
-                    allConversationsListView.getSelectionModel().select(old);
-                    friendsListView.getSelectionModel().select(old);
+                    conversationsListView.getSelectionModel().select(old);
                 }
             }
-        };
+        });
 
-        allConversationsListView.getSelectionModel().selectedItemProperty().addListener(selectedListener);
-        friendsListView.getSelectionModel().selectedItemProperty().addListener(selectedListener);
+        conversationsSearch.textProperty().addListener((prop, old, cur) -> updateFilter());
+        tabPane.getSelectionModel().selectedItemProperty().addListener((prop, old, cur) -> updateFilter());
+    }
 
-        conversationsSearch.textProperty().addListener((prop, old, cur) -> {
-            allFilter.setValue(conv -> conv.getUser().getUsername().toLowerCase().contains(cur.toLowerCase()));
+    private void updateFilter() {
+        String pattern = conversationsSearch.getText();
+        boolean checkFriend = (tabPane.getSelectionModel().getSelectedIndex() == 1); // meh
+
+        filter.setValue(conv -> {
+            UserEntry user = conv.getUser();
+            return user.getUsername().toLowerCase().contains(pattern) && (!checkFriend || user.isFriend());
         });
     }
 }

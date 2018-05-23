@@ -78,6 +78,8 @@ public class MainViewController {
             ctx.set(conversationUsernameLabel.textProperty(), cur.getUser().getUsername(), "");
             ctx.set(conversationFingerprintLabel.textProperty(),
                     CryptoUtil.getFingerprint(cur.getUser().getRawPublicKey()), "");
+
+            ctx.listen(cur.getMessages(), x -> messagesView.scrollTo(Integer.MAX_VALUE));
         }
 
         welcomeBox.setVisible(cur == null);

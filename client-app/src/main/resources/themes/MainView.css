@@ -69,6 +69,14 @@
     -fx-background-color: #f9f9f9;
 }
 
+.conversations-list .tab-pane .tab-down-button {
+    -fx-padding: 0;
+}
+
+.conversations-list .tab-pane .tab-down-button .arrow {
+    -fx-padding: 0;
+}
+
 .friends-view {
     -fx-background-color: #dfdfdf;
     -fx-border-width: 0;

@@ -66,7 +66,7 @@ public class ConversationsListView extends VBox {
 
     @FXML
     public void initialize() {
-        tabPane.tabMinWidthProperty().bind(tabPane.widthProperty().divide(tabPane.getTabs().size()).subtract(22.5));
+        tabPane.tabMinWidthProperty().bind(tabPane.widthProperty().divide(tabPane.getTabs().size()).subtract(20));
         allFilter.setValue(x -> true);
 
         allConversationsListView.setCellFactory(x -> new ConversationListCell());

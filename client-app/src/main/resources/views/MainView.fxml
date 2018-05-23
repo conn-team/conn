@@ -68,7 +68,7 @@
                   </FontAwesomeIconView>
                </children>
             </GridPane>
-            <ListView fx:id="messagesView" prefHeight="200.0" prefWidth="200.0" styleClass="messages-view" GridPane.rowIndex="1" />
+            <ListView fx:id="messagesView" onMouseMoved="#onMessagesViewMouseMoved" prefHeight="200.0" prefWidth="200.0" styleClass="messages-view" GridPane.rowIndex="1" />
             <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
                <children>
                   <Label fx:id="conversationUsernameLabel" text="Header">

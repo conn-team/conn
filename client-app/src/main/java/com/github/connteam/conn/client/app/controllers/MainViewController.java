@@ -13,13 +13,16 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+import javafx.scene.Node;
 import javafx.scene.text.Text;
 
 public class MainViewController {
@@ -45,6 +48,8 @@ public class MainViewController {
     private Label conversationFingerprintLabel;
     @FXML
     private RowConstraints submitFieldRow;
+
+    private boolean scrollbarFound = false;
 
     public MainViewController(App app) {
         this.app = app;
@@ -93,7 +98,19 @@ public class MainViewController {
             ctx.set(conversationFingerprintLabel.textProperty(),
                     CryptoUtil.getFingerprint(cur.getUser().getRawPublicKey()), "");
 
-            ctx.listen(cur.getMessages(), x -> messagesView.scrollTo(Integer.MAX_VALUE));
+            ctx.listen(cur.getMessages(), change -> {
+                while (change.next()) {
+                    if (change.wasAdded() && change.getTo() == cur.getMessages().size()) {
+                        messagesView.scrollTo(Integer.MAX_VALUE);
+                        break;
+                    }
+                }
+                change.reset();
+            });
+
+            ctx.set(cur.onFetchProperty(), () -> {
+                messagesView.scrollTo(100);
+            }, null);
         }
 
         welcomeBox.setVisible(cur == null);
@@ -160,5 +177,28 @@ public class MainViewController {
     private void insertNewLine() {
         submitField.deleteText(submitField.getSelection());
         submitField.insertText(submitField.getSelection().getStart(), "\n");
+    }
+
+    @FXML
+    void onMessagesViewMouseMoved(MouseEvent event) {
+        if (scrollbarFound) {
+            return;
+        }
+
+        // Let's hunt for ListView scrollbar!
+        for (Node node : messagesView.lookupAll(".scroll-bar:vertical")) { // lookup doesn't work
+            if (node instanceof ScrollBar) {
+                ScrollBar scrollBar = (ScrollBar) node;
+
+                scrollBar.valueProperty().addListener((prop, old, cur) -> {
+                    if ((double) cur < 0.01) {
+                        app.getSession().getCurrentConversation().loadMoreMessages();
+                    }
+                });
+
+                scrollbarFound = true;
+                break;
+            }
+        }
     }
 }

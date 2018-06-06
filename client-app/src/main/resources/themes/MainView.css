@@ -218,6 +218,7 @@
 
 .verification-notice {
     -fx-background-color: #e74c3c;
+    -fx-opacity: 0.95;
 }
 
 .verification-notice .label {

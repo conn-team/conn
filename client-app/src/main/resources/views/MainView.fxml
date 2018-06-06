@@ -80,7 +80,7 @@
                   <Label fx:id="conversationFingerprintLabel" styleClass="friend-fingerprint-label" text="fingerprint" />
                </children>
             </VBox>
-            <HBox fx:id="verificationNotice" alignment="CENTER" maxHeight="45.0" onMouseClicked="#onVerificationNoticeMouseClicked" prefHeight="100.0" styleClass="verification-notice" GridPane.rowIndex="1" GridPane.valignment="TOP">
+            <HBox fx:id="verificationNotice" alignment="CENTER" maxHeight="45.0" onMouseClicked="#onVerificationNoticeMouseClicked" styleClass="verification-notice" GridPane.valignment="CENTER">
                <children>
                   <FontAwesomeIconView glyphName="EXCLAMATION_TRIANGLE" size="20" styleClass="warn-icon" />
                   <Label text="Zweryfikuj tożsamość" />

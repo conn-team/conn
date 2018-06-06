@@ -86,7 +86,7 @@ public class ConversationListCell extends ListCell<Conversation> {
 
             ctx.listen(cur.getMessages(), change -> {
                 if (cur != getItem()) {
-                    return; // TODO: temporary fix for weird bug in observing
+                    return;
                 }
 
                 ObservableList<? extends MessageEntry> list = change.getList();

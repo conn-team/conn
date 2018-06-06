@@ -215,3 +215,16 @@
 .welcomeLabel {
     -fx-text-fill: rgba(0, 0, 0, 0.8);
 }
+
+.verification-notice {
+    -fx-background-color: #e74c3c;
+}
+
+.verification-notice .label {
+    -fx-text-fill: #fff;
+    -fx-padding: 0 0 0 5;
+}
+
+.verification-notice .label, .verification-notice .warn-icon {
+    -fx-fill: #fff;
+}

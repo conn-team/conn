@@ -19,6 +19,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.scene.Node;
@@ -47,6 +48,8 @@ public class MainViewController {
     private Label conversationFingerprintLabel;
     @FXML
     private RowConstraints submitFieldRow;
+    @FXML
+    private HBox verificationNotice;
 
     private boolean scrollbarFound = false;
 
@@ -63,6 +66,7 @@ public class MainViewController {
 
         welcomeBox.setVisible(true);
         conversationBox.setVisible(false);
+        verificationNotice.setVisible(false);
 
         DeepObserver.listen(app.getSessionManager().sessionProperty(), (ctx, old, cur) -> {
             if (cur != null) {
@@ -97,6 +101,8 @@ public class MainViewController {
             ctx.set(conversationFingerprintLabel.textProperty(),
                     CryptoUtil.getFingerprint(cur.getUser().getRawPublicKey()), "");
 
+            ctx.bind(verificationNotice.visibleProperty(), cur.needsVerificationProperty());
+
             ctx.listen(cur.getMessages(), change -> {
                 while (change.next()) {
                     if (change.wasAdded() && change.getTo() == cur.getMessages().size()) {
@@ -116,6 +122,8 @@ public class MainViewController {
                     cur.setUnread(false);
                 }
             });
+        } else {
+            verificationNotice.setVisible(false);
         }
 
         welcomeBox.setVisible(cur == null);
@@ -209,5 +217,10 @@ public class MainViewController {
                 break;
             }
         }
+    }
+
+    @FXML
+    void onVerificationNoticeMouseClicked(MouseEvent event) {
+
     }
 }

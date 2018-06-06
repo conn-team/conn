@@ -29,6 +29,7 @@ public class Conversation {
     private final ObservableList<MessageEntry> messages = FXCollections.observableArrayList();
     private final StringProperty currentMessage = new SimpleStringProperty();
     private final BooleanProperty unread = new SimpleBooleanProperty();
+    private final BooleanProperty needsVerification = new SimpleBooleanProperty();
 
     private int nextFetchMaxID = Integer.MAX_VALUE;
     private final Property<Runnable> onFetch = new SimpleObjectProperty<>();
@@ -83,6 +84,18 @@ public class Conversation {
 
     public BooleanProperty unreadProperty() {
         return unread;
+    }
+
+    public boolean getNeedsVerification() {
+        return needsVerification.get();
+    }
+
+    public void setNeedsVerification(boolean state) {
+        needsVerification.set(state);
+    }
+
+    public BooleanProperty needsVerificationProperty() {
+        return needsVerification;
     }
 
     public MessageEntry getLastMessage() {

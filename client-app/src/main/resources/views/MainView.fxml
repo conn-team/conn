@@ -10,6 +10,7 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
@@ -79,6 +80,15 @@
                   <Label fx:id="conversationFingerprintLabel" styleClass="friend-fingerprint-label" text="fingerprint" />
                </children>
             </VBox>
+            <HBox fx:id="verificationNotice" alignment="CENTER" maxHeight="45.0" onMouseClicked="#onVerificationNoticeMouseClicked" prefHeight="100.0" styleClass="verification-notice" GridPane.rowIndex="1" GridPane.valignment="TOP">
+               <children>
+                  <FontAwesomeIconView glyphName="EXCLAMATION_TRIANGLE" size="20" styleClass="warn-icon" />
+                  <Label text="Zweryfikuj tożsamość" />
+               </children>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </HBox>
          </children>
       </GridPane>
       <VBox fx:id="welcomeBox" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" visible="false" GridPane.columnIndex="1">

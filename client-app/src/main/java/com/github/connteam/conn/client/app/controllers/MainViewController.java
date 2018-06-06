@@ -4,8 +4,11 @@ import com.github.connteam.conn.client.app.App;
 import com.github.connteam.conn.client.app.controls.ConversationsListView;
 import com.github.connteam.conn.client.app.controls.MessageListCell;
 import com.github.connteam.conn.client.app.model.Conversation;
+import com.github.connteam.conn.client.app.model.Session;
 import com.github.connteam.conn.client.app.util.DeepObserver;
 import com.github.connteam.conn.client.database.model.MessageEntry;
+import com.github.connteam.conn.client.database.model.SettingsEntry;
+import com.github.connteam.conn.client.database.model.UserEntry;
 import com.github.connteam.conn.core.crypto.CryptoUtil;
 
 import javafx.event.ActionEvent;
@@ -95,11 +98,13 @@ public class MainViewController {
             Conversation cur) {
 
         if (cur != null) {
+            String verificationCode = CryptoUtil.getIdentityVerificationCode(
+                    app.getSession().getSettings().getRawPublicKey(), cur.getUser().getRawPublicKey());
+
             ctx.bindBidirectional(submitField.textProperty(), cur.currentMessageProperty());
             ctx.set(messagesView.itemsProperty(), cur.getMessages(), null);
             ctx.set(conversationUsernameLabel.textProperty(), cur.getUser().getUsername(), "");
-            ctx.set(conversationFingerprintLabel.textProperty(),
-                    CryptoUtil.getFingerprint(cur.getUser().getRawPublicKey()), "");
+            ctx.set(conversationFingerprintLabel.textProperty(), "Kod weryfikacyjny: " + verificationCode, "");
 
             ctx.bind(verificationNotice.visibleProperty(), cur.needsVerificationProperty());
 
@@ -221,6 +226,34 @@ public class MainViewController {
 
     @FXML
     void onVerificationNoticeMouseClicked(MouseEvent event) {
+        Session session = app.getSession();
+        if (session == null) {
+            return;
+        }
 
+        Conversation conv = session.getCurrentConversation();
+        if (conv == null) {
+            return;
+        }
+
+        SettingsEntry local = session.getSettings();
+        UserEntry other = conv.getUser();
+
+        String codeForOther = CryptoUtil.getIdentityVerificationCode(local.getRawPublicKey(), other.getRawPublicKey());
+        String codeForUs = CryptoUtil.getIdentityVerificationCode(other.getRawPublicKey(), local.getRawPublicKey());
+
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Conn");
+        dialog.setHeaderText("Kod dla " + other.getUsername() + ":\n" + codeForOther);
+        dialog.getDialogPane().setContentText("Kod od " + local.getUsername() + ":");
+        dialog.initOwner(app.getStage().getScene().getWindow());
+
+        dialog.showAndWait().ifPresent(code -> {
+            if (code.equalsIgnoreCase(codeForUs)) {
+                conv.setNeedsVerification(false);
+            } else {
+                app.reportError("Niepoprawny kod!");
+            }
+        });
     }
 }

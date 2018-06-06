@@ -36,10 +36,24 @@ public class Conversation {
 
     public Conversation(Session session, UserEntry user) {
         messages.addListener((InvalidationListener) x -> session.sortConversations());
+        needsVerification.set(!user.isVerified());
 
         this.session = session;
         this.user = user;
         loadMoreMessages();
+
+        needsVerification.addListener((prop, old, cur) -> {
+            boolean verified = !cur;
+
+            if (user.isVerified() != verified) {
+                try {
+                    user.setVerified(verified);
+                    session.getDataProvider().updateUser(user);
+                } catch (DatabaseException e) {
+                    session.getApp().reportError(e);
+                }
+            }
+        });
     }
 
     public UserEntry getUser() {

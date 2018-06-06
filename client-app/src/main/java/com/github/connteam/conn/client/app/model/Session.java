@@ -10,6 +10,7 @@ import com.github.connteam.conn.client.ConnClient;
 import com.github.connteam.conn.client.ConnClientListener;
 import com.github.connteam.conn.client.app.App;
 import com.github.connteam.conn.client.database.model.MessageEntry;
+import com.github.connteam.conn.client.database.model.SettingsEntry;
 import com.github.connteam.conn.client.database.model.UserEntry;
 import com.github.connteam.conn.client.database.provider.DataProvider;
 import com.github.connteam.conn.core.database.DatabaseException;
@@ -34,6 +35,7 @@ public class Session implements AutoCloseable {
 
     private final App app;
     private final DataProvider database;
+    private final SettingsEntry settings;
 
     private ConnClient client;
     private volatile boolean closed = false;
@@ -54,13 +56,18 @@ public class Session implements AutoCloseable {
         port = p;
     }
 
-    public Session(App app, DataProvider db) {
+    public Session(App app, DataProvider db) throws DatabaseException {
         this.app = app;
         this.database = db;
+        this.settings = db.getSettings().orElseThrow(() -> new DatabaseException("Missing identity settings"));
     }
 
     public App getApp() {
         return app;
+    }
+
+    public SettingsEntry getSettings() {
+        return settings;
     }
 
     public ConnClient getClient() {

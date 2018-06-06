@@ -4,6 +4,7 @@ import com.github.connteam.conn.client.IdentityFactory;
 import com.github.connteam.conn.client.app.App;
 import com.github.connteam.conn.client.app.model.IdentityManager.IdentityInfo;
 import com.github.connteam.conn.client.database.provider.DataProvider;
+import com.github.connteam.conn.core.database.DatabaseException;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -53,8 +54,12 @@ public class SessionManager {
             try {
                 DataProvider db = IdentityFactory.load(identity.getFile().getAbsolutePath());
                 Platform.runLater(() -> {
-                    setSession(new Session(app, db));
-                    getSession().start();
+                    try {
+                        setSession(new Session(app, db));
+                        getSession().start();
+                    } catch (DatabaseException e) {
+                        app.reportError(e);
+                    }
                 });
             } catch (Exception e) {
                 Platform.runLater(() -> {

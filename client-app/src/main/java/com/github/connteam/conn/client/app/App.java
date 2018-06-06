@@ -15,7 +15,6 @@ import com.github.connteam.conn.client.app.model.IdentityManager;
 import com.github.connteam.conn.client.app.model.Session;
 import com.github.connteam.conn.client.app.model.SessionManager;
 import com.github.connteam.conn.core.crypto.CryptoUtil;
-import com.github.connteam.conn.core.database.DatabaseException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,13 +91,7 @@ public class App extends Application {
             stage.setTitle("Conn");
         } else {
             setView(mainView);
-
-            try {
-                stage.setTitle("Conn - " + CryptoUtil
-                        .getFingerprint(getSession().getDataProvider().getSettings().get().getRawPublicKey()));
-            } catch (DatabaseException e) {
-                e.printStackTrace();
-            }
+            stage.setTitle("Conn - " + CryptoUtil.getFingerprint(getSession().getSettings().getRawPublicKey()));
         }
     }
 

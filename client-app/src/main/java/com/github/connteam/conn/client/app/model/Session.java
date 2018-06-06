@@ -189,7 +189,7 @@ public class Session implements AutoCloseable {
                     conversations.add(conv);
                     callback.accept(conv);
                 } else {
-                    app.reportError("Nie ma takiego użytkownika!");
+                    LOG.error("User {} not found", username);
                 }
             }));
         } catch (DatabaseException e) {

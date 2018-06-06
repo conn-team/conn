@@ -172,4 +172,26 @@ public final class CryptoUtil {
         }
         return null;
     }
+
+    public static String getIdentityVerificationCode(byte[] key1, byte[] key2) {
+        try {
+            MessageDigest hash = MessageDigest.getInstance(CryptoUtil.HASH_ALGORITHM);
+            hash.update(key1);
+            hash.update(key2);
+
+            StringBuilder str = new StringBuilder();
+            byte[] digest = hash.digest();
+
+            for (int i = 0; i < 8; i++) {
+                if (i > 0 && (i % 2) == 0) {
+                    str.append("-");
+                }
+                str.append(String.format("%02X", digest[i]));
+            }
+
+            return str.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

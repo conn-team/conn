@@ -209,8 +209,8 @@
     -fx-background-color: #68a624;
 }
 
-.list-cell:outgoing .message-cell .message-label {
-    -fx-text-fill: #f0f0f0;
+.list-cell:outgoing .message-cell .message-label > Text {
+    -fx-fill: #f0f0f0;
 }
 
 .list-cell:sending, .list-cell:error {

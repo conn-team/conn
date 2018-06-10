@@ -3,6 +3,7 @@ package com.github.connteam.conn.client.app.controls;
 import java.io.IOException;
 
 import com.github.connteam.conn.client.app.App;
+import com.github.connteam.conn.client.app.Emoji;
 import com.github.connteam.conn.client.app.model.Conversation;
 import com.github.connteam.conn.client.database.model.MessageEntry;
 
@@ -12,6 +13,7 @@ import javafx.geometry.NodeOrientation;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.Node;
+import javafx.scene.text.TextFlow;
 
 public class MessageListCell extends ListCell<MessageEntry> {
     private final static PseudoClass OUTGOING_PSEUDOCLASS = PseudoClass.getPseudoClass("outgoing");
@@ -20,7 +22,7 @@ public class MessageListCell extends ListCell<MessageEntry> {
 
     private final Node view;
     @FXML
-    private Label messageLabel;
+    private TextFlow messageTextFlow;
     @FXML
     private Label timeLabel;
 
@@ -52,7 +54,7 @@ public class MessageListCell extends ListCell<MessageEntry> {
         pseudoClassStateChanged(ERROR_PSEUDO_CLASS, elem.getIdMessage() == Conversation.SENDING_ERROR);
         pseudoClassStateChanged(SENDING_PSEUDO_CLASS, elem.getIdMessage() == Conversation.SENDING_MESSAGE);
 
-        messageLabel.setText(elem.getMessage());
+        Emoji.setTextFlowEmojiText(messageTextFlow, elem.getMessage());
         timeLabel.setText(App.formatTime(elem.getTime()));
 
         // Cannot set this in CSS

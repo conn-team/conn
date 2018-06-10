@@ -266,10 +266,10 @@ public class MainViewController {
 
         TextInputDialog dialog = new TextInputDialog();
         prepareVerificationDialog(dialog, local, other);
-        dialog.getDialogPane().setContentText("Kod od " + local.getUsername() + ":");
+        dialog.getDialogPane().setContentText("Kod od " + other.getUsername() + ":");
 
         dialog.showAndWait().ifPresent(code -> {
-            if (code.equalsIgnoreCase(codeForUs)) {
+            if (code.replace("-", "").equalsIgnoreCase(codeForUs.replace("-", ""))) {
                 conv.setNeedsVerification(false);
                 showVerificationCode();
             } else {

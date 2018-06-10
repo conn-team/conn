@@ -175,7 +175,9 @@ public class ConnClient implements Closeable {
         }
 
         userStatus = status;
-        channel.sendMessage(SetStatus.newBuilder().setStatus(status).build());
+        if (state == State.ESTABLISHED) {
+            channel.sendMessage(SetStatus.newBuilder().setStatus(status).build());
+        }
     }
 
     protected Map<Integer, Consumer<UserEntry>> getUserInfoRequests() {
@@ -258,6 +260,7 @@ public class ConnClient implements Closeable {
     private synchronized void onLogin(boolean hasBeenRegistered) {
         state = State.ESTABLISHED;
         channel.setMessageHandler(new ClientMessageHandler(this));
+        channel.sendMessage(SetStatus.newBuilder().setStatus(userStatus).build());
 
         try {
             observeEveryone();

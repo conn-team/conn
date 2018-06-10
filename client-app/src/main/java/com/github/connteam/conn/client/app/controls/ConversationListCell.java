@@ -1,8 +1,6 @@
 package com.github.connteam.conn.client.app.controls;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import com.github.connteam.conn.client.app.App;
 import com.github.connteam.conn.client.app.model.Conversation;
@@ -127,7 +125,7 @@ public class ConversationListCell extends ListCell<Conversation> {
                     }
 
                     lastMessageField.setText(txt);
-                    timeField.setText(formatTime(msg.getTime()));
+                    timeField.setText(App.formatTime(msg.getTime()));
                 }
             });
 
@@ -135,17 +133,5 @@ public class ConversationListCell extends ListCell<Conversation> {
                 pseudoClassStateChanged(UNREAD_PSEUDOCLASS, curVal != null && curVal);
             });
         });
-    }
-
-    private String formatTime(Date time) {
-        long days = (new Date().getTime() - time.getTime()) / 1000 / 60 / 60 / 24;
-
-        if (days < 1) {
-            return new SimpleDateFormat("HH:mm").format(time);
-        } else if (days < 365) {
-            return new SimpleDateFormat("dd.MM").format(time);
-        } else {
-            return new SimpleDateFormat("dd.MM.yyyy").format(time);
-        }
     }
 }

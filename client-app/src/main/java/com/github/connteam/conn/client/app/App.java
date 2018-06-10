@@ -3,6 +3,8 @@ package com.github.connteam.conn.client.app;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.MissingResourceException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -175,5 +177,17 @@ public class App extends Application {
         URL url = getClass().getClassLoader().getResource(name);
         AudioClip clip = new AudioClip(url.toString());
         clip.play();
+    }
+
+    public static String formatTime(Date time) {
+        long days = (new Date().getTime() - time.getTime()) / 1000 / 60 / 60 / 24;
+
+        if (days < 1) {
+            return new SimpleDateFormat("HH:mm").format(time);
+        } else if (days < 365) {
+            return new SimpleDateFormat("dd.MM").format(time);
+        } else {
+            return new SimpleDateFormat("dd.MM.yyyy").format(time);
+        }
     }
 }

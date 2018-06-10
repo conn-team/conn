@@ -4,7 +4,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
 
-<HBox prefWidth="400.0" styleClass="message-cell" stylesheets="@../themes/MainView.css" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1">
+<HBox alignment="CENTER_LEFT" nodeOrientation="LEFT_TO_RIGHT" prefWidth="400.0" styleClass="message-cell" stylesheets="@../themes/MainView.css" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <HBox styleClass="message-wrap">
          <children>
@@ -17,5 +17,6 @@
             <Insets />
          </HBox.margin>
       </HBox>
+      <Label fx:id="timeLabel" styleClass="time-label" text="14:10" />
    </children>
 </HBox>

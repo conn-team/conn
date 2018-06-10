@@ -8,6 +8,7 @@ import com.github.connteam.conn.client.database.model.MessageEntry;
 
 import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
+import javafx.geometry.NodeOrientation;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.Node;
@@ -20,6 +21,8 @@ public class MessageListCell extends ListCell<MessageEntry> {
     private final Node view;
     @FXML
     private Label messageLabel;
+    @FXML
+    private Label timeLabel;
 
     public MessageListCell() {
         try {
@@ -50,5 +53,9 @@ public class MessageListCell extends ListCell<MessageEntry> {
         pseudoClassStateChanged(SENDING_PSEUDO_CLASS, elem.getIdMessage() == Conversation.SENDING_MESSAGE);
 
         messageLabel.setText(elem.getMessage());
+        timeLabel.setText(App.formatTime(elem.getTime()));
+
+        // Cannot set this in CSS
+        view.setNodeOrientation(elem.isOutgoing() ? NodeOrientation.RIGHT_TO_LEFT : NodeOrientation.LEFT_TO_RIGHT);
     }
 }

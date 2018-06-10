@@ -195,13 +195,18 @@
     -fx-alignment: center-left;
 }
 
-.list-cell:outgoing .message-cell {
-    -fx-alignment: center-right;
+.message-cell .time-label {
+    -fx-text-fill: rgba(0, 0, 0, 0.6);
+    -fx-padding: 0 0 0 10;
+    -fx-opacity: 0;
+}
+
+.list-cell:hover .message-cell .time-label {
+    -fx-opacity: 1;
 }
 
 .list-cell:outgoing .message-cell .message-wrap {
     -fx-background-color: #68a624;
-    -fx-alignment: center-right;
 }
 
 .list-cell:outgoing .message-cell .message-label {

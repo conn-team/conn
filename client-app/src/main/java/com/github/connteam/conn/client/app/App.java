@@ -164,6 +164,9 @@ public class App extends Application {
         this.stage = stage;
         stage.setScene(new Scene(mainView));
         stage.setTitle(TITLE);
+        stage.setMinWidth(550);
+        stage.setMinHeight(350);
+
         stage.show();
         updateCurrentView();
     }

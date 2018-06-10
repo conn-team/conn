@@ -77,7 +77,10 @@
                         <Font size="16.0" />
                      </font>
                   </Label>
-                  <Label fx:id="conversationFingerprintLabel" styleClass="friend-fingerprint-label" text="fingerprint" />
+                  <Label fx:id="conversationFingerprintLabel" onMouseClicked="#onFingerprintMouseClicked" styleClass="friend-fingerprint-label" text="fingerprint">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></Label>
                </children>
             </VBox>
             <HBox fx:id="verificationNotice" alignment="CENTER" maxHeight="45.0" onMouseClicked="#onVerificationNoticeMouseClicked" styleClass="verification-notice" GridPane.valignment="CENTER">

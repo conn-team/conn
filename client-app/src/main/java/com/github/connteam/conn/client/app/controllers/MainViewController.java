@@ -13,6 +13,9 @@ import com.github.connteam.conn.core.crypto.CryptoUtil;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
@@ -98,13 +101,11 @@ public class MainViewController {
             Conversation cur) {
 
         if (cur != null) {
-            String verificationCode = CryptoUtil.getIdentityVerificationCode(
-                    app.getSession().getSettings().getRawPublicKey(), cur.getUser().getRawPublicKey());
-
             ctx.bindBidirectional(submitField.textProperty(), cur.currentMessageProperty());
             ctx.set(messagesView.itemsProperty(), cur.getMessages(), null);
             ctx.set(conversationUsernameLabel.textProperty(), cur.getUser().getUsername(), "");
-            ctx.set(conversationFingerprintLabel.textProperty(), "Kod weryfikacyjny: " + verificationCode, "");
+            ctx.set(conversationFingerprintLabel.textProperty(),
+                    CryptoUtil.getFingerprint(cur.getUser().getRawPublicKey()), "");
 
             ctx.bind(verificationNotice.visibleProperty(), cur.needsVerificationProperty());
 
@@ -238,22 +239,51 @@ public class MainViewController {
 
         SettingsEntry local = session.getSettings();
         UserEntry other = conv.getUser();
-
-        String codeForOther = CryptoUtil.getIdentityVerificationCode(local.getRawPublicKey(), other.getRawPublicKey());
         String codeForUs = CryptoUtil.getIdentityVerificationCode(other.getRawPublicKey(), local.getRawPublicKey());
 
         TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Conn");
-        dialog.setHeaderText("Kod dla " + other.getUsername() + ":\n" + codeForOther);
+        prepareDialog(dialog, local, other);
         dialog.getDialogPane().setContentText("Kod od " + local.getUsername() + ":");
-        dialog.initOwner(app.getStage().getScene().getWindow());
 
         dialog.showAndWait().ifPresent(code -> {
             if (code.equalsIgnoreCase(codeForUs)) {
                 conv.setNeedsVerification(false);
+                showVerificationCode();
             } else {
                 app.reportError("Niepoprawny kod!");
             }
         });
+    }
+
+    @FXML
+    void onFingerprintMouseClicked(MouseEvent event) {
+        showVerificationCode();
+    }
+
+    private void prepareDialog(Dialog<?> dialog, SettingsEntry local, UserEntry other) {
+        String codeForOther = CryptoUtil.getIdentityVerificationCode(local.getRawPublicKey(), other.getRawPublicKey());
+        dialog.setTitle("Conn");
+        dialog.setHeaderText("Kod dla " + other.getUsername() + ":\n" + codeForOther);
+        dialog.initOwner(app.getStage().getScene().getWindow());
+    }
+
+    private void showVerificationCode() {
+        Session session = app.getSession();
+        if (session == null) {
+            return;
+        }
+
+        Conversation conv = session.getCurrentConversation();
+        if (conv == null) {
+            return;
+        }
+
+        SettingsEntry local = session.getSettings();
+        UserEntry other = conv.getUser();
+
+        Alert alert = new Alert(AlertType.INFORMATION);
+        prepareDialog(alert, local, other);
+        alert.getDialogPane().setContentText("Tożsamość " + other.getUsername() + " potwierdzona");
+        alert.showAndWait();
     }
 }

@@ -4,6 +4,7 @@
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
+<?import javafx.scene.control.RadioMenuItem?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.MenuButton?>
@@ -37,6 +38,10 @@
             <ConversationsListView fx:id="friendsListView" styleClass="conversations-list" GridPane.rowIndex="1" />
             <MenuButton fx:id="mainMenu" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="main-menu">
               <items>
+                  <RadioMenuItem fx:id="availableRadioMenuItem" mnemonicParsing="false" text="Dostępny" />
+                  <RadioMenuItem fx:id="awayRadioMenuItem" mnemonicParsing="false" text="Zaraz wracam" />
+                  <RadioMenuItem fx:id="busyRadioMenuItem" mnemonicParsing="false" text="Zajęty" />
+                  <RadioMenuItem fx:id="invisibleRadioMenuItem" mnemonicParsing="false" text="Niewidoczny" />
                 <MenuItem mnemonicParsing="false" onAction="#onAddFriend" text="Nowa rozmowa" />
                 <MenuItem mnemonicParsing="false" onAction="#onLogout" text="Wyloguj się" />
               </items>

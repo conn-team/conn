@@ -6,15 +6,18 @@ import com.github.connteam.conn.client.app.controls.MessageListCell;
 import com.github.connteam.conn.client.app.model.Conversation;
 import com.github.connteam.conn.client.app.model.Session;
 import com.github.connteam.conn.client.app.util.DeepObserver;
+import com.github.connteam.conn.client.app.util.ToggleBinder;
 import com.github.connteam.conn.client.database.model.MessageEntry;
 import com.github.connteam.conn.client.database.model.SettingsEntry;
 import com.github.connteam.conn.client.database.model.UserEntry;
 import com.github.connteam.conn.core.crypto.CryptoUtil;
+import com.github.connteam.conn.core.net.proto.NetProtos.UserStatus;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -58,7 +61,16 @@ public class MainViewController {
     private RowConstraints submitFieldRow;
     @FXML
     private HBox verificationNotice;
+    @FXML
+    private RadioMenuItem availableRadioMenuItem;
+    @FXML
+    private RadioMenuItem awayRadioMenuItem;
+    @FXML
+    private RadioMenuItem busyRadioMenuItem;
+    @FXML
+    private RadioMenuItem invisibleRadioMenuItem;
 
+    private final ToggleBinder<UserStatus> statusBinder = new ToggleBinder<>();
     private boolean scrollbarFound = false;
 
     public MainViewController(App app) {
@@ -76,9 +88,15 @@ public class MainViewController {
         conversationBox.setVisible(false);
         verificationNotice.setVisible(false);
 
+        statusBinder.addToggle(availableRadioMenuItem, UserStatus.AVAILABLE);
+        statusBinder.addToggle(awayRadioMenuItem, UserStatus.AWAY);
+        statusBinder.addToggle(busyRadioMenuItem, UserStatus.BUSY);
+        statusBinder.addToggle(invisibleRadioMenuItem, UserStatus.DISCONNECTED);
+
         DeepObserver.listen(app.getSessionManager().sessionProperty(), (ctx, old, cur) -> {
             if (cur != null) {
                 ctx.set(friendsListView.itemsProperty(), cur.getConversations(), null);
+                ctx.bindBidirectional(statusBinder.getProperty(), cur.userStatusProperty());
                 ctx.bindBidirectional(friendsListView.currentItemProperty(), cur.currentConversationProperty());
                 ctx.deepListen(cur.currentConversationProperty(), (a, b, c) -> onConversationChange(a, b, c)); // hmm
             }

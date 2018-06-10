@@ -111,23 +111,10 @@
     -fx-background-color: #d4d4d4;
 }
 
-/* fix it later
-
 .friends-view .list-cell:unread .label {
+    -fx-font-family: Arial;
     -fx-font-weight: bold;
 }
-
-.friends-view .list-cell:hover:unread .label {
-    -fx-font-weight: bold;
-}
-
-.friends-view .list-cell:selected:unread .label {
-    -fx-font-weight: bold;
-}
-
-.friends-view .list-cell:pressed:unread .label {
-    -fx-font-weight: bold;
-} */
 
 .friends-view .list-cell:friend .friend-star {
     -fx-opacity: 1;
@@ -135,10 +122,12 @@
 
 .conversationCell .usernameLabel {
     -fx-text-fill: #000;
+    -fx-font-size: 16;
 }
 
 .conversationCell .lastMessageLabel, .conversationCell .timeLabel {
     -fx-text-fill: rgba(0, 0, 0, 0.7);
+    -fx-font-size: 13;
 }
 
 .submitField .content, .friends-search {

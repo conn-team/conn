@@ -6,6 +6,7 @@ import com.github.connteam.conn.client.app.App;
 import com.github.connteam.conn.client.app.model.Conversation;
 import com.github.connteam.conn.client.app.util.DeepObserver;
 import com.github.connteam.conn.client.database.model.MessageEntry;
+import com.github.connteam.conn.core.net.proto.NetProtos.UserStatus;
 
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
@@ -25,6 +26,10 @@ public class ConversationListCell extends ListCell<Conversation> {
     private final static PseudoClass NONEMPTY_PSEUDOCLASS = PseudoClass.getPseudoClass("nonempty");
     private final static PseudoClass UNREAD_PSEUDOCLASS = PseudoClass.getPseudoClass("unread");
     private final static PseudoClass FRIEND_PSEUDOCLASS = PseudoClass.getPseudoClass("friend");
+
+    private final static PseudoClass AVAILABLE_PSEUDOCLASS = PseudoClass.getPseudoClass("available");
+    private final static PseudoClass AWAY_PSEUDOCLASS = PseudoClass.getPseudoClass("away");
+    private final static PseudoClass BUSY_PSEUDOCLASS = PseudoClass.getPseudoClass("busy");
 
     private final Node view;
     private final Property<Conversation> conversation = new SimpleObjectProperty<>();
@@ -132,6 +137,12 @@ public class ConversationListCell extends ListCell<Conversation> {
 
             ctx.listen(cur.unreadProperty(), (prop, oldVal, curVal) -> {
                 pseudoClassStateChanged(UNREAD_PSEUDOCLASS, curVal != null && curVal);
+            });
+
+            ctx.listen(cur.userStatusProperty(), (prop, oldVal, curVal) -> {
+                pseudoClassStateChanged(AVAILABLE_PSEUDOCLASS, curVal == UserStatus.AVAILABLE);
+                pseudoClassStateChanged(AWAY_PSEUDOCLASS, curVal == UserStatus.AWAY);
+                pseudoClassStateChanged(BUSY_PSEUDOCLASS, curVal == UserStatus.BUSY);
             });
         });
     }

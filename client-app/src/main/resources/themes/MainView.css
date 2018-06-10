@@ -147,7 +147,23 @@
 
 .friends-view .list-cell:friend .friend-star {
     -fx-opacity: 1;
-} 
+}
+
+.friends-view .list-cell .status-circle {
+    -fx-fill: #bdc3c7;
+}
+
+.friends-view .list-cell:available .status-circle {
+    -fx-fill: #27ae60;
+}
+
+.friends-view .list-cell:away .status-circle {
+    -fx-fill: #f39c12;
+}
+
+.friends-view .list-cell:busy .status-circle {
+    -fx-fill: #c0392b;
+}
 
 .conversationCell .usernameLabel {
     -fx-text-fill: #000;

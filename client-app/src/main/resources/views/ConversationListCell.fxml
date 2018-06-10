@@ -6,19 +6,24 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="64.0" prefWidth="400.0" styleClass="conversationCell" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane prefHeight="64.0" prefWidth="400.0" styleClass="conversationCell" stylesheets="@../themes/MainView.css" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <FontAwesomeIconView fill="#00000026" glyphName="USER_CIRCLE" size="50" styleClass="avatarIcon" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0" />
       <VBox alignment="CENTER_LEFT" layoutX="80.0" layoutY="-70.0" spacing="2.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="64.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <HBox>
+            <HBox alignment="CENTER_LEFT">
                <children>
+                  <Circle radius="4.0" styleClass="status-circle" />
                   <Label fx:id="usernameField" styleClass="usernameLabel" text="Username">
                      <font>
                         <Font size="16.0" />
                      </font>
+                     <padding>
+                        <Insets left="3.0" />
+                     </padding>
                   </Label>
                   <FontAwesomeIconView fill="#e8cc19" glyphName="STAR" opacity="0.0" styleClass="friend-star">
                      <HBox.margin>

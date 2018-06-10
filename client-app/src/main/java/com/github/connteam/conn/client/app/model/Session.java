@@ -16,6 +16,7 @@ import com.github.connteam.conn.client.database.provider.DataProvider;
 import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.io.IOUtils;
 import com.github.connteam.conn.core.net.Transport;
+import com.github.connteam.conn.core.net.proto.NetProtos.UserStatus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,7 @@ public class Session implements AutoCloseable {
 
     private final ObservableList<Conversation> conversations = FXCollections.observableArrayList();
     private final Property<Conversation> currentConversation = new SimpleObjectProperty<>();
+    private final Property<UserStatus> userStatus = new SimpleObjectProperty<>(UserStatus.AVAILABLE);
 
     public static ConnClient createClient(DataProvider db)
             throws IOException, DatabaseException, InvalidKeySpecException {
@@ -60,6 +62,12 @@ public class Session implements AutoCloseable {
         this.app = app;
         this.database = db;
         this.settings = db.getSettings().orElseThrow(() -> new DatabaseException("Missing identity settings"));
+
+        userStatus.addListener((prop, old, cur) -> {
+            if (client != null) {
+                client.setUserStatus(cur);
+            }
+        });
     }
 
     public App getApp() {
@@ -76,6 +84,18 @@ public class Session implements AutoCloseable {
 
     public DataProvider getDataProvider() {
         return database;
+    }
+
+    public UserStatus getUserStatus() {
+        return userStatus.getValue();
+    }
+
+    public void setUserStatus(UserStatus status) {
+        userStatus.setValue(status);
+    }
+
+    public Property<UserStatus> userStatusProperty() {
+        return userStatus;
     }
 
     public ObservableList<Conversation> getConversations() {
@@ -140,6 +160,7 @@ public class Session implements AutoCloseable {
             Platform.runLater(() -> {
                 client = tmp;
                 client.setHandler(new SessionHandler());
+                client.setUserStatus(getUserStatus());
                 client.start();
             });
         } catch (Exception e) {
@@ -232,6 +253,13 @@ public class Session implements AutoCloseable {
                 if (conv.isUnread() || !app.getStage().isFocused()) {
                     app.playSound("sounds/incoming_message.wav");
                 }
+            }));
+        }
+
+        @Override
+        public void onStatusChange(UserEntry user, UserStatus status) {
+            Platform.runLater(() -> openConversation(user.getUsername(), conv -> {
+                conv.setUserStatus(status);
             }));
         }
     }

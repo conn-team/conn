@@ -6,6 +6,7 @@ import com.github.connteam.conn.client.database.model.MessageEntry;
 import com.github.connteam.conn.client.database.model.UserEntry;
 import com.github.connteam.conn.client.database.provider.DataProvider;
 import com.github.connteam.conn.core.database.DatabaseException;
+import com.github.connteam.conn.core.net.proto.NetProtos.UserStatus;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -30,6 +31,7 @@ public class Conversation {
     private final ObservableList<MessageEntry> messages = FXCollections.observableArrayList();
     private final StringProperty currentMessage = new SimpleStringProperty();
     private final BooleanProperty unread = new SimpleBooleanProperty();
+    private final Property<UserStatus> userStatus = new SimpleObjectProperty<>();
     private final BooleanProperty needsVerification = new SimpleBooleanProperty();
 
     private int nextFetchMaxID = Integer.MAX_VALUE;
@@ -99,6 +101,18 @@ public class Conversation {
 
     public BooleanProperty unreadProperty() {
         return unread;
+    }
+
+    public UserStatus getUserStatus() {
+        return userStatus.getValue();
+    }
+
+    public void setUserStatus(UserStatus status) {
+        userStatus.setValue(status);
+    }
+
+    public Property<UserStatus> userStatusProperty() {
+        return userStatus;
     }
 
     public boolean getNeedsVerification() {

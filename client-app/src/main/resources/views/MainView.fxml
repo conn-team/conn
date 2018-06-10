@@ -4,11 +4,12 @@
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
-<?import javafx.scene.control.RadioMenuItem?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioMenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -42,6 +43,7 @@
                   <RadioMenuItem fx:id="awayRadioMenuItem" mnemonicParsing="false" text="Zaraz wracam" />
                   <RadioMenuItem fx:id="busyRadioMenuItem" mnemonicParsing="false" text="Zajęty" />
                   <RadioMenuItem fx:id="invisibleRadioMenuItem" mnemonicParsing="false" text="Niewidoczny" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
                 <MenuItem mnemonicParsing="false" onAction="#onAddFriend" text="Nowa rozmowa" />
                 <MenuItem mnemonicParsing="false" onAction="#onLogout" text="Wyloguj się" />
               </items>

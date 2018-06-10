@@ -307,8 +307,18 @@ public class ConnServerClient implements Closeable {
         }
 
         target = target.toLowerCase();
-        if (observed.add(target)) {
-            server.addObserver(target, this);
+        if (!observed.add(target)) {
+            return;
+        }
+
+        server.addObserver(target, this);
+
+        ConnServerClient other = server.getClientByName(target);
+        if (other != null) {
+            UserNotification.Builder msg = UserNotification.newBuilder();
+            msg.setUsername(other.getUser().getUsername());
+            msg.setStatus(other.getUserStatus());
+            channel.sendMessage(msg.build());
         }
     }
 

@@ -61,7 +61,7 @@ public class Emoji {
 
         registerEmoji(":D|:smile:", "emojis/twemoji/1F604.png");
         registerEmoji(":smiley:", "emojis/twemoji/1F603.png");
-        registerEmoji(":grinning:", "emojis/twemoji/1F600.png");
+        registerEmoji(":\\)|:grinning:", "emojis/twemoji/1F600.png");
         registerEmoji(":blush:", "emojis/twemoji/1F60A.png");
         registerEmoji(":relaxed:", "emojis/twemoji/263A.png");
         registerEmoji(";\\)|:wink:", "emojis/twemoji/1F609.png");
@@ -78,7 +78,7 @@ public class Emoji {
         registerEmoji(":pensive:", "emojis/twemoji/1F614.png");
         registerEmoji(":relieved:", "emojis/twemoji/1F60C.png");
         registerEmoji(":unamused:", "emojis/twemoji/1F612.png");
-        registerEmoji(":disappointed:", "emojis/twemoji/1F61E.png");
+        registerEmoji(":\\(|:disappointed:", "emojis/twemoji/1F61E.png");
         registerEmoji(":persevere:", "emojis/twemoji/1F623.png");
         registerEmoji(";\\(|:cry:", "emojis/twemoji/1F622.png");
         registerEmoji(":joy:", "emojis/twemoji/1F602.png");
@@ -112,7 +112,7 @@ public class Emoji {
         registerEmoji(":grimacing:", "emojis/twemoji/1F62C.png");
         registerEmoji(":neutral_face:", "emojis/twemoji/1F610.png");
         registerEmoji(":confused:", "emojis/twemoji/1F615.png");
-        registerEmoji(":hushed:", "emojis/twemoji/1F62F.png");
+        registerEmoji(":O|:hushed:", "emojis/twemoji/1F62F.png");
         registerEmoji(":no_mouth:", "emojis/twemoji/1F636.png");
         registerEmoji(":innocent:", "emojis/twemoji/1F607.png");
         registerEmoji(":smirk:", "emojis/twemoji/1F60F.png");

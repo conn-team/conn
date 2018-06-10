@@ -6,7 +6,9 @@ import java.net.ProtocolException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -20,6 +22,8 @@ import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthStatus;
 import com.github.connteam.conn.core.net.proto.NetProtos.SignedKey;
+import com.github.connteam.conn.core.net.proto.NetProtos.UserNotification;
+import com.github.connteam.conn.core.net.proto.NetProtos.UserStatus;
 import com.github.connteam.conn.core.net.proto.NetProtos.EphemeralKeysDemand;
 import com.github.connteam.conn.core.net.proto.NetProtos.PeerRecv;
 import com.github.connteam.conn.server.database.model.EphemeralKeyEntry;
@@ -50,6 +54,9 @@ public class ConnServerClient implements Closeable {
     private final Map<Integer, MessageEntry> receivedMessages = new ConcurrentHashMap<>();
     private int ephemeralKeysCount, requestedEphemeralKeys; // Just estimated
     private int lastInMessage = -1;
+
+    private volatile UserStatus userStatus = UserStatus.DISCONNECTED; // Modified only from handler thread
+    private final Set<String> observed = new HashSet<>();
 
     private static enum State {
         CREATED, AUTHENTICATION, ESTABLISHED, CLOSED
@@ -105,6 +112,10 @@ public class ConnServerClient implements Closeable {
         return server.getDataProvider();
     }
 
+    public UserStatus getUserStatus() {
+        return userStatus;
+    }
+
     protected Map<Integer, Transmission> getTransmissions() {
         return transmissions;
     }
@@ -127,6 +138,8 @@ public class ConnServerClient implements Closeable {
     private synchronized void onClose(Exception err) {
         state = State.CLOSED;
         server.removeClient(this, err);
+        clearObserved();
+        onUserStatusChange(UserStatus.DISCONNECTED);
     }
 
     private synchronized void onAuthResponse(Message msg) {
@@ -286,5 +299,47 @@ public class ConnServerClient implements Closeable {
 
             channel.sendMessage(out.build());
         });
+    }
+
+    protected synchronized void addObserved(String target) {
+        if (state != State.ESTABLISHED) {
+            return;
+        }
+
+        target = target.toLowerCase();
+        if (observed.add(target)) {
+            server.addObserver(target, this);
+        }
+    }
+
+    protected synchronized void removeObserved(String target) {
+        if (state != State.ESTABLISHED) {
+            return;
+        }
+
+        target = target.toLowerCase();
+        if (observed.add(target)) {
+            server.addObserver(target, this);
+        }
+    }
+
+    protected synchronized void clearObserved() {
+        for (String target : observed) {
+            server.removeObserver(target, this);
+        }
+        observed.clear();
+    }
+
+    protected void onUserStatusChange(UserStatus status) {
+        if (userStatus == status) {
+            return;
+        }
+
+        userStatus = status;
+
+        UserNotification.Builder notify = UserNotification.newBuilder();
+        notify.setUsername(user.getUsername());
+        notify.setStatus(status);
+        server.notifyObservers(user.getUsername().toLowerCase(), notify.build());
     }
 }

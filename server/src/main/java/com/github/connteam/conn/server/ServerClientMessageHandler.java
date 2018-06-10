@@ -14,9 +14,11 @@ import com.github.connteam.conn.core.events.MultiEventListener;
 import com.github.connteam.conn.core.net.NetChannel;
 import com.github.connteam.conn.core.net.proto.NetProtos.EphemeralKeysUpload;
 import com.github.connteam.conn.core.net.proto.NetProtos.KeepAlive;
+import com.github.connteam.conn.core.net.proto.NetProtos.ObserveUsers;
 import com.github.connteam.conn.core.net.proto.NetProtos.PeerRecvAck;
 import com.github.connteam.conn.core.net.proto.NetProtos.PeerSend;
 import com.github.connteam.conn.core.net.proto.NetProtos.PeerSendAck;
+import com.github.connteam.conn.core.net.proto.NetProtos.SetStatus;
 import com.github.connteam.conn.core.net.proto.NetProtos.SignedKey;
 import com.github.connteam.conn.core.net.proto.NetProtos.TransmissionRequest;
 import com.github.connteam.conn.core.net.proto.NetProtos.TransmissionResponse;
@@ -215,5 +217,22 @@ public class ServerClientMessageHandler extends MultiEventListener<Message> {
         } catch (DatabaseException e) {
             client.close(e);
         }
+    }
+
+    @HandleEvent
+    public void onObserveUsers(ObserveUsers msg) {
+        synchronized (client) {
+            for (String target : msg.getAddedList()) {
+                client.addObserved(target);
+            }
+            for (String target : msg.getRemovedList()) {
+                client.removeObserved(target);
+            }
+        }
+    }
+
+    @HandleEvent
+    public void onSetStatus(SetStatus msg) {
+        client.onUserStatusChange(msg.getStatus());
     }
 }

@@ -32,6 +32,7 @@ import com.github.connteam.conn.core.net.proto.NetProtos.PeerSendAck;
 import com.github.connteam.conn.core.net.proto.NetProtos.SignedKey;
 import com.github.connteam.conn.core.net.proto.NetProtos.TransmissionResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserInfo;
+import com.github.connteam.conn.core.net.proto.NetProtos.UserNotification;
 import com.github.connteam.conn.core.net.proto.PeerProtos.TextMessage;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
@@ -99,6 +100,7 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
             return;
         }
 
+        client.observe(user);
         callback.accept(user);
     }
 
@@ -299,6 +301,17 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
 
         try {
             getDataProvider().insertMessage(entry);
+        } catch (DatabaseException e) {
+            client.close(e);
+        }
+    }
+
+    @HandleEvent
+    public void onUserNotification(UserNotification msg) {
+        try {
+            client.getUserInfo(msg.getUsername(), user -> {
+                client.getHandler().onStatusChange(user, msg.getStatus());
+            });
         } catch (DatabaseException e) {
             client.close(e);
         }

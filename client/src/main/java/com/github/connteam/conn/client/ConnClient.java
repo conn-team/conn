@@ -31,8 +31,11 @@ import com.github.connteam.conn.core.net.proto.NetProtos.AuthRequest;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthResponse;
 import com.github.connteam.conn.core.net.proto.NetProtos.AuthStatus;
 import com.github.connteam.conn.core.net.proto.NetProtos.KeepAlive;
+import com.github.connteam.conn.core.net.proto.NetProtos.ObserveUsers;
+import com.github.connteam.conn.core.net.proto.NetProtos.SetStatus;
 import com.github.connteam.conn.core.net.proto.NetProtos.TransmissionRequest;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserInfoRequest;
+import com.github.connteam.conn.core.net.proto.NetProtos.UserStatus;
 import com.github.connteam.conn.core.net.proto.PeerProtos.TextMessage;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
@@ -51,6 +54,8 @@ public class ConnClient implements Closeable {
     private final AtomicInteger requestCounter = new AtomicInteger();
     private final Map<Integer, Consumer<UserEntry>> userInfoRequests = new ConcurrentHashMap<>();
     private final Map<Integer, Transmission> transmissions = new ConcurrentHashMap<>();
+
+    private volatile UserStatus userStatus = UserStatus.DISCONNECTED;
 
     private static enum State {
         CREATED, AUTH_REQUEST, AUTH_RESPONSE, ESTABLISHED, CLOSED
@@ -160,6 +165,19 @@ public class ConnClient implements Closeable {
         return settings;
     }
 
+    public UserStatus getUserStatus() {
+        return userStatus;
+    }
+
+    public synchronized void setUserStatus(UserStatus status) {
+        if (userStatus == status) {
+            return;
+        }
+
+        userStatus = status;
+        channel.sendMessage(SetStatus.newBuilder().setStatus(status).build());
+    }
+
     protected Map<Integer, Consumer<UserEntry>> getUserInfoRequests() {
         return userInfoRequests;
     }
@@ -240,6 +258,14 @@ public class ConnClient implements Closeable {
     private synchronized void onLogin(boolean hasBeenRegistered) {
         state = State.ESTABLISHED;
         channel.setMessageHandler(new ClientMessageHandler(this));
+
+        try {
+            observeEveryone();
+        } catch (DatabaseException e) {
+            close(e);
+            return;
+        }
+
         listener.onLogin(hasBeenRegistered);
 
         final KeepAlive keepAlive = KeepAlive.newBuilder().build();
@@ -316,5 +342,19 @@ public class ConnClient implements Closeable {
         request.setRequestID(i);
         request.setUsername(username);
         channel.sendMessage(request.build());
+    }
+
+    public void observe(UserEntry user) {
+        ObserveUsers.Builder msg = ObserveUsers.newBuilder();
+        msg.addAdded(user.getUsername());
+        channel.sendMessage(msg.build());
+    }
+
+    private void observeEveryone() throws DatabaseException {
+        ObserveUsers.Builder msg = ObserveUsers.newBuilder();
+        for (UserEntry user : database.getUsers()) {
+            msg.addAdded(user.getUsername());
+        }
+        channel.sendMessage(msg.build());
     }
 }

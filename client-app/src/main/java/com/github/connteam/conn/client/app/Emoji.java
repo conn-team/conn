@@ -15,7 +15,7 @@ public class Emoji {
     private static List<Pair<Pattern, Image>> emojis = new ArrayList<>();
 
     private static void registerEmoji(String patternStr, String resource) {
-        Pattern pattern = Pattern.compile("(?i:" + patternStr + ")");
+        Pattern pattern = Pattern.compile("(^|(?<=\\s))(?i:" + patternStr + ")($|(?=\\s))");
         Image img = new Image(Emoji.class.getClassLoader().getResourceAsStream(resource));
         emojis.add(Pair.of(pattern, img));
     }
@@ -57,7 +57,7 @@ public class Emoji {
     }
 
     static {
-        registerEmoji(";3|:3", "emojis/malcin.png");
+        registerEmoji(";3|:3|:malcin:", "emojis/malcin.png");
 
         registerEmoji(":D|:smile:", "emojis/twemoji/1F604.png");
         registerEmoji(":smiley:", "emojis/twemoji/1F603.png");

@@ -242,7 +242,7 @@ public class MainViewController {
         String codeForUs = CryptoUtil.getIdentityVerificationCode(other.getRawPublicKey(), local.getRawPublicKey());
 
         TextInputDialog dialog = new TextInputDialog();
-        prepareDialog(dialog, local, other);
+        prepareVerificationDialog(dialog, local, other);
         dialog.getDialogPane().setContentText("Kod od " + local.getUsername() + ":");
 
         dialog.showAndWait().ifPresent(code -> {
@@ -260,7 +260,7 @@ public class MainViewController {
         showVerificationCode();
     }
 
-    private void prepareDialog(Dialog<?> dialog, SettingsEntry local, UserEntry other) {
+    private void prepareVerificationDialog(Dialog<?> dialog, SettingsEntry local, UserEntry other) {
         String codeForOther = CryptoUtil.getIdentityVerificationCode(local.getRawPublicKey(), other.getRawPublicKey());
         dialog.setTitle("Conn");
         dialog.setHeaderText("Kod dla " + other.getUsername() + ":\n" + codeForOther);
@@ -282,7 +282,7 @@ public class MainViewController {
         UserEntry other = conv.getUser();
 
         Alert alert = new Alert(AlertType.INFORMATION);
-        prepareDialog(alert, local, other);
+        prepareVerificationDialog(alert, local, other);
         alert.getDialogPane().setContentText("Tożsamość " + other.getUsername() + " potwierdzona");
         alert.showAndWait();
     }

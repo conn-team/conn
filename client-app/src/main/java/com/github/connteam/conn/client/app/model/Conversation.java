@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.github.connteam.conn.client.database.model.MessageEntry;
 import com.github.connteam.conn.client.database.model.UserEntry;
+import com.github.connteam.conn.client.database.provider.DataProvider;
 import com.github.connteam.conn.core.database.DatabaseException;
 
 import javafx.application.Platform;
@@ -201,5 +202,22 @@ public class Conversation {
             session.sortConversations();
             session.setCurrentConversation(this);
         }
+    }
+
+    public void resetConversation() {
+        session.getApp().asyncTask(() -> {
+            try {
+                DataProvider db = session.getDataProvider();
+                db.deleteMessagesFrom(user.getId());
+                db.deleteMessagesTo(user.getId());
+                db.deleteUser(user.getId());
+
+                Platform.runLater(() -> {
+                    session.getConversations().remove(this);
+                });
+            } catch (DatabaseException e) {
+                Platform.runLater(() -> session.getApp().reportError(e));
+            }
+        });
     }
 }

@@ -14,10 +14,13 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.MenuItem;
 import javafx.scene.Node;
 
 public class ConversationListCell extends ListCell<Conversation> {
@@ -36,7 +39,7 @@ public class ConversationListCell extends ListCell<Conversation> {
     private Label timeField;
 
     private ContextMenu menu;
-    private MenuItem toggleFriendMenuItem;
+    private MenuItem toggleFriendMenuItem, resetConversationMenuItem;
 
     public ConversationListCell() {
         try {
@@ -60,10 +63,31 @@ public class ConversationListCell extends ListCell<Conversation> {
         toggleFriendMenuItem = new MenuItem();
         menu.getItems().add(toggleFriendMenuItem);
 
+        resetConversationMenuItem = new MenuItem("Zresetuj konwersację");
+        menu.getItems().add(resetConversationMenuItem);
+
         toggleFriendMenuItem.setOnAction(event -> {
             if (getItem() != null) {
                 getItem().toggleFriend();
             }
+        });
+
+        resetConversationMenuItem.setOnAction(event -> {
+            Conversation conv = conversation.getValue();
+            if (conv == null) {
+                return;
+            }
+
+            Alert alert = new Alert(AlertType.WARNING,
+                    "Czy na pewno chcesz zresetować konwersację z " + conv.getUser().getUsername() + "?",
+                    ButtonType.YES, ButtonType.NO);
+            alert.setTitle("Conn");
+
+            alert.showAndWait().ifPresent(state -> {
+                if (state == ButtonType.YES) {
+                    conv.resetConversation();
+                }
+            });
         });
 
         DeepObserver.listen(conversation, (ctx, old, cur) -> {

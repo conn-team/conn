@@ -10,17 +10,46 @@
 }
 
 .main-menu {
-    -fx-background-color: #dfdfdf;
-    -fx-border-color: rgba(0, 0, 0, 0.1);
-    -fx-border-width: 0 1 0 0;
+    -fx-background-color: #6BA559;
+    -fx-border-width: 0;
+    -fx-background-radius: 0;
 }
 
 .main-menu:hover {
-    -fx-background-color: #d9d9d9;
+    -fx-background-color: #679e56;
 }
 
 .main-menu:pressed {
-    -fx-background-color: #d4d4d4;
+    -fx-background-color: #639753;
+}
+
+.main-menu > .arrow-button > .arrow {
+    -fx-background-color: #548046;
+}
+
+.main-menu-icon {
+    -glyph-name: "BOLT";
+    -fx-fill: #fff;
+}
+
+.state-connecting .main-menu {
+    -fx-background-color: #fdcb6e;
+}
+
+.state-connecting .main-menu:hover {
+    -fx-background-color: #f8c76c;
+}
+
+.state-connecting .main-menu:pressed {
+    -fx-background-color: #f3c36a;
+}
+
+.state-connecting .main-menu > .arrow-button > .arrow {
+    -fx-background-color: #b6914b;
+}
+
+.state-connecting .main-menu-icon {
+    -glyph-name: "ELLIPSIS_H";
 }
 
 .main-menu .menu-item:focused {
@@ -133,6 +162,7 @@
 .submitField .content, .friends-search {
     -fx-background-color: #eee;
     -fx-border-style: none;
+    -fx-background-radius: 0;
 }
 
 .bottomPane {

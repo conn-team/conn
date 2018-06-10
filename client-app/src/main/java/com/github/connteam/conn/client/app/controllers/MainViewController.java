@@ -35,6 +35,8 @@ public class MainViewController {
     private final App app;
 
     @FXML
+    private GridPane rootPane;
+    @FXML
     private ConversationsListView friendsListView;
     @FXML
     private TextArea submitField;
@@ -83,7 +85,10 @@ public class MainViewController {
         });
 
         app.getSessionManager().connectingProperty().addListener((prop, old, cur) -> {
-            mainMenu.setText(cur ? "Łączenie..." : "Połączono!");
+            rootPane.getStyleClass().removeIf(x -> x.equals("state-connecting"));
+            if (cur) {
+                rootPane.getStyleClass().add("state-connecting");
+            }
         });
 
         submitField.textProperty().addListener((prop, old, cur) -> {

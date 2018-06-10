@@ -80,6 +80,7 @@ public class ConversationListCell extends ListCell<Conversation> {
                     "Czy na pewno chcesz zresetować konwersację z " + conv.getUser().getUsername() + "?",
                     ButtonType.YES, ButtonType.NO);
             alert.setTitle("Conn");
+            alert.setHeaderText("Resetowanie konwersacji");
 
             alert.showAndWait().ifPresent(state -> {
                 if (state == ButtonType.YES) {

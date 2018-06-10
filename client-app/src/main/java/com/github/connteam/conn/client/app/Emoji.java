@@ -64,9 +64,9 @@ public class Emoji {
         registerEmoji(":grinning:", "emojis/twemoji/1F600.png");
         registerEmoji(":blush:", "emojis/twemoji/1F60A.png");
         registerEmoji(":relaxed:", "emojis/twemoji/263A.png");
-        registerEmoji(";)|:wink:", "emojis/twemoji/1F609.png");
+        registerEmoji(";\\)|:wink:", "emojis/twemoji/1F609.png");
         registerEmoji(":heart_eyes:", "emojis/twemoji/1F60D.png");
-        registerEmoji(";*|:*|:kissing_heart:", "emojis/twemoji/1F618.png");
+        registerEmoji(";\\*|:\\*|:kissing_heart:", "emojis/twemoji/1F618.png");
         registerEmoji(":kissing_closed_eyes:", "emojis/twemoji/1F61A.png");
         registerEmoji(":kissing:", "emojis/twemoji/1F617.png");
         registerEmoji(":kissing_smiling_eyes:", "emojis/twemoji/1F619.png");
@@ -80,7 +80,7 @@ public class Emoji {
         registerEmoji(":unamused:", "emojis/twemoji/1F612.png");
         registerEmoji(":disappointed:", "emojis/twemoji/1F61E.png");
         registerEmoji(":persevere:", "emojis/twemoji/1F623.png");
-        registerEmoji(";(|:cry:", "emojis/twemoji/1F622.png");
+        registerEmoji(";\\(|:cry:", "emojis/twemoji/1F622.png");
         registerEmoji(":joy:", "emojis/twemoji/1F602.png");
         registerEmoji(":sob:", "emojis/twemoji/1F62D.png");
         registerEmoji(":sleepy:", "emojis/twemoji/1F62A.png");
@@ -92,7 +92,7 @@ public class Emoji {
         registerEmoji(":tired_face:", "emojis/twemoji/1F62B.png");
         registerEmoji(":fearful:", "emojis/twemoji/1F628.png");
         registerEmoji(":scream:", "emojis/twemoji/1F631.png");
-        registerEmoji(">:(|:angry:", "emojis/twemoji/1F620.png");
+        registerEmoji(">:\\(|:angry:", "emojis/twemoji/1F620.png");
         registerEmoji(":rage:", "emojis/twemoji/1F621.png");
         registerEmoji(":triumph:", "emojis/twemoji/1F624.png");
         registerEmoji(":confounded:", "emojis/twemoji/1F616.png");

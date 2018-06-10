@@ -82,7 +82,7 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
         user.setPublicKey(msg.getPublicKey().toByteArray());
 
         try {
-            getDataProvider().insertUser(user);
+            user.setId(getDataProvider().insertUser(user));
         } catch (DatabaseException e) {
             try {
                 // Check if not fetched in the meantime

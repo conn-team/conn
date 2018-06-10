@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.server.database.model.EphemeralKeyEntry;
 import com.github.connteam.conn.server.database.model.MessageEntry;
-import com.github.connteam.conn.server.database.model.ObservedEntry;
 import com.github.connteam.conn.server.database.model.UserEntry;
 
 import org.junit.After;
@@ -212,58 +211,6 @@ public class PostgresDataProviderTest {
             assertTrue(db.deleteMessage(msg.getIdMessage()));
             assertFalse(db.deleteMessage(msg.getIdMessage()));
             assertFalse(db.getEphemeralKey(msg.getIdMessage()).isPresent());
-        }
-    }
-
-    @Test
-    public void testObserved() throws DatabaseException {
-        List<ObservedEntry> observed = new ArrayList<>();
-
-        // insertObserved
-
-        for (int from = 0; from < users.size(); from++) {
-            for (int to = 0; to < users.size(); to++) {
-                if (((from + to) % 2) == 0) {
-                    ObservedEntry obs = new ObservedEntry();
-                    obs.setIdObserver(from + 1);
-                    obs.setIdObserved(to + 1);
-                    db.insertObserved(obs);
-                    observed.add(obs);
-                }
-            }
-        }
-
-        // Duplicate observed
-
-        try {
-            db.insertObserved(observed.get(0));
-            fail();
-        } catch (DatabaseException e) {
-        }
-
-        // getObserved, getObservers
-
-        for (int i = 0; i < users.size(); i++) {
-            List<ObservedEntry> other = db.getObserved(i);
-            for (ObservedEntry x : observed) {
-                if (x.getIdObserver() == i) {
-                    assertTrue(other.contains(x));
-                }
-            }
-
-            other = db.getObservers(i);
-            for (ObservedEntry x : observed) {
-                if (x.getIdObserved() == i) {
-                    assertTrue(other.contains(x));
-                }
-            }
-        }
-
-        // deleteObserved
-
-        for (ObservedEntry obs : observed) {
-            assertTrue(db.deleteObserved(obs));
-            assertFalse(db.deleteObserved(obs));
         }
     }
 

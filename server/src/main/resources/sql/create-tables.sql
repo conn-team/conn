@@ -7,12 +7,6 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE UNIQUE INDEX ON users(LOWER(username));
 
-CREATE TABLE IF NOT EXISTS observed (
-    id_observer INT NOT NULL REFERENCES users(id_user),
-    id_observed INT NOT NULL REFERENCES users(id_user),
-    PRIMARY KEY(id_observer, id_observed)
-);
-
 CREATE TABLE IF NOT EXISTS ephemeral_keys (
     id_key SERIAL PRIMARY KEY,
     id_user INT NOT NULL REFERENCES users(id_user),

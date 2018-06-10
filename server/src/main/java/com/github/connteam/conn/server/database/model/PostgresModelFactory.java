@@ -26,13 +26,6 @@ public class PostgresModelFactory {
         return message;
     }
 
-    public static ObservedEntry observedFromResultSet(ResultSet rs) throws SQLException {
-        ObservedEntry observed = new ObservedEntry();
-        observed.setIdObserved(rs.getInt("id_observed"));
-        observed.setIdObserver(rs.getInt("id_observer"));
-        return observed;
-    }
-
     public static UserEntry userFromResultSet(ResultSet rs) throws SQLException {
         UserEntry user = new UserEntry();
         user.setIdUser(rs.getInt("id_user"));

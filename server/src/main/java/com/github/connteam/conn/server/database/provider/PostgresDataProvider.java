@@ -14,7 +14,6 @@ import com.github.connteam.conn.core.database.DatabaseUtil;
 import com.github.connteam.conn.core.database.SQLQuery;
 import com.github.connteam.conn.server.database.model.EphemeralKeyEntry;
 import com.github.connteam.conn.server.database.model.MessageEntry;
-import com.github.connteam.conn.server.database.model.ObservedEntry;
 import com.github.connteam.conn.server.database.model.PostgresModelFactory;
 import com.github.connteam.conn.server.database.model.UserEntry;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -318,44 +317,6 @@ public class PostgresDataProvider implements DataProvider {
     public int deleteMessagesTo(int idTo) throws DatabaseException {
         try (SQLQuery q = new SQLQuery(cpds.getConnection(), "DELETE FROM messages WHERE id_to = ?;")) {
             return q.push(idTo).executeUpdate();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public List<ObservedEntry> getObserved(int idObserver) throws DatabaseException {
-        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "SELECT * FROM observed WHERE id_observer = ?;")) {
-            return q.push(idObserver).executeQuery(PostgresModelFactory::observedFromResultSet);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public List<ObservedEntry> getObservers(int idObserved) throws DatabaseException {
-        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "SELECT * FROM observed WHERE id_observed = ?;")) {
-            return q.push(idObserved).executeQuery(PostgresModelFactory::observedFromResultSet);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public boolean insertObserved(ObservedEntry observed) throws DatabaseException {
-        try (SQLQuery q = new SQLQuery(cpds.getConnection(),
-                "INSERT INTO observed (id_observer, id_observed) VALUES (?, ?);")) {
-            return q.push(observed.getIdObserver(), observed.getIdObserved()).executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public boolean deleteObserved(ObservedEntry observed) throws DatabaseException {
-        try (SQLQuery q = new SQLQuery(cpds.getConnection(),
-                "DELETE FROM observed WHERE (id_observer = ?) AND (id_observed = ?);")) {
-            return q.push(observed.getIdObserver(), observed.getIdObserved()).executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

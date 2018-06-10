@@ -18,6 +18,7 @@ public final class NetMessages {
         CLIENTBOUND.registerMessage(7, TransmissionResponse.getDefaultInstance());
         CLIENTBOUND.registerMessage(8, PeerSendAck.getDefaultInstance());
         CLIENTBOUND.registerMessage(9, PeerRecv.getDefaultInstance());
+        CLIENTBOUND.registerMessage(10, UserNotification.getDefaultInstance());
 
         SERVERBOUND.registerMessage(101, AuthResponse.getDefaultInstance());
         SERVERBOUND.registerMessage(102, KeepAlive.getDefaultInstance());
@@ -26,6 +27,8 @@ public final class NetMessages {
         SERVERBOUND.registerMessage(106, TransmissionRequest.getDefaultInstance());
         SERVERBOUND.registerMessage(107, PeerSend.getDefaultInstance());
         SERVERBOUND.registerMessage(108, PeerRecvAck.getDefaultInstance());
+        SERVERBOUND.registerMessage(109, ObserveUsers.getDefaultInstance());
+        SERVERBOUND.registerMessage(110, SetStatus.getDefaultInstance());
 
         PEER.registerMessage(201, TextMessage.getDefaultInstance());
     }

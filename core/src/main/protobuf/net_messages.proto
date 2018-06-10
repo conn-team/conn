@@ -91,3 +91,24 @@ message PeerRecv {
 message PeerRecvAck {
     int32 transmissionID = 1;
 }
+
+message ObserveUsers {
+    repeated string added = 1;
+    repeated string removed = 2;
+}
+
+message UserNotification {
+    string username = 1;
+    UserStatus status = 2;
+}
+
+message SetStatus {
+    UserStatus status = 1;
+}
+
+enum UserStatus {
+    DISCONNECTED = 0;
+    AVAILABLE = 1;
+    AWAY = 2;
+    BUSY = 3;
+}

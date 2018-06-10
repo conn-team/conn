@@ -35,6 +35,7 @@ public class Conversation {
     private final BooleanProperty needsVerification = new SimpleBooleanProperty();
 
     private int nextFetchMaxID = Integer.MAX_VALUE;
+    private int maxLoadedMessageID = 0;
     private final Property<Runnable> onFetch = new SimpleObjectProperty<>();
 
     public Conversation(Session session, UserEntry user) {
@@ -131,6 +132,13 @@ public class Conversation {
         return messages.isEmpty() ? null : messages.get(messages.size() - 1);
     }
 
+    public void addMessageIfInOrder(MessageEntry msg) {
+        if (msg.getIdMessage() > maxLoadedMessageID) {
+            maxLoadedMessageID = msg.getIdMessage();
+            messages.add(msg);
+        }
+    }
+
     @Override
     public String toString() {
         return user.getUsername();
@@ -155,6 +163,7 @@ public class Conversation {
                     for (MessageEntry msg : fetched) {
                         messages.add(0, msg);
                         nextFetchMaxID = Integer.min(nextFetchMaxID, msg.getIdMessage() - 1);
+                        maxLoadedMessageID = Integer.max(maxLoadedMessageID, msg.getIdMessage());
                     }
 
                     if (onFetch != null && getOnFetch() != null) {

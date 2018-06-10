@@ -290,7 +290,6 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
         }
 
         TextMessage txt = (TextMessage) msg;
-        getHandler().onTextMessage(from, txt.getMessage());
 
         // Save message in archive
 
@@ -301,6 +300,7 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
 
         try {
             getDataProvider().insertMessage(entry);
+            getHandler().onTextMessage(from, entry);
         } catch (DatabaseException e) {
             client.close(e);
         }

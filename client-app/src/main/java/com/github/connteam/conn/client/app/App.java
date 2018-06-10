@@ -21,11 +21,12 @@ import org.slf4j.LoggerFactory;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.stage.Stage;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.media.AudioClip;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 public class App extends Application {
     private final static Logger LOG = LoggerFactory.getLogger(App.class);
@@ -168,5 +169,11 @@ public class App extends Application {
     @Override
     public void stop() {
         executor.shutdown();
+    }
+
+    public void playSound(String name) {
+        URL url = getClass().getClassLoader().getResource(name);
+        AudioClip clip = new AudioClip(url.toString());
+        clip.play();
     }
 }

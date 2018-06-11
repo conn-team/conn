@@ -128,6 +128,16 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
         }
     }
 
+    private boolean checkEphemeralKeyUsage(byte[] key) throws DatabaseException {
+        UsedEphemeralKeyEntry entry = new UsedEphemeralKeyEntry(key);
+
+        if (!getDataProvider().isUsedEphemeralKey(entry)) {
+            getDataProvider().insertUsedEphemeralKey(entry);
+            return true;
+        }
+        return false;
+    }
+
     @HandleEvent
     public void onTransmissionResponse(TransmissionResponse msg) {
         int id = msg.getTransmissionID();
@@ -156,14 +166,10 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
 
             // Check if key wasn't used before
 
-            UsedEphemeralKeyEntry remoteKeyEntry = new UsedEphemeralKeyEntry(remoteKey);
-
-            if (getDataProvider().isUsedEphemeralKey(remoteKeyEntry)) {
+            if (!checkEphemeralKeyUsage(remoteKey.getEncoded())) {
                 err = new ProtocolException("Received already used ephemeral key");
                 return;
             }
-
-            getDataProvider().insertUsedEphemeralKey(remoteKeyEntry);
 
             // Generate local ECDH part
 
@@ -239,6 +245,13 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
 
                     if (!sign.verify(signature)) {
                         LOG.warn("Invalid peer message signature");
+                        return;
+                    }
+
+                    // Check if keys weren't used before
+
+                    if (!checkEphemeralKeyUsage(partialKey1) || !checkEphemeralKeyUsage(partialKey2)) {
+                        LOG.warn("Received already used ephemeral key");
                         return;
                     }
 

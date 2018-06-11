@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS ephemeral_keys (
 );
 
 CREATE TABLE IF NOT EXISTS used_ephemeral_keys (
-    key BLOB(32) PRIMARY KEY
+    key BLOB(32) PRIMARY KEY UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS users (

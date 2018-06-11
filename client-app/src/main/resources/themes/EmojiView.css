@@ -1,0 +1,11 @@
+.emoji-popup {
+    -fx-background-color: #fff;
+    -fx-background-radius: 4 4 0 0;
+    -fx-border-color: #ddd;
+    -fx-border-width: 1 1 0 1;
+    -fx-border-radius: 3 3 0 0;
+}
+
+.emoji-popup .emoji-button:hover {
+    -fx-background-color: #f5f5f5;
+}

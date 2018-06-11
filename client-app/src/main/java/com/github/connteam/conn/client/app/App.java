@@ -16,6 +16,7 @@ import com.github.connteam.conn.client.app.controllers.RegisterViewController;
 import com.github.connteam.conn.client.app.model.IdentityManager;
 import com.github.connteam.conn.client.app.model.Session;
 import com.github.connteam.conn.client.app.model.SessionManager;
+import com.github.connteam.conn.client.database.model.SettingsEntry;
 import com.github.connteam.conn.core.crypto.CryptoUtil;
 
 import org.slf4j.Logger;
@@ -95,8 +96,9 @@ public class App extends Application {
             }
             stage.setTitle("Conn");
         } else {
+            SettingsEntry settings = getSession().getSettings();
+            stage.setTitle(settings.getUsername() + " - " + CryptoUtil.getFingerprint(settings.getRawPublicKey()));
             setView(mainView);
-            stage.setTitle("Conn - " + CryptoUtil.getFingerprint(getSession().getSettings().getRawPublicKey()));
         }
     }
 

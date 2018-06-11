@@ -242,7 +242,8 @@ public class PostgresDataProvider implements DataProvider {
 
     @Override
     public List<MessageEntry> getMessagesFrom(int idFrom) throws DatabaseException {
-        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "SELECT * FROM messages WHERE id_from = ?;")) {
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(),
+                "SELECT * FROM messages WHERE id_from = ? ORDER BY time;")) {
             return q.push(idFrom).executeQuery(PostgresModelFactory::messageFromResultSet);
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -251,7 +252,7 @@ public class PostgresDataProvider implements DataProvider {
 
     @Override
     public List<MessageEntry> getMessagesTo(int idTo) throws DatabaseException {
-        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "SELECT * FROM messages WHERE id_to = ?;")) {
+        try (SQLQuery q = new SQLQuery(cpds.getConnection(), "SELECT * FROM messages WHERE id_to = ? ORDER BY time;")) {
             return q.push(idTo).executeQuery(PostgresModelFactory::messageFromResultSet);
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -261,7 +262,7 @@ public class PostgresDataProvider implements DataProvider {
     @Override
     public List<MessageEntry> getMessagesToSince(int idTo, int minIdMsg) throws DatabaseException {
         try (SQLQuery q = new SQLQuery(cpds.getConnection(),
-                "SELECT * FROM messages WHERE id_to = ? AND id_message >= ?;")) {
+                "SELECT * FROM messages WHERE id_to = ? AND id_message >= ? ORDER BY time;")) {
             return q.push(idTo).push(minIdMsg).executeQuery(PostgresModelFactory::messageFromResultSet);
         } catch (SQLException e) {
             throw new DatabaseException(e);

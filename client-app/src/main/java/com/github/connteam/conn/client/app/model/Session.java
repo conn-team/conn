@@ -253,7 +253,7 @@ public class Session implements AutoCloseable {
                 conv.getMessages().add(msg);
                 conv.setUnread(true);
 
-                if (conv.isUnread() || !app.getStage().isFocused()) {
+                if (getUserStatus() != UserStatus.BUSY && (conv.isUnread() || !app.getStage().isFocused())) {
                     app.playSound("sounds/incoming_message.wav");
                 }
             }));

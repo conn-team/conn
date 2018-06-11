@@ -16,7 +16,10 @@
          <children>
             <HBox alignment="CENTER_LEFT">
                <children>
-                  <Circle radius="4.0" styleClass="status-circle" />
+                  <Circle radius="4.0" styleClass="status-circle">
+                     <HBox.margin>
+                        <Insets right="2.0" />
+                     </HBox.margin></Circle>
                   <Label fx:id="usernameField" styleClass="usernameLabel" text="Username">
                      <font>
                         <Font size="16.0" />
@@ -27,7 +30,7 @@
                   </Label>
                   <FontAwesomeIconView fill="#e8cc19" glyphName="STAR" opacity="0.0" styleClass="friend-star">
                      <HBox.margin>
-                        <Insets left="4.0" top="4.0" />
+                        <Insets left="5.0" />
                      </HBox.margin>
                   </FontAwesomeIconView>
                </children>

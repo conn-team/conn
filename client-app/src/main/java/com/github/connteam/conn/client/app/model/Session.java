@@ -242,9 +242,12 @@ public class Session implements AutoCloseable {
         }
 
         @Override
-        public void onTextMessage(UserEntry from, MessageEntry msg) {
+        public void onTextMessage(UserEntry from, String message) {
             Platform.runLater(() -> openConversation(from.getUsername(), conv -> {
-                conv.addMessageIfInOrder(msg);
+                MessageEntry msg = new MessageEntry();
+                msg.setMessage(message);
+                msg.setOutgoing(false);
+                conv.getMessages().add(msg);
                 conv.setUnread(true);
 
                 if (conv.isUnread() || !app.getStage().isFocused()) {

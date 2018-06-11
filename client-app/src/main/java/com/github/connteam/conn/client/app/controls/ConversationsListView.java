@@ -88,7 +88,7 @@ public class ConversationsListView extends VBox {
             if (old != cur) {
                 if (cur != null) {
                     setCurrentItem(cur);
-                } else if (getItems().isEmpty()) {
+                } else if (getItems() == null || getItems().isEmpty()) {
                     setCurrentItem(null);
                 } else {
                     conversationsListView.getSelectionModel().select(old);

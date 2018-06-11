@@ -131,6 +131,23 @@ public class Conversation {
         return messages.isEmpty() ? null : messages.get(messages.size() - 1);
     }
 
+    public boolean containsMessage(MessageEntry msg) {
+        return messages.stream().anyMatch(x -> x.getIdMessage() == msg.getIdMessage());
+    }
+
+    public void onNewIncomingMessage(MessageEntry msg) {
+        if (containsMessage(msg)) {
+            return;
+        }
+
+        getMessages().add(msg);
+        setUnread(true);
+
+        if (getUserStatus() != UserStatus.BUSY && (isUnread() || !session.getApp().getStage().isFocused())) {
+            session.getApp().playSound("sounds/incoming_message.wav");
+        }
+    }
+
     @Override
     public String toString() {
         return user.getUsername();
@@ -153,7 +170,9 @@ public class Conversation {
                     }
 
                     for (MessageEntry msg : fetched) {
-                        messages.add(0, msg);
+                        if (!containsMessage(msg)) {
+                            messages.add(0, msg);
+                        }
                         nextFetchMaxID = Integer.min(nextFetchMaxID, msg.getIdMessage() - 1);
                     }
 

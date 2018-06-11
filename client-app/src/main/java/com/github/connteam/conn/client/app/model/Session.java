@@ -15,6 +15,7 @@ import com.github.connteam.conn.client.database.model.UserEntry;
 import com.github.connteam.conn.client.database.provider.DataProvider;
 import com.github.connteam.conn.core.database.DatabaseException;
 import com.github.connteam.conn.core.io.IOUtils;
+import com.github.connteam.conn.core.net.AuthenticationException;
 import com.github.connteam.conn.core.net.Transport;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserStatus;
 
@@ -171,6 +172,11 @@ public class Session implements AutoCloseable {
     private void onConnectionClose(Exception err) {
         app.getSessionManager().setConnecting(!closed);
         client = null;
+
+        if (err instanceof AuthenticationException) {
+            app.reportError(err);
+            app.getSessionManager().disconnect();
+        }
 
         if (closed) {
             IOUtils.closeQuietly(database);

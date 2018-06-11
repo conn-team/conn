@@ -306,13 +306,6 @@ public class ConnServerClient implements Closeable {
             return;
         }
 
-        target = target.toLowerCase();
-        if (!observed.add(target)) {
-            return;
-        }
-
-        server.addObserver(target, this);
-
         ConnServerClient other = server.getClientByName(target);
         if (other != null) {
             UserNotification.Builder msg = UserNotification.newBuilder();
@@ -320,6 +313,13 @@ public class ConnServerClient implements Closeable {
             msg.setStatus(other.getUserStatus());
             channel.sendMessage(msg.build());
         }
+
+        target = target.toLowerCase();
+        if (!observed.add(target)) {
+            return;
+        }
+
+        server.addObserver(target, this);
     }
 
     protected synchronized void removeObserved(String target) {

@@ -100,13 +100,13 @@ public class ConnServer implements Closeable {
     }
 
     public ConnServerClient getClientByName(String username) {
-        ConnServerClient client = clients.get(username);
+        ConnServerClient client = clients.get(username.toLowerCase());
         return (client != null && client.isEstablished() ? client : null);
     }
 
     protected boolean addClient(ConnServerClient client) {
         UserEntry user = client.getUser();
-        if (user != null && clients.putIfAbsent(user.getUsername(), client) == null) {
+        if (user != null && clients.putIfAbsent(user.getUsername().toLowerCase(), client) == null) {
             NetChannel conn = client.getNetChannel();
             LOG.info("{} connected from {}:{}", user.getUsername(), conn.getAddress().getHostName(), conn.getPort());
             return true;
@@ -116,7 +116,7 @@ public class ConnServer implements Closeable {
 
     protected boolean removeClient(ConnServerClient client, Exception err) {
         UserEntry user = client.getUser();
-        if (user != null && clients.remove(user.getUsername(), client)) {
+        if (user != null && clients.remove(user.getUsername().toLowerCase(), client)) {
             NetChannel conn = client.getNetChannel();
             LOG.info("{} disconnected from {}:{}", user.getUsername(), conn.getAddress().getHostName(), conn.getPort(),
                     err);
@@ -126,6 +126,8 @@ public class ConnServer implements Closeable {
     }
 
     protected boolean addObserver(String target, ConnServerClient client) {
+        target = target.toLowerCase();
+
         synchronized (observedBy) {
             Set<ConnServerClient> observers = observedBy.get(target);
             if (observers == null) {
@@ -137,6 +139,8 @@ public class ConnServer implements Closeable {
     }
 
     protected boolean removeObserver(String target, ConnServerClient client) {
+        target = target.toLowerCase();
+
         synchronized (observedBy) {
             Set<ConnServerClient> observers = observedBy.get(target);
             if (observers != null && observers.remove(client)) {
@@ -151,6 +155,7 @@ public class ConnServer implements Closeable {
 
     protected void notifyObservers(String source, Message msg) {
         ConnServerClient[] clients = null;
+        source = source.toLowerCase();
 
         synchronized (observedBy) {
             Set<ConnServerClient> observers = observedBy.get(source);

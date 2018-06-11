@@ -5,24 +5,52 @@ import com.github.connteam.conn.server.ConnServer;
 import com.github.connteam.conn.server.database.provider.DataProvider;
 import com.github.connteam.conn.server.database.provider.PostgresDataProvider;
 
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class App {
     private final static Logger LOG = LoggerFactory.getLogger(App.class);
 
-    public static final String DB_NAME = "conn";
-    public static final String DB_USER_NAME = "conn";
-    public static final String DB_PASSWORD = "";
+    @Option(name = "-help", usage = "print help")
+    private boolean printHelp = false;
 
-    public static final int PORT = 7312;
-    public static final Transport TRANSPORT = Transport.SSL;
+    @Option(name = "-db-name", usage = "database name")
+    private String dbName = "conn";
 
-    public static void main(String[] args) throws Exception {
-        try (DataProvider provider = new PostgresDataProvider.Builder().setName(DB_NAME).setUser(DB_USER_NAME)
-                .setPassword(DB_PASSWORD).build()) {
+    @Option(name = "-db-username", usage = "database user name")
+    private String dbUsername = "conn";
 
-            if (args.length > 0 && args[0].equalsIgnoreCase("--drop-tables")) {
+    @Option(name = "-db-password", usage = "database password")
+    private String dbPassword = "";
+
+    @Option(name = "-port", usage = "server port")
+    private int port = 7312;
+
+    @Option(name = "-reset-database", usage = "reset database")
+    private boolean resetDatabase = false;
+
+    public void run(String[] args) throws Exception {
+        CmdLineParser parser = new CmdLineParser(this);
+        try {
+            parser.parseArgument(args);
+        } catch (CmdLineException e) {
+            System.err.println(e.getMessage());
+            parser.printUsage(System.err);
+            return;
+        }
+
+        if (printHelp) {
+            parser.printUsage(System.err);
+            return;
+        }
+
+        try (DataProvider provider = new PostgresDataProvider.Builder().setName(dbName).setUser(dbUsername)
+                .setPassword(dbPassword).build()) {
+
+            if (resetDatabase) {
                 LOG.info("Dropping tables");
                 provider.dropTables();
             }
@@ -30,10 +58,14 @@ public class App {
             LOG.info("Creating tables");
             provider.createTables();
 
-            try (ConnServer server = ConnServer.builder().setPort(PORT).setTransport(TRANSPORT)
+            try (ConnServer server = ConnServer.builder().setPort(port).setTransport(Transport.SSL)
                     .setDataProvider(provider).build()) {
                 server.listen();
             }
         }
+    }
+
+    public static void main(String[] args) throws Exception {
+        new App().run(args);
     }
 }

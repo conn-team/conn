@@ -14,6 +14,7 @@ import com.github.connteam.conn.client.database.model.UserEntry;
 import com.github.connteam.conn.core.crypto.CryptoUtil;
 import com.github.connteam.conn.core.net.proto.NetProtos.UserStatus;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
@@ -126,7 +127,11 @@ public class MainViewController {
 
             // Yeah
             int rows = (int) (text.getLayoutBounds().getHeight() / 15);
-            submitFieldRow.setPrefHeight(Double.max(Double.min(10 + rows * 17, 200), 40));
+            submitFieldRow.setPrefHeight(Double.max(Double.min(10 + rows * 17, 150), 40));
+        });
+
+        bottomPane.heightProperty().addListener((prop, old, cur) -> {
+            Platform.runLater(() -> updateEmojiPopupPosition(false));
         });
 
         emojiPopup.setOnEmojiClick(emoji -> {
@@ -304,8 +309,14 @@ public class MainViewController {
 
     @FXML
     void onEmojiPopupButtonClick(MouseEvent event) {
-        Bounds paneBounds = bottomPane.localToScreen(bottomPane.getBoundsInLocal());
-        emojiPopup.show(emojiPopupButton, paneBounds.getMaxX() - 5, paneBounds.getMinY());
+        updateEmojiPopupPosition(true);
+    }
+
+    private void updateEmojiPopupPosition(boolean show) {
+        if (emojiPopup.isShowing() || show) {
+            Bounds paneBounds = bottomPane.localToScreen(bottomPane.getBoundsInLocal());
+            emojiPopup.show(emojiPopupButton, paneBounds.getMaxX() - 5, paneBounds.getMinY());
+        }
     }
 
     private void prepareVerificationDialog(Dialog<?> dialog, SettingsEntry local, UserEntry other) {

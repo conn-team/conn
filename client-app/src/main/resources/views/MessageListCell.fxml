@@ -22,6 +22,6 @@
             <Insets />
          </HBox.margin>
       </HBox>
-      <Label fx:id="timeLabel" styleClass="time-label" text="14:10" />
+      <Label fx:id="timeLabel" minWidth="50.0" styleClass="time-label" text="14:10" />
    </children>
 </HBox>

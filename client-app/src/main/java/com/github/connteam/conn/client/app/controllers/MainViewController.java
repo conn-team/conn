@@ -191,9 +191,21 @@ public class MainViewController {
         dialog.getDialogPane().setContentText("Nazwa użytkownika:");
         dialog.initOwner(app.getStage().getScene().getWindow());
 
-        dialog.showAndWait().ifPresent(name -> app.getSession().openConversation(name, conv -> {
-            app.getSession().setCurrentConversation(conv);
-        }));
+        dialog.showAndWait().ifPresent(name -> {
+            Session session = app.getSession();
+            if (session == null) {
+                return;
+            }
+
+            if (name.equalsIgnoreCase(session.getSettings().getUsername())) {
+                app.reportError("Forever alone?");
+                return;
+            }
+
+            app.getSession().openConversation(name, conv -> {
+                app.getSession().setCurrentConversation(conv);
+            });
+        });
     }
 
     @FXML

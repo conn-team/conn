@@ -93,8 +93,8 @@ public class ConnServer implements Closeable {
     }
 
     public void listen() throws IOException {
+        LOG.info("Listening on :{}", server.getLocalPort());
         while (true) {
-            LOG.info("Listening on :{}", server.getLocalPort());
             accept().handle();
         }
     }

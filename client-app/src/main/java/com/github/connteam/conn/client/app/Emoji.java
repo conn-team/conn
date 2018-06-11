@@ -1,8 +1,11 @@
 package com.github.connteam.conn.client.app;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import com.github.connteam.conn.core.io.IOUtils;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -40,8 +43,14 @@ public class Emoji {
 
     private static void registerEmoji(String primaryCode, String patternStr, String resource) {
         Pattern pattern = Pattern.compile("(^|(?<=\\s))(?i:" + patternStr + ")($|(?=\\s))");
-        Image img = new Image(Emoji.class.getClassLoader().getResourceAsStream(resource));
-        emojis.add(new Emoji(primaryCode, pattern, img));
+        InputStream in = Emoji.class.getClassLoader().getResourceAsStream(resource);
+
+        try {
+            Image img = new Image(in);
+            emojis.add(new Emoji(primaryCode, pattern, img));
+        } finally {
+            IOUtils.closeQuietly(in);
+        }
     }
 
     public static void setTextFlowEmojiText(TextFlow flow, String raw) {

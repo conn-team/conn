@@ -1,6 +1,9 @@
 package com.github.connteam.conn.server.app;
 
+import java.io.FileInputStream;
+
 import com.github.connteam.conn.core.LoggingUtil;
+import com.github.connteam.conn.core.crypto.SSLUtil;
 import com.github.connteam.conn.core.net.Transport;
 import com.github.connteam.conn.server.ConnServer;
 import com.github.connteam.conn.server.database.provider.DataProvider;
@@ -36,6 +39,12 @@ public class App {
     @Option(name = "-reset-database", usage = "reset database")
     private boolean resetDatabase = false;
 
+    @Option(name = "-jks", usage = "server certificate store (JKS format)")
+    private String keyStorePath = "";
+
+    @Option(name = "-jks-password", usage = "server certificate store (JKS format)")
+    private String keyStorePassword = "";
+
     public void run(String[] args) throws Exception {
         CmdLineParser parser = new CmdLineParser(this);
         try {
@@ -51,7 +60,17 @@ public class App {
             return;
         }
 
+        if (keyStorePath.length() <= 0) {
+            System.err.println("Please provide server keystore");
+            parser.printUsage(System.err);
+            return;
+        }
+
         LoggingUtil.setupLogging(debugLogs);
+
+        try (FileInputStream in = new FileInputStream(keyStorePath)) {
+            SSLUtil.setKeyStore(in, keyStorePassword);
+        }
 
         try (DataProvider provider = new PostgresDataProvider.Builder().setName(dbName).setUser(dbUsername)
                 .setPassword(dbPassword).build()) {

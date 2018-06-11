@@ -7,6 +7,7 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -307,7 +308,11 @@ public class ConnClient implements Closeable {
     }
 
     public void sendTextMessage(UserEntry to, String message, BiConsumer<MessageEntry, Exception> callback) {
-        sendPeerMessage(to, TextMessage.newBuilder().setMessage(message).build(), err -> {
+        TextMessage.Builder txt = TextMessage.newBuilder();
+        txt.setMessage(message);
+        txt.setTime(new Date().getTime());
+
+        sendPeerMessage(to, txt.build(), err -> {
             MessageEntry entry = null;
 
             if (err == null) {

@@ -7,6 +7,7 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
+import java.sql.Timestamp;
 import java.util.function.Consumer;
 
 import javax.crypto.SecretKey;
@@ -310,6 +311,10 @@ public class ClientMessageHandler extends MultiEventListener<Message> {
         entry.setIdUser(from.getId());
         entry.setOutgoing(false);
         entry.setMessage(txt.getMessage());
+
+        if (txt.getTime() != 0) {
+            entry.setTime(new Timestamp(txt.getTime()));
+        }
 
         try {
             entry.setIdMessage(getDataProvider().insertMessage(entry));

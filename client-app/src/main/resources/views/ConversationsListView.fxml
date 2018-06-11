@@ -6,7 +6,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
 
-<fx:root prefHeight="513.0" prefWidth="317.0" type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root prefHeight="513.0" prefWidth="317.0" type="javafx.scene.layout.VBox" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <TextField fx:id="conversationsSearch" promptText="Szukaj..." styleClass="friends-search" />
       <TabPane fx:id="tabPane" maxHeight="1.7976931348623157E308" minHeight="35.0" prefHeight="35.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">

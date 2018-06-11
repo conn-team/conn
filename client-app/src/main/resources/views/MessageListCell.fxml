@@ -6,7 +6,7 @@
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.text.TextFlow?>
 
-<HBox alignment="CENTER_LEFT" nodeOrientation="LEFT_TO_RIGHT" prefWidth="400.0" styleClass="message-cell" stylesheets="@../themes/MainView.css" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1">
+<HBox alignment="CENTER_LEFT" nodeOrientation="LEFT_TO_RIGHT" prefWidth="400.0" styleClass="message-cell" stylesheets="@../themes/MainView.css" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <HBox nodeOrientation="LEFT_TO_RIGHT" styleClass="message-wrap">
          <children>

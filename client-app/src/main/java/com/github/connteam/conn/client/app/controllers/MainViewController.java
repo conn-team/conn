@@ -2,6 +2,7 @@ package com.github.connteam.conn.client.app.controllers;
 
 import com.github.connteam.conn.client.app.App;
 import com.github.connteam.conn.client.app.controls.ConversationsListView;
+import com.github.connteam.conn.client.app.controls.EmojiPopup;
 import com.github.connteam.conn.client.app.controls.MessageListCell;
 import com.github.connteam.conn.client.app.model.Conversation;
 import com.github.connteam.conn.client.app.model.Session;
@@ -15,16 +16,18 @@ import com.github.connteam.conn.core.net.proto.NetProtos.UserStatus;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
+import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -50,6 +53,8 @@ public class MainViewController {
     @FXML
     private GridPane conversationBox;
     @FXML
+    private GridPane bottomPane;
+    @FXML
     private VBox welcomeBox;
     @FXML
     private Label welcomeLabel;
@@ -69,7 +74,10 @@ public class MainViewController {
     private RadioMenuItem busyRadioMenuItem;
     @FXML
     private RadioMenuItem invisibleRadioMenuItem;
+    @FXML
+    private ImageView emojiPopupButton;
 
+    private final EmojiPopup emojiPopup = new EmojiPopup();
     private final ToggleBinder<UserStatus> statusBinder = new ToggleBinder<>();
     private boolean scrollbarFound = false;
 
@@ -100,6 +108,7 @@ public class MainViewController {
                 ctx.bindBidirectional(friendsListView.currentItemProperty(), cur.currentConversationProperty());
                 ctx.deepListen(cur.currentConversationProperty(), (a, b, c) -> onConversationChange(a, b, c)); // hmm
             }
+            emojiPopup.hide();
         });
 
         app.getSessionManager().connectingProperty().addListener((prop, old, cur) -> {
@@ -115,8 +124,18 @@ public class MainViewController {
             text.setFont(submitField.getFont());
             text.setText(cur);
 
+            // Yeah
             int rows = (int) (text.getLayoutBounds().getHeight() / 15);
             submitFieldRow.setPrefHeight(Double.max(Double.min(10 + rows * 17, 200), 40));
+        });
+
+        emojiPopup.setOnEmojiClick(emoji -> {
+            int start = submitField.getSelection().getStart();
+            if (start > 0 && submitField.getText().charAt(start - 1) != ' ') {
+                insertTextToSubmit(" " + emoji.getPrimaryCode() + " ");
+            } else {
+                insertTextToSubmit(emoji.getPrimaryCode() + " ");
+            }
         });
     }
 
@@ -182,7 +201,7 @@ public class MainViewController {
         switch (event.getCode()) {
         case ENTER:
             if (event.isShiftDown()) {
-                insertNewLine();
+                insertTextToSubmit("\n");
             } else {
                 onSubmit();
             }
@@ -218,9 +237,9 @@ public class MainViewController {
         }
     }
 
-    private void insertNewLine() {
+    private void insertTextToSubmit(String text) {
         submitField.deleteText(submitField.getSelection());
-        submitField.insertText(submitField.getSelection().getStart(), "\n");
+        submitField.insertText(submitField.getSelection().getStart(), text);
     }
 
     @FXML
@@ -281,6 +300,12 @@ public class MainViewController {
     @FXML
     void onFingerprintMouseClicked(MouseEvent event) {
         showVerificationCode();
+    }
+
+    @FXML
+    void onEmojiPopupButtonClick(MouseEvent event) {
+        Bounds paneBounds = bottomPane.localToScreen(bottomPane.getBoundsInLocal());
+        emojiPopup.show(emojiPopupButton, paneBounds.getMaxX() - 5, paneBounds.getMinY());
     }
 
     private void prepareVerificationDialog(Dialog<?> dialog, SettingsEntry local, UserEntry other) {

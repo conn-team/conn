@@ -9,7 +9,6 @@ import com.github.connteam.conn.client.app.Emoji;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
-import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
@@ -64,11 +63,6 @@ public class EmojiPopup extends Popup {
                 getOnEmojiClick().accept(emoji);
             });
         }
-    }
-
-    public void show(Node node) {
-        Bounds bounds = node.localToScreen(node.getBoundsInLocal());
-        super.show(node, bounds.getMaxX(), bounds.getMinY());
     }
 
     public Consumer<Emoji> getOnEmojiClick() {

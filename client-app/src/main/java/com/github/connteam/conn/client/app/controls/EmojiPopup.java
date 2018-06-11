@@ -42,6 +42,8 @@ public class EmojiPopup extends Popup {
 
     @FXML
     private void initialize() {
+        emojiCodeLabel.setText("");
+
         for (Emoji emoji : Emoji.getEmojis()) {
             HBox box = new HBox();
             box.setAlignment(Pos.CENTER);
@@ -59,9 +61,9 @@ public class EmojiPopup extends Popup {
             box.getChildren().add(img);
             emojiPanel.getChildren().add(box);
 
-            box.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-                getOnEmojiClick().accept(emoji);
-            });
+            box.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> getOnEmojiClick().accept(emoji));
+            box.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> emojiCodeLabel.setText(emoji.getPrimaryCode()));
+            box.addEventHandler(MouseEvent.MOUSE_EXITED, event -> emojiCodeLabel.setText(""));
         }
     }
 

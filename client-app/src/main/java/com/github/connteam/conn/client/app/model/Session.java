@@ -174,7 +174,7 @@ public class Session implements AutoCloseable {
         client = null;
 
         if (err instanceof AuthenticationException) {
-            app.reportError(err);
+            app.reportError(err.getLocalizedMessage());
             app.getSessionManager().disconnect();
         }
 

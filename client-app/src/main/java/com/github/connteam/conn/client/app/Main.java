@@ -1,6 +1,7 @@
 package com.github.connteam.conn.client.app;
 
 import com.github.connteam.conn.client.app.model.Session;
+import com.github.connteam.conn.core.LoggingUtil;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -12,13 +13,16 @@ public class Main {
     @Option(name = "-help", usage = "print help")
     private boolean printHelp = false;
 
+    @Option(name = "-debug", usage = "enable debug logging")
+    private boolean debugLogs = false;
+
     @Option(name = "-host", usage = "server host")
     private String host = "localhost";
 
     @Option(name = "-port", usage = "server port")
     private int port = 7312;
 
-    public void run(String[] args) {
+    public void run(String[] args) throws Exception {
         CmdLineParser parser = new CmdLineParser(this);
         try {
             parser.parseArgument(args);
@@ -32,6 +36,8 @@ public class Main {
             parser.printUsage(System.err);
             return;
         }
+
+        LoggingUtil.setupLogging(debugLogs);
 
         Session.setHost(host);
         Session.setPort(port);

@@ -1,5 +1,6 @@
 package com.github.connteam.conn.server.app;
 
+import com.github.connteam.conn.core.LoggingUtil;
 import com.github.connteam.conn.core.net.Transport;
 import com.github.connteam.conn.server.ConnServer;
 import com.github.connteam.conn.server.database.provider.DataProvider;
@@ -16,6 +17,9 @@ public class App {
 
     @Option(name = "-help", usage = "print help")
     private boolean printHelp = false;
+
+    @Option(name = "-debug", usage = "enable debug logging")
+    private boolean debugLogs = false;
 
     @Option(name = "-db-name", usage = "database name")
     private String dbName = "conn";
@@ -46,6 +50,8 @@ public class App {
             parser.printUsage(System.err);
             return;
         }
+
+        LoggingUtil.setupLogging(debugLogs);
 
         try (DataProvider provider = new PostgresDataProvider.Builder().setName(dbName).setUser(dbUsername)
                 .setPassword(dbPassword).build()) {

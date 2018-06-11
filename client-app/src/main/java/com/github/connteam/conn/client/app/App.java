@@ -43,6 +43,8 @@ public class App extends Application {
     private Stage stage;
     private Parent mainView, loginView, registerView;
 
+    private AudioClip lastAudioClip = null;
+
     public void asyncTask(Runnable task) {
         executor.execute(task);
     }
@@ -177,9 +179,11 @@ public class App extends Application {
     }
 
     public void playSound(String name) {
-        URL url = getClass().getClassLoader().getResource(name);
-        AudioClip clip = new AudioClip(url.toString());
-        clip.play();
+        if (lastAudioClip == null || !lastAudioClip.isPlaying()) {
+            URL url = getClass().getClassLoader().getResource(name);
+            lastAudioClip = new AudioClip(url.toString());
+            lastAudioClip.play();
+        }
     }
 
     public static String formatTime(Date time) {

@@ -10,6 +10,7 @@ Another instant messenger with end-to-end encryption.
 
 - Oracle Java 8-10
 - OpenJDK with OpenJFX has not been tested
+- Server requires PostgreSQL database
 
 ## Compiling
 
@@ -19,7 +20,7 @@ Another instant messenger with end-to-end encryption.
 ## Basic usage
 
     ./generate-ssl-keys.sh  # Generate keystore for testing
-    ./start-server.sh       # Run server
+    ./start-server.sh       # Run server, you need to configure database access
     ./start-client.sh       # Run client with localhost as target server
 
 ## Legal

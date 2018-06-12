@@ -26,6 +26,8 @@ Another instant messenger with end-to-end encryption.
 
 - Project code is licensed under the [MIT license](https://opensource.org/licenses/MIT)
 
+- [FontAwesome](https://fontawesome.com/license) is licensed under [SIL OFL 1.1](http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)
+
 - [Twemoji](https://github.com/twitter/twemoji) by Twitter are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 - [Message alert tone](https://freesound.org/people/RICHERlandTV/sounds/351540/) by RICHERlandTV is licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)

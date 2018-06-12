@@ -4,6 +4,24 @@
 
 Another instant messenger with end-to-end encryption.
 
+![Screenshot](screenshot.png)
+
+## Requirements
+
+- Oracle Java 8-10
+- OpenJDK with OpenJFX has not been tested
+
+## Compiling
+
+    ./generate-protos.sh    # Generate protobuf classes
+    mvn clean install       # Compile everything
+
+## Basic usage
+
+    ./generate-ssl-keys.sh  # Generate keystore for testing
+    ./start-server.sh       # Run server
+    ./start-client.sh       # Run client with localhost as target server
+
 ## Legal
 
 - Project code is licensed under the [MIT license](https://opensource.org/licenses/MIT)

@@ -321,11 +321,15 @@ public class MainViewController {
 
     @FXML
     void onEmojiPopupButtonClick(MouseEvent event) {
-        updateEmojiPopupPosition(true);
+        if (emojiPopup.isShowing()) {
+            emojiPopup.hide();
+        } else {
+            updateEmojiPopupPosition(true);
+        }
     }
 
     private void updateEmojiPopupPosition(boolean show) {
-        if (emojiPopup.isShowing() || show) {
+        if (show) {
             Bounds paneBounds = bottomPane.localToScreen(bottomPane.getBoundsInLocal());
             emojiPopup.show(emojiPopupButton, paneBounds.getMaxX() - 5, paneBounds.getMinY());
         }

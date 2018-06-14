@@ -329,7 +329,7 @@ public class MainViewController {
     }
 
     private void updateEmojiPopupPosition(boolean show) {
-        if (show) {
+        if (emojiPopup.isShowing() || show) {
             Bounds paneBounds = bottomPane.localToScreen(bottomPane.getBoundsInLocal());
             emojiPopup.show(emojiPopupButton, paneBounds.getMaxX() - 5, paneBounds.getMinY());
         }

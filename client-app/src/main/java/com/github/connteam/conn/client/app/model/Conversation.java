@@ -143,7 +143,7 @@ public class Conversation {
         getMessages().add(msg);
         setUnread(true);
 
-        if (getUserStatus() != UserStatus.BUSY && (isUnread() || !session.getApp().getStage().isFocused())) {
+        if (session.getUserStatus() != UserStatus.BUSY && (isUnread() || !session.getApp().getStage().isFocused())) {
             session.getApp().playSound("sounds/incoming_message.wav");
         }
     }

@@ -1,6 +1,5 @@
 language: java
-jdk:
-- oraclejdk9
+dist: trusty
 services:
 - postgresql
 before_install:
